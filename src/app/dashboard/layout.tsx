@@ -65,6 +65,15 @@ export default function DashboardLayout({ children }: Props) {
               <span>Visits</span>
             </span>
           </Link>
+          <Link
+            href="/appointments/calendar"
+            className="rounded-xl px-3 py-2 text-slate-700 hover:bg-sky-50 hover:text-sky-700"
+          >
+            <span className="flex items-center gap-2">
+              <Clipboard className="h-4 w-4" />
+              <span>Calendar</span>
+            </span>
+          </Link>
         </nav>
 
         <div className="mt-6 border-t border-slate-100 pt-4">
