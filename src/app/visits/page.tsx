@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Clipboard, Pencil, Trash2, Eye, FileText } from "lucide-react";
+import { Clipboard, Pencil, Trash2, Eye, FileText, Search } from "lucide-react";
 
 interface Patient {
   _id: string;
@@ -23,6 +23,9 @@ export default function VisitsPage() {
   const [patients, setPatients] = useState<Patient[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [selectedVisit, setSelectedVisit] = useState<any>(null);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [search, setSearch] = useState("");
 
   const [form, setForm] = useState({
     patient: "",
@@ -35,16 +38,17 @@ export default function VisitsPage() {
   useEffect(() => {
     fetchVisits();
     fetchPatients();
-  }, []);
+  }, [page, search]);
 
   const fetchVisits = async () => {
-    const res = await fetch("/api/visits");
+    const res = await fetch(`/api/visits?page=${page}&limit=5&search=${search}`);
     const data = await res.json();
-    setVisits(data);
+    setVisits(data.visits);
+    setTotalPages(data.pages);
   };
 
   const fetchPatients = async () => {
-    const res = await fetch("/api/patients");
+    const res = await fetch(`/api/patients?page=${page}&limit=5&search=${search}`);
     const data = await res.json();
     setPatients(data.patients || data);
   };
@@ -178,6 +182,22 @@ export default function VisitsPage() {
         </form>
       </div>
 
+      <div className="flex justify-between gap-4">
+        <div className="relative max-w-xs">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+          <input
+            type="text"
+            placeholder="Search patients…"
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
+            className="input pl-9"
+          />
+        </div>
+      </div>
+
       {/* Table */}
       <div className="table-container">
         <table className="table">
@@ -234,6 +254,28 @@ export default function VisitsPage() {
             No visits yet. Add your first visit using the form above.
           </p>
         )}
+      </div>
+
+      <div className="mt-2 flex items-center justify-center gap-3 text-xs text-slate-600">
+        <button
+          disabled={page === 1}
+          onClick={() => setPage(page - 1)}
+          className="btn-ghost disabled:opacity-50"
+        >
+          Prev
+        </button>
+
+        <span>
+          Page {page} of {totalPages}
+        </span>
+
+        <button
+          disabled={page === totalPages}
+          onClick={() => setPage(page + 1)}
+          className="btn-ghost disabled:opacity-50"
+        >
+          Next
+        </button>
       </div>
 
       {selectedVisit && (
