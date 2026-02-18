@@ -8,6 +8,8 @@ export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
 
   const doctor = searchParams.get("doctor");
+  const visit = searchParams.get("visit");
+  const patient = searchParams.get("patient");
   const page = Number(searchParams.get("page")) || 1;
   const limit = Number(searchParams.get("limit")) || 5;
   const search = searchParams.get("search") || "";
@@ -26,11 +28,15 @@ export async function GET(req: Request) {
       query.doctor = doctor;
     }
 
+    if (visit) query.visit = visit;
+    if (patient) query.patient = patient;
+
   // To search by patient name, need to use aggregate or filter after populate.
   // We'll fetch appointments with populated patient, then apply search if needed.
   let appointmentsQuery = Appointment.find(query)
     .populate("patient")
     .populate("doctor")
+    .populate("visit")
     .sort({ date: -1 })
     .skip((page - 1) * limit)
     .limit(limit);
