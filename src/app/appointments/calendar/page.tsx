@@ -38,6 +38,7 @@ export default function AppointmentCalendar() {
   const [selectedPatient, setSelectedPatient] = useState<any>(null);
   const [doctors, setDoctors] = useState<any[]>([]);
   const [selectedDoctor, setSelectedDoctor] = useState<any>(null);
+  const [filterDoctor, setFilterDoctor] = useState<string>("all");
 
 
   const createAppointment = async () => {
@@ -73,7 +74,7 @@ export default function AppointmentCalendar() {
 
   useEffect(() => {
     fetchAppointments();
-  }, []);
+  }, [filterDoctor]);
 
   useEffect(() => {
     fetchDoctors();
@@ -87,12 +88,18 @@ export default function AppointmentCalendar() {
 
 
   const fetchAppointments = async () => {
-    const res = await fetch("/api/appointments");
+    let url = "/api/appointments";
+  
+    if (filterDoctor !== "all") {
+      url += `?doctor=${filterDoctor}`;
+    }
+  
+    const res = await fetch(url);
     const data = await res.json();
   
     const formatted = data.appointments.map((appt: any) => ({
       id: appt._id,
-      title: `${appt.patient?.firstName} - Dr. ${appt.doctor?.name}`,
+      title: `${appt.patient?.name} - Dr. ${appt.doctor?.name}`,
       start: appt.date,
       backgroundColor:
         appt.status === "Completed"
@@ -102,9 +109,26 @@ export default function AppointmentCalendar() {
   
     setEvents(formatted);
   };
+  
 
   return (
     <div className="bg-white p-6 rounded-2xl shadow-sm">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-lg font-semibold">Appointments</h2>
+
+        <select
+          className="border rounded-lg px-3 py-2"
+          value={filterDoctor}
+          onChange={(e) => setFilterDoctor(e.target.value)}
+        >
+          <option value="all">All Doctors</option>
+          {doctors.map((doctor) => (
+            <option key={doctor._id} value={doctor._id}>
+              Dr. {doctor.name}
+            </option>
+          ))}
+        </select>
+      </div>
       <FullCalendar
         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
         initialView="timeGridWeek"
