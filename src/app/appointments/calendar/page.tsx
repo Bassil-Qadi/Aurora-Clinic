@@ -51,7 +51,7 @@ export default function AppointmentCalendar() {
         patient: selectedPatient._id,
         doctor: selectedDoctor._id,
         date: selectedDate,
-        status: "Scheduled",
+        status: "scheduled",
       }),
     });
 
