@@ -14,28 +14,56 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "@/components/ui/command";
+
 export default function AppointmentCalendar() {
   const [events, setEvents] = useState<any[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
-  const [patientId, setPatientId] = useState("");
+  const [patients, setPatients] = useState<any[]>([]);
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [selectedPatient, setSelectedPatient] = useState<any>(null);
 
   const createAppointment = async () => {
+    if (!selectedPatient) return alert("Please select a patient");
+
     await fetch("/api/appointments", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        patient: patientId,
+        patient: selectedPatient._id,
         date: selectedDate,
-        status: "Scheduled",
+        status: "scheduled",
       }),
     });
-  
+
     setShowModal(false);
+    setSelectedPatient(null);
     fetchAppointments();
-  };  
+  };
+
+  useEffect(() => {
+    fetchPatients();
+  }, []);
+
+  const fetchPatients = async () => {
+    const res = await fetch("/api/patients?limit=100");
+    const data = await res.json();
+    setPatients(data.patients);
+  };
 
   useEffect(() => {
     fetchAppointments();
@@ -47,7 +75,9 @@ export default function AppointmentCalendar() {
 
     const formatted = data.appointments.map((appt: any) => ({
       id: appt._id,
-      title: appt.patient?.name || "Appointment",
+      title: appt.patient
+        ? `${appt.patient.firstName} ${appt.patient.lastName}`
+        : "Appointment",
       start: appt.date,
       backgroundColor:
         appt.status === "Completed"
@@ -68,6 +98,7 @@ export default function AppointmentCalendar() {
         editable={true}
         select={(info) => {
           setSelectedDate(info.startStr);
+          setSelectedPatient(null);
           setShowModal(true);
         }}
         eventClick={(info) => {
@@ -82,27 +113,57 @@ export default function AppointmentCalendar() {
               date: info.event.start,
             }),
           });
-        
+
           fetchAppointments();
         }}
       />
       <Dialog open={showModal} onOpenChange={setShowModal}>
-  <DialogContent>
-    <DialogHeader>
-      <DialogTitle>Create Appointment</DialogTitle>
-    </DialogHeader>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create Appointment</DialogTitle>
+          </DialogHeader>
+          <Popover open={open} onOpenChange={setOpen}>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className="w-full justify-start">
+                {selectedPatient
+                  ? `${selectedPatient.firstName} ${selectedPatient.lastName}`
+                  : "Select patient..."}
+              </Button>
+            </PopoverTrigger>
 
-    <Input
-      placeholder="Patient ID"
-      value={patientId}
-      onChange={(e) => setPatientId(e.target.value)}
-    />
+            <PopoverContent className="p-0">
+              <Command shouldFilter={true}>
+                <CommandInput placeholder="Search patient..." />
+                <CommandEmpty>No patient found.</CommandEmpty>
+                <CommandGroup>
+                  {patients.map((patient) => {
+                    const fullName = `${patient.firstName} ${patient.lastName}`;
+                    return (
+                      <CommandItem
+                        key={patient._id}
+                        value={fullName.toLowerCase()}
+                        onSelect={() => {
+                          setSelectedPatient(patient);
+                          setOpen(false);
+                        }}
+                      >
+                        {fullName}
+                      </CommandItem>
+                    );
+                  })}
+                </CommandGroup>
+              </Command>
+            </PopoverContent>
+          </Popover>
 
-    <Button onClick={createAppointment}>
-      Save Appointment
-    </Button>
-  </DialogContent>
-</Dialog>
+          <Button
+            onClick={createAppointment}
+            disabled={!selectedPatient}
+          >
+            Save Appointment
+          </Button>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

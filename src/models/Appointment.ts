@@ -5,6 +5,7 @@ export interface IAppointment extends Document {
   date: Date;
   reason: string;
   status: "scheduled" | "completed" | "cancelled";
+  doctor: mongoose.Types.ObjectId;
   createdAt: Date;
 }
 
@@ -15,8 +16,9 @@ const AppointmentSchema = new Schema<IAppointment>(
       ref: "Patient",
       required: true,
     },
+    doctor: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     date: { type: Date, required: true },
-    reason: { type: String, required: true },
+    reason: { type: String },
     status: {
       type: String,
       enum: ["scheduled", "completed", "cancelled"],
