@@ -12,7 +12,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 
 import {
   Popover,
@@ -35,6 +34,7 @@ export default function AppointmentCalendar() {
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const [open, setOpen] = useState(false);
+  const [doctorsMenuOpen, setDoctorMenuOpen] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState<any>(null);
   const [doctors, setDoctors] = useState<any[]>([]);
   const [selectedDoctor, setSelectedDoctor] = useState<any>(null);
@@ -82,7 +82,6 @@ export default function AppointmentCalendar() {
   const fetchDoctors = async () => {
     const res = await fetch("/api/users?role=doctor");
     const data = await res.json();
-    console.log("data", data);
     setDoctors(data.users);
   };
 
@@ -93,7 +92,7 @@ export default function AppointmentCalendar() {
   
     const formatted = data.appointments.map((appt: any) => ({
       id: appt._id,
-      title: `${appt.patient?.firstName} - Dr. ${appt.doctor?.firstName}`,
+      title: `${appt.patient?.firstName} - Dr. ${appt.doctor?.name}`,
       start: appt.date,
       backgroundColor:
         appt.status === "Completed"
@@ -134,7 +133,7 @@ export default function AppointmentCalendar() {
         }}
       />
       <Dialog open={showModal} onOpenChange={setShowModal}>
-        <DialogContent>
+        <DialogContent aria-describedby="create-appointment-content">
           <DialogHeader>
             <DialogTitle>Create Appointment</DialogTitle>
           </DialogHeader>
@@ -172,7 +171,7 @@ export default function AppointmentCalendar() {
             </PopoverContent>
           </Popover>
 
-          <Popover>
+          <Popover open={doctorsMenuOpen} onOpenChange={setDoctorMenuOpen}>
             <PopoverTrigger asChild>
               <Button variant="outline" className="w-full justify-start mt-2">
                 {selectedDoctor?.name || "Select doctor..."}
@@ -190,6 +189,7 @@ export default function AppointmentCalendar() {
                       value={doctor.name?.toLowerCase()}
                       onSelect={() => {
                         setSelectedDoctor(doctor);
+                        setDoctorMenuOpen(false);
                       }}
                     >
                       {doctor.name}
