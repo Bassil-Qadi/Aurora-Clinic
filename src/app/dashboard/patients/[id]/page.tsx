@@ -11,6 +11,7 @@ export default function PatientDetailsPage() {
   const id = params.id as string;
 
   const [data, setData] = useState<any>(null);
+  const [patientPrescriptions, setPatientPrescriptions] = useState([]);
   const [showVisitModal, setShowVisitModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [diagnosis, setDiagnosis] = useState("");
@@ -25,6 +26,12 @@ export default function PatientDetailsPage() {
   useEffect(() => {
     fetchPatient();
   }, []);
+
+  useEffect(() => {
+    fetch(`/api/prescriptions?patient=${params.id}`)
+      .then(res => res.json())
+      .then(data => setPatientPrescriptions(data?.prescriptions));
+  }, [params.id]);
 
   const fetchPatient = async () => {
     const res = await fetch(`/api/patients/${id}/details`);
@@ -69,11 +76,11 @@ export default function PatientDetailsPage() {
 
   const deletePatient = async () => {
     if (!confirm("Are you sure?")) return;
-  
+
     await fetch(`/api/patients/${id}`, {
       method: "DELETE",
     });
-  
+
     window.location.href = "/dashboard/patients";
   };
 
@@ -102,28 +109,28 @@ export default function PatientDetailsPage() {
             <span>Patient Information</span>
           </h2>
           <div className="flex items-center gap-4">
-          <button
-            onClick={() => {
-              setEditName(`${patient.firstName} ${patient.lastName}`);
-              setEditEmail(patient.email);
-              setEditPhone(patient.phone);
-              setEditGender(patient.gender);
-              setShowEditModal(true);
-            }}
-            className="btn-ghost"
-          >
-            <Pencil className="h-3.5 w-3.5" />
-            <span>Edit</span>
-          </button>
-          {session?.user?.role === "admin" && (
             <button
-              onClick={deletePatient}
-              className="btn-danger"
+              onClick={() => {
+                setEditName(`${patient.firstName} ${patient.lastName}`);
+                setEditEmail(patient.email);
+                setEditPhone(patient.phone);
+                setEditGender(patient.gender);
+                setShowEditModal(true);
+              }}
+              className="btn-ghost"
             >
-              <Trash2 className="h-3.5 w-3.5" />
-              <span>Delete</span>
+              <Pencil className="h-3.5 w-3.5" />
+              <span>Edit</span>
             </button>
-          )}
+            {session?.user?.role === "admin" && (
+              <button
+                onClick={deletePatient}
+                className="btn-danger"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+                <span>Delete</span>
+              </button>
+            )}
           </div>
         </div>
         <div className="mt-4 grid gap-2 text-sm text-slate-700 md:grid-cols-2">
@@ -146,6 +153,28 @@ export default function PatientDetailsPage() {
           </p>
         </div>
       </div>
+      {/* Prescriptions */}
+      <div className="card">
+        <h2 className="text-xl font-semibold">Prescription History</h2>
+
+        {patientPrescriptions.length === 0 ? (
+          <p className="text-sm text-gray-500">No prescriptions found.</p>
+        ) : (
+          patientPrescriptions.map((p: any) => (
+            <div key={p._id} className="border p-4 rounded mb-3">
+              <p className="text-sm text-gray-500">
+                {new Date(p.createdAt).toLocaleDateString()}
+              </p>
+
+              {p.medications.map((m: any, index: number) => (
+                <div key={index} className="text-sm">
+                  • {m.name} — {m.dosage} — {m.frequency} — {m.duration}
+                </div>
+              ))}
+            </div>
+          ))
+        )}
+      </div>
 
       {/* Appointments */}
       <div className="card">
@@ -158,66 +187,67 @@ export default function PatientDetailsPage() {
           <p>No appointments found.</p>
         ) : (
           <div className="table-container">
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {appointments.map((appt: any) => (
-                <tr key={appt._id}>
-                  <td>{new Date(appt.date).toLocaleDateString()}</td>
-                  <td>{appt.status}</td>
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Status</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {appointments.map((appt: any) => (
+                  <tr key={appt._id}>
+                    <td>{new Date(appt.date).toLocaleDateString()}</td>
+                    <td>{appt.status}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
       </div>
 
-      <button
-        onClick={() => setShowVisitModal(true)}
-        className="btn-primary inline-flex items-center gap-2"
-      >
-        <Plus className="h-4 w-4" />
-        <span>Add Visit</span>
-      </button>
-
-
       {/* Visits */}
       <div className="card">
-        <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-slate-900">
-          <Clipboard className="h-5 w-5 text-sky-500" />
-          <span>Visit History</span>
-        </h2>
+        <div className="flex items-center justify-between">
+          <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-slate-900">
+            <Clipboard className="h-5 w-5 text-sky-500" />
+            <span>Visit History</span>
+          </h2>
+          <button
+            onClick={() => setShowVisitModal(true)}
+            className="btn-primary inline-flex items-center gap-2"
+          >
+            <Plus className="h-4 w-4" />
+            <span>Add Visit</span>
+          </button>
+        </div>
+
 
         {visits.length === 0 ? (
           <p>No visits yet.</p>
         ) : (
           <div className="table-container">
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Diagnosis</th>
-                <th>Treatment</th>
-              </tr>
-            </thead>
-            <tbody>
-              {visits.map((visit: any) => (
-                <tr key={visit._id}>
-                  <td>
-                    {new Date(visit.createdAt).toLocaleDateString()}
-                  </td>
-                  <td>{visit.diagnosis}</td>
-                  <td>{visit.treatment}</td>
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Diagnosis</th>
+                  <th>Treatment</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {visits.map((visit: any) => (
+                  <tr key={visit._id}>
+                    <td>
+                      {new Date(visit.createdAt).toLocaleDateString()}
+                    </td>
+                    <td>{visit.diagnosis}</td>
+                    <td>{visit.treatment}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
       </div>

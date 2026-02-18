@@ -40,6 +40,7 @@ export default function VisitsPage() {
   const [search, setSearch] = useState("");
   const [showPrescriptionModal, setShowPrescriptionModal] = useState(false);
   const [activeVisitForPrescription, setActiveVisitForPrescription] = useState<Visit | null>(null);
+  const [visitPrescriptions, setVisitPrescriptions] = useState([]);
 
   const [medications, setMedications] = useState([
     { name: "", dosage: "", frequency: "", duration: "" },
@@ -65,6 +66,14 @@ export default function VisitsPage() {
   useEffect(() => {
     fetchDoctors();
   }, []);
+
+  useEffect(() => {
+    if (!selectedVisit) return;
+
+    fetch(`/api/prescriptions?visit=${selectedVisit._id}`)
+      .then(res => res.json())
+      .then(data => setVisitPrescriptions(data?.prescriptions));
+  }, [selectedVisit]);
 
   const fetchVisits = async () => {
     const res = await fetch(`/api/visits?page=${page}&limit=5&search=${search}`);
@@ -140,7 +149,7 @@ export default function VisitsPage() {
       alert("Please select a doctor for this prescription");
       return;
     }
-  
+
     await fetch("/api/prescriptions", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -152,7 +161,7 @@ export default function VisitsPage() {
         notes,
       }),
     });
-  
+
     setShowPrescriptionModal(false);
     setActiveVisitForPrescription(null);
     setMedications([{ name: "", dosage: "", frequency: "", duration: "" }]);
@@ -349,7 +358,7 @@ export default function VisitsPage() {
       </div>
 
       {selectedVisit && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 !mt-0">
           <div className="card w-full max-w-md">
             <h2 className="mb-4 text-lg font-semibold text-slate-900">
               <span className="inline-flex items-center gap-2">
@@ -376,7 +385,33 @@ export default function VisitsPage() {
                 <p>{selectedVisit.diagnosis}</p>
               </div>
 
-              {selectedVisit.prescription && (
+              <div>
+                <h3 className="text-lg font-semibold mt-4">Prescriptions</h3>
+
+                {visitPrescriptions.length === 0 ? (
+                  <p className="text-sm text-gray-500">No prescriptions for this visit.</p>
+                ) : (
+                  visitPrescriptions.map((p: any) => (
+                    <div key={p._id} className="border p-3 rounded mb-2">
+                      <p className="text-sm text-gray-500">
+                        {new Date(p.createdAt).toLocaleDateString()}
+                      </p>
+
+                      {p.medications.map((m: any, index: number) => (
+                        <div key={index} className="text-sm">
+                          • {m.name} — {m.dosage} — {m.frequency} — {m.duration}
+                        </div>
+                      ))}
+
+                      {p.notes && (
+                        <p className="text-sm mt-1 italic">Notes: {p.notes}</p>
+                      )}
+                    </div>
+                  ))
+                )}
+              </div>
+
+              {/* {selectedVisit.prescription && (
                 <div>
                   <p className="text-xs font-semibold text-slate-500">
                     Prescription
@@ -392,7 +427,7 @@ export default function VisitsPage() {
                   </p>
                   <p>{selectedVisit.notes}</p>
                 </div>
-              )}
+              )} */}
             </div>
 
             <button
@@ -409,7 +444,7 @@ export default function VisitsPage() {
         open={showPrescriptionModal}
         onOpenChange={setShowPrescriptionModal}
       >
-        <DialogContent className="max-w-2xl" aria-description="prescription-content" aria-describedby="prescription-content">
+        <DialogContent className="max-w-2xl" aria-describedby={'Prescription-Content'}>
           <DialogHeader>
             <DialogTitle>Create Prescription</DialogTitle>
           </DialogHeader>
