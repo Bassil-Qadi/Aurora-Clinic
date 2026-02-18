@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { Clipboard, Pencil, Trash2, Eye, FileText, Search } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 interface Patient {
   _id: string;
@@ -9,11 +12,20 @@ interface Patient {
   lastName: string;
 }
 
+interface Doctor {
+  _id: string;
+  name: string;
+}
+
 interface Visit {
   _id: string;
   patient: Patient;
+  prescription: string;
+  doctor: {
+    _id: string;
+    name: string;
+  };
   diagnosis: string;
-  prescription?: string;
   notes?: string;
   followUpDate?: string;
 }
@@ -26,6 +38,16 @@ export default function VisitsPage() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [search, setSearch] = useState("");
+  const [showPrescriptionModal, setShowPrescriptionModal] = useState(false);
+  const [activeVisitForPrescription, setActiveVisitForPrescription] = useState<Visit | null>(null);
+
+  const [medications, setMedications] = useState([
+    { name: "", dosage: "", frequency: "", duration: "" },
+  ]);
+
+  const [notes, setNotes] = useState("");
+  const [doctors, setDoctors] = useState<Doctor[]>([]);
+  const [selectedDoctorId, setSelectedDoctorId] = useState("");
 
   const [form, setForm] = useState({
     patient: "",
@@ -40,6 +62,10 @@ export default function VisitsPage() {
     fetchPatients();
   }, [page, search]);
 
+  useEffect(() => {
+    fetchDoctors();
+  }, []);
+
   const fetchVisits = async () => {
     const res = await fetch(`/api/visits?page=${page}&limit=5&search=${search}`);
     const data = await res.json();
@@ -51,6 +77,12 @@ export default function VisitsPage() {
     const res = await fetch(`/api/patients?page=${page}&limit=5&search=${search}`);
     const data = await res.json();
     setPatients(data.patients || data);
+  };
+
+  const fetchDoctors = async () => {
+    const res = await fetch("/api/users?role=doctor");
+    const data = await res.json();
+    setDoctors(data.users || data || []);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -101,6 +133,33 @@ export default function VisitsPage() {
 
     fetchVisits();
   };
+
+  const savePrescription = async () => {
+    if (!activeVisitForPrescription) return;
+    if (!selectedDoctorId && !activeVisitForPrescription.doctor?._id) {
+      alert("Please select a doctor for this prescription");
+      return;
+    }
+  
+    await fetch("/api/prescriptions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        patient: activeVisitForPrescription.patient._id,
+        doctor: selectedDoctorId || activeVisitForPrescription.doctor?._id,
+        visit: activeVisitForPrescription._id,
+        medications,
+        notes,
+      }),
+    });
+  
+    setShowPrescriptionModal(false);
+    setActiveVisitForPrescription(null);
+    setMedications([{ name: "", dosage: "", frequency: "", duration: "" }]);
+    setNotes("");
+    setSelectedDoctorId("");
+  };
+
 
   return (
     <div className="space-y-6 p-8">
@@ -243,6 +302,17 @@ export default function VisitsPage() {
                     <Eye className="h-3.5 w-3.5" />
                     <span>View</span>
                   </button>
+                  <button
+                    onClick={() => {
+                      setActiveVisitForPrescription(v);
+                      setSelectedDoctorId(v.doctor?._id || "");
+                      setShowPrescriptionModal(true);
+                    }}
+                    className="btn-secondary"
+                  >
+                    <FileText className="h-3.5 w-3.5" />
+                    <span>Prescription</span>
+                  </button>
                 </td>
               </tr>
             ))}
@@ -334,6 +404,97 @@ export default function VisitsPage() {
           </div>
         </div>
       )}
+
+      <Dialog
+        open={showPrescriptionModal}
+        onOpenChange={setShowPrescriptionModal}
+      >
+        <DialogContent className="max-w-2xl" aria-description="prescription-content" aria-describedby="prescription-content">
+          <DialogHeader>
+            <DialogTitle>Create Prescription</DialogTitle>
+          </DialogHeader>
+
+          {medications.map((med, index) => (
+            <div key={index} className="grid grid-cols-4 gap-2 mb-3">
+              <Input
+                placeholder="Medication Name"
+                value={med.name}
+                onChange={(e) => {
+                  const updated = [...medications];
+                  updated[index].name = e.target.value;
+                  setMedications(updated);
+                }}
+              />
+
+              <Input
+                placeholder="Dosage"
+                value={med.dosage}
+                onChange={(e) => {
+                  const updated = [...medications];
+                  updated[index].dosage = e.target.value;
+                  setMedications(updated);
+                }}
+              />
+
+              <Input
+                placeholder="Frequency"
+                value={med.frequency}
+                onChange={(e) => {
+                  const updated = [...medications];
+                  updated[index].frequency = e.target.value;
+                  setMedications(updated);
+                }}
+              />
+
+              <Input
+                placeholder="Duration"
+                value={med.duration}
+                onChange={(e) => {
+                  const updated = [...medications];
+                  updated[index].duration = e.target.value;
+                  setMedications(updated);
+                }}
+              />
+            </div>
+          ))}
+
+          <Button
+            variant="outline"
+            onClick={() =>
+              setMedications([
+                ...medications,
+                { name: "", dosage: "", frequency: "", duration: "" },
+              ])
+            }
+          >
+            + Add Medication
+          </Button>
+
+          <select
+            className="w-full border rounded-lg p-2 mt-4"
+            value={selectedDoctorId}
+            onChange={(e) => setSelectedDoctorId(e.target.value)}
+          >
+            <option value="">Select doctor</option>
+            {doctors.map((doctor) => (
+              <option key={doctor._id} value={doctor._id}>
+                Dr. {doctor.name}
+              </option>
+            ))}
+          </select>
+
+          <textarea
+            className="w-full border rounded-lg p-2 mt-4"
+            placeholder="Additional Notes..."
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+          />
+
+          <Button onClick={savePrescription} className="mt-4">
+            Save Prescription
+          </Button>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -45,6 +45,7 @@ export async function GET(req: Request) {
     Visit.find(query)
       .populate("patient")
       .populate("appointment")
+      .populate("doctor")
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
       .limit(limit),
