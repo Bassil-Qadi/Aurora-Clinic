@@ -36,22 +36,28 @@ export default function AppointmentCalendar() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [open, setOpen] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState<any>(null);
+  const [doctors, setDoctors] = useState<any[]>([]);
+  const [selectedDoctor, setSelectedDoctor] = useState<any>(null);
+
 
   const createAppointment = async () => {
-    if (!selectedPatient) return alert("Please select a patient");
+    if (!selectedPatient || !selectedDoctor)
+      return alert("Select patient and doctor");
 
     await fetch("/api/appointments", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         patient: selectedPatient._id,
+        doctor: selectedDoctor._id,
         date: selectedDate,
-        status: "scheduled",
+        status: "Scheduled",
       }),
     });
 
     setShowModal(false);
     setSelectedPatient(null);
+    setSelectedDoctor(null);
     fetchAppointments();
   };
 
@@ -69,22 +75,32 @@ export default function AppointmentCalendar() {
     fetchAppointments();
   }, []);
 
+  useEffect(() => {
+    fetchDoctors();
+  }, []);
+
+  const fetchDoctors = async () => {
+    const res = await fetch("/api/users?role=doctor");
+    const data = await res.json();
+    console.log("data", data);
+    setDoctors(data.users);
+  };
+
+
   const fetchAppointments = async () => {
     const res = await fetch("/api/appointments");
     const data = await res.json();
-
+  
     const formatted = data.appointments.map((appt: any) => ({
       id: appt._id,
-      title: appt.patient
-        ? `${appt.patient.firstName} ${appt.patient.lastName}`
-        : "Appointment",
+      title: `${appt.patient?.firstName} - Dr. ${appt.doctor?.firstName}`,
       start: appt.date,
       backgroundColor:
         appt.status === "Completed"
           ? "#16a34a"
           : "#eab308",
     }));
-
+  
     setEvents(formatted);
   };
 
@@ -151,6 +167,34 @@ export default function AppointmentCalendar() {
                       </CommandItem>
                     );
                   })}
+                </CommandGroup>
+              </Command>
+            </PopoverContent>
+          </Popover>
+
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className="w-full justify-start mt-2">
+                {selectedDoctor?.name || "Select doctor..."}
+              </Button>
+            </PopoverTrigger>
+
+            <PopoverContent className="p-0">
+              <Command>
+                <CommandInput placeholder="Search doctor..." />
+                <CommandEmpty>No doctor found.</CommandEmpty>
+                <CommandGroup>
+                  {doctors.map((doctor) => (
+                    <CommandItem
+                      key={doctor._id}
+                      value={doctor.name?.toLowerCase()}
+                      onSelect={() => {
+                        setSelectedDoctor(doctor);
+                      }}
+                    >
+                      {doctor.name}
+                    </CommandItem>
+                  ))}
                 </CommandGroup>
               </Command>
             </PopoverContent>
