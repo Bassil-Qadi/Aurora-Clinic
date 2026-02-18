@@ -25,6 +25,7 @@ export async function GET(req: Request) {
   // We'll fetch appointments with populated patient, then apply search if needed.
   let appointmentsQuery = Appointment.find(query)
     .populate("patient")
+    .populate("doctor")
     .sort({ date: -1 })
     .skip((page - 1) * limit)
     .limit(limit);
