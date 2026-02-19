@@ -433,7 +433,7 @@ export default function VisitsPage() {
                             setDeleteTarget(p._id);
                             setShowDeleteDialog(true);
                           }}
-                          className="text-sm btn-danger"
+                          className="text-sm btn-danger py-3"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
                           <span>Delete</span>
