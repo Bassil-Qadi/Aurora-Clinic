@@ -48,6 +48,9 @@ export default function VisitsPage() {
   const [visitPrescriptions, setVisitPrescriptions] = useState([]);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showHistoryModal, setShowHistoryModal] = useState(false);
+  const [historyTarget, setHistoryTarget] = useState<string | null>(null);
+  const [historyVersions, setHistoryVersions] = useState([]);
 
   const [medications, setMedications] = useState([
     { name: "", dosage: "", frequency: "", duration: "" },
@@ -79,6 +82,14 @@ export default function VisitsPage() {
 
     fetchPrescriptions();
   }, [selectedVisit]);
+
+  useEffect(() => {
+    if (!historyTarget) return;
+
+    fetch(`/api/prescriptions/${historyTarget}/history`)
+      .then(res => res.json())
+      .then(data => setHistoryVersions(data));
+  }, [historyTarget]);
 
   const fetchPrescriptions = async () => {
     fetch(`/api/prescriptions?visit=${selectedVisit._id}`)
@@ -430,6 +441,16 @@ export default function VisitsPage() {
 
                         <button
                           onClick={() => {
+                            setHistoryTarget(p._id);
+                            setShowHistoryModal(true);
+                          }}
+                          className="text-sm btn-secondary"
+                        >
+                          View History
+                        </button>
+
+                        <button
+                          onClick={() => {
                             setDeleteTarget(p._id);
                             setShowDeleteDialog(true);
                           }}
@@ -454,6 +475,83 @@ export default function VisitsPage() {
           </div>
         </div>
       )}
+
+      {/* {showHistoryModal && (
+        <div className="modal">
+          <h3 className="text-lg font-semibold mb-4">
+            Prescription Version History
+          </h3>
+
+          {historyVersions.map((v: any) => (
+            <div
+              key={v._id}
+              className={`border p-3 rounded mb-3 ${v.isSuperseded ? "bg-gray-50" : "bg-green-50"
+                }`}
+            >
+              <p className="text-sm font-semibold">
+                Version {v.version}
+                {!v.isSuperseded && (
+                  <span className="ml-2 text-green-600">(Current)</span>
+                )}
+              </p>
+
+              <p className="text-xs text-gray-500">
+                {new Date(v.createdAt).toLocaleString()}
+              </p>
+
+              {v.medications.map((m: any, i: number) => (
+                <div key={i} className="text-sm">
+                  • {m.name} — {m.dosage} — {m.frequency} — {m.duration}
+                </div>
+              ))}
+            </div>
+          ))}
+
+          <button onClick={() => setShowHistoryModal(false)}>
+            Close
+          </button>
+        </div>
+      )} */}
+
+      <Dialog
+        open={showHistoryModal}
+        onOpenChange={setShowHistoryModal}
+      >
+        <DialogContent className="max-w-2xl" aria-describedby={'Prescription-Delete'}>
+          <DialogHeader>
+            <DialogTitle>Prescription Version History</DialogTitle>
+          </DialogHeader>
+
+          <div className="modal">
+            <div className="flex items-center gap-4">
+              {historyVersions.map((v: any) => (
+                <div
+                  key={v._id}
+                  className={`w-full border p-3 rounded mb-3 ${v.isSuperseded ? "bg-gray-50" : "bg-green-50"
+                    }`}
+                >
+                  <p className="text-sm font-semibold">
+                    Version {v.version}
+                    {!v.isSuperseded && (
+                      <span className="ml-2 text-green-600">(Current)</span>
+                    )}
+                  </p>
+
+                  <p className="text-xs text-gray-500">
+                    {new Date(v.createdAt).toLocaleString()}
+                  </p>
+
+                  {v.medications.map((m: any, i: number) => (
+                    <div key={i} className="text-sm">
+                      • {m.name} — {m.dosage} — {m.frequency} — {m.duration}
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <Dialog
         open={showDeleteDialog}
