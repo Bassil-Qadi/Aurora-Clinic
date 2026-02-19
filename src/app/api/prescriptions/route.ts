@@ -17,10 +17,15 @@ export async function GET(req: Request) {
 
   const { searchParams } = new URL(req.url);
   const patientId = searchParams.get("patient");
+  const visit = searchParams.get("visit");
 
-  const query: any = {};
+  const query: any = {
+    isDeleted: false,
+    isSuperseded: { $ne: true },
+  };
 
   if (patientId) query.patient = patientId;
+  if (visit) query.visit = visit;
 
   query.isDeleted = false;
 
