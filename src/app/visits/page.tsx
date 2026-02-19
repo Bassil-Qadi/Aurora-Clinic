@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Clipboard, Pencil, Trash2, Eye, FileText, Search } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { Clipboard, Pencil, Trash2, Eye, FileText, Search, Printer } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 interface Patient {
   _id: string;
@@ -31,6 +33,9 @@ interface Visit {
 }
 
 export default function VisitsPage() {
+
+  const { data: session } = useSession();
+
   const [visits, setVisits] = useState<Visit[]>([]);
   const [patients, setPatients] = useState<Patient[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -41,6 +46,8 @@ export default function VisitsPage() {
   const [showPrescriptionModal, setShowPrescriptionModal] = useState(false);
   const [activeVisitForPrescription, setActiveVisitForPrescription] = useState<Visit | null>(null);
   const [visitPrescriptions, setVisitPrescriptions] = useState([]);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   const [medications, setMedications] = useState([
     { name: "", dosage: "", frequency: "", duration: "" },
@@ -70,10 +77,14 @@ export default function VisitsPage() {
   useEffect(() => {
     if (!selectedVisit) return;
 
+    fetchPrescriptions();
+  }, [selectedVisit]);
+
+  const fetchPrescriptions = async () => {
     fetch(`/api/prescriptions?visit=${selectedVisit._id}`)
       .then(res => res.json())
       .then(data => setVisitPrescriptions(data?.prescriptions));
-  }, [selectedVisit]);
+  };
 
   const fetchVisits = async () => {
     const res = await fetch(`/api/visits?page=${page}&limit=5&search=${search}`);
@@ -406,28 +417,32 @@ export default function VisitsPage() {
                       {p.notes && (
                         <p className="text-sm mt-1 italic">Notes: {p.notes}</p>
                       )}
+
+                      <div className="flex items-center gap-4 mt-4">
+                        <Link
+                          href={`/dashboard/prescriptions/${p._id}/print`}
+                          target="_blank"
+                          className="text-sm btn-primary"
+                        >
+                          <Printer className="h-3.5 w-3.5" />
+                          <span>Print</span>
+                        </Link>
+
+                        <button
+                          onClick={() => {
+                            setDeleteTarget(p._id);
+                            setShowDeleteDialog(true);
+                          }}
+                          className="text-sm btn-danger"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                          <span>Delete</span>
+                        </button>
+                      </div>
                     </div>
                   ))
                 )}
               </div>
-
-              {/* {selectedVisit.prescription && (
-                <div>
-                  <p className="text-xs font-semibold text-slate-500">
-                    Prescription
-                  </p>
-                  <p>{selectedVisit.prescription}</p>
-                </div>
-              )}
-
-              {selectedVisit.notes && (
-                <div>
-                  <p className="text-xs font-semibold text-slate-500">
-                    Notes
-                  </p>
-                  <p>{selectedVisit.notes}</p>
-                </div>
-              )} */}
             </div>
 
             <button
@@ -439,6 +454,49 @@ export default function VisitsPage() {
           </div>
         </div>
       )}
+
+      <Dialog
+        open={showDeleteDialog}
+        onOpenChange={setShowDeleteDialog}
+      >
+        <DialogContent className="max-w-2xl" aria-describedby={'Prescription-Delete'}>
+          <DialogHeader>
+            <DialogTitle>Confirm Deletion</DialogTitle>
+          </DialogHeader>
+
+          <div className="modal">
+            <p className="mb-4">Are you sure you want to delete this prescription?</p>
+
+            <div className="flex items-center gap-4">
+              <button
+                onClick={async () => {
+                  await fetch(`/api/prescriptions/${deleteTarget}`, {
+                    method: "DELETE",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ userId: session?.user?.id }),
+                  });
+
+                  setDeleteTarget(null);
+                  setShowDeleteDialog(false);
+                  fetchPrescriptions();
+                }}
+                className="btn-danger"
+              >
+                Confirm Delete
+              </button>
+
+              <button
+                className="btn-ghost"
+                onClick={() => {
+                  setDeleteTarget(null);
+                  setShowDeleteDialog(false);
+                }}>
+                Cancel
+              </button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <Dialog
         open={showPrescriptionModal}

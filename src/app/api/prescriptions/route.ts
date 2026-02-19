@@ -22,6 +22,8 @@ export async function GET(req: Request) {
 
   if (patientId) query.patient = patientId;
 
+  query.isDeleted = false;
+
   const prescriptions = await Prescription.find(query)
     .populate("patient")
     .populate("doctor")
