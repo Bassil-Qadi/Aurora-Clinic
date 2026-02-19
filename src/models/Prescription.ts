@@ -29,7 +29,6 @@ const PrescriptionSchema = new mongoose.Schema(
       type: Number,
       default: 1,
     },
-    
     previousVersion: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Prescription",
@@ -38,13 +37,15 @@ const PrescriptionSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    
     deletedAt: Date,
     deletedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
-    
+    isSuperseded: {
+      type: Boolean,
+      default: false,
+    },
     updatedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

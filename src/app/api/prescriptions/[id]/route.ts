@@ -23,27 +23,48 @@ export async function GET(
     context: { params: Promise<{ id: string }> }
   ) {
     await connectDB();
+  
     const { id } = await context.params;
     const body = await req.json();
-
+    const { userId, ...updateData } = body;
+  
+    // 1️⃣ Find existing prescription
     const existing = await Prescription.findById(id);
-
+  
+    if (!existing) {
+      return NextResponse.json(
+        { error: "Prescription not found" },
+        { status: 404 }
+      );
+    }
+  
+    // 2️⃣ Mark current as superseded
     await Prescription.findByIdAndUpdate(id, {
       isSuperseded: true,
     });
-
+  
+    // 3️⃣ Create new version
     const newVersion = await Prescription.create({
-      ...body,
+      ...existing.toObject(),
+      ...updateData,
+      _id: undefined, // force new document
       version: existing.version + 1,
       previousVersion: existing._id,
+      isSuperseded: false,
+      updatedBy: userId,
+      updatedAt: new Date(),
     });
   
+    // 4️⃣ Audit log
     await AuditLog.create({
       action: "UPDATE",
       entity: "Prescription",
-      entityId: id,
-      performedBy: body.userId,
-      details: body,
+      entityId: newVersion._id,
+      performedBy: userId,
+      details: {
+        previousVersion: existing._id,
+        newVersion: newVersion._id,
+      },
     });
   
     return NextResponse.json(newVersion);
