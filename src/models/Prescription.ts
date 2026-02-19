@@ -25,6 +25,15 @@ const PrescriptionSchema = new mongoose.Schema(
     },
     medications: [MedicationSchema],
     notes: String,
+    version: {
+      type: Number,
+      default: 1,
+    },
+    
+    previousVersion: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Prescription",
+    },
     isDeleted: {
       type: Boolean,
       default: false,
@@ -40,7 +49,6 @@ const PrescriptionSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
-    
     updatedAt: Date,
   },
   { timestamps: true }

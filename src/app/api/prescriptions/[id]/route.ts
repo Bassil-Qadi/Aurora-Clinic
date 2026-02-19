@@ -25,16 +25,18 @@ export async function GET(
     await connectDB();
     const { id } = await context.params;
     const body = await req.json();
-  
-    const updated = await Prescription.findByIdAndUpdate(
-      id,
-      {
-        ...body,
-        updatedAt: new Date(),
-        updatedBy: body.userId, // pass from frontend
-      },
-      { new: true }
-    );
+
+    const existing = await Prescription.findById(id);
+
+    await Prescription.findByIdAndUpdate(id, {
+      isSuperseded: true,
+    });
+
+    const newVersion = await Prescription.create({
+      ...body,
+      version: existing.version + 1,
+      previousVersion: existing._id,
+    });
   
     await AuditLog.create({
       action: "UPDATE",
@@ -44,7 +46,7 @@ export async function GET(
       details: body,
     });
   
-    return NextResponse.json(updated);
+    return NextResponse.json(newVersion);
   }
   
 
