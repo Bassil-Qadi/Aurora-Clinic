@@ -1,11 +1,18 @@
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import { connectDB } from "@/lib/db";
 import Prescription from "@/models/Prescription";
 
 export async function POST(req: Request) {
   await connectDB();
 
+  const session = await getServerSession(authOptions);
   const body = await req.json();
+
+  if (session?.user?.role !== "doctor") {
+    return new Response("Unauthorized", { status: 403 });
+  }
 
   const prescription = await Prescription.create(body);
 

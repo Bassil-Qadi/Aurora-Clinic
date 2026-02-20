@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import { connectDB } from "@/lib/db";
 import Prescription from "@/models/Prescription";
 import AuditLog from "@/models/AuditLog";
@@ -78,6 +80,14 @@ export async function GET(
     await connectDB();
     const { id } = await context.params;
     const { userId } = await req.json();
+    const session = await getServerSession(authOptions);
+
+    if (session?.user?.role !== "admin") {
+      return NextResponse.json(
+        { error: "Only admins can delete prescriptions" },
+        { status: 403 }
+      );
+    }
   
     await Prescription.findByIdAndUpdate(id, {
       isDeleted: true,
