@@ -333,7 +333,7 @@ export default function VisitsPage() {
                     <Eye className="h-3.5 w-3.5" />
                     <span>View</span>
                   </button>
-                  <button
+                  {session?.user?.role === "doctor" && <button
                     onClick={() => {
                       setActiveVisitForPrescription(v);
                       setSelectedDoctorId(v.doctor?._id || "");
@@ -342,8 +342,8 @@ export default function VisitsPage() {
                     className="btn-secondary"
                   >
                     <FileText className="h-3.5 w-3.5" />
-                    <span>Prescription</span>
-                  </button>
+                    <span>Add Prescription</span>
+                  </button>}
                 </td>
               </tr>
             ))}
@@ -449,7 +449,7 @@ export default function VisitsPage() {
                           View History
                         </button>
 
-                        <button
+                        {session?.user?.role === "admin" && <button
                           onClick={() => {
                             setDeleteTarget(p._id);
                             setShowDeleteDialog(true);
@@ -458,7 +458,7 @@ export default function VisitsPage() {
                         >
                           <Trash2 className="h-3.5 w-3.5" />
                           <span>Delete</span>
-                        </button>
+                        </button>}
                       </div>
                     </div>
                   ))
