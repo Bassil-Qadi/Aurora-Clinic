@@ -24,10 +24,36 @@ export async function GET() {
     },
   });
 
+  const upcomingAppointments = await Appointment.find({
+    date: { $gte: todayStart },
+    status: { $ne: "completed" },
+  })
+    .populate("patient")
+    .populate("doctor")
+    .sort({ date: 1 })
+    .limit(5);
+
+  const recentVisits = await Visit.find()
+    .populate("patient")
+    .sort({ createdAt: -1 })
+    .limit(5);
+
+  const appointmentStatus = await Appointment.aggregate([
+    {
+      $group: {
+        _id: "$status",
+        count: { $sum: 1 },
+      },
+    },
+  ]);
+
   return NextResponse.json({
     totalPatients,
     totalAppointments,
     totalVisits,
     todayAppointments,
+    upcomingAppointments,
+    recentVisits,
+    appointmentStatus,
   });
 }
