@@ -6,6 +6,7 @@ import { Clipboard, Pencil, Trash2, Eye, FileText, Search, Printer } from "lucid
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import VisitSummary from "@/components/VisitSummary";
 import Link from "next/link";
 
 interface Patient {
@@ -62,6 +63,7 @@ export default function VisitsPage() {
 
   const [form, setForm] = useState({
     patient: "",
+    doctor: "",
     diagnosis: "",
     prescription: "",
     notes: "",
@@ -133,6 +135,7 @@ export default function VisitsPage() {
 
     setForm({
       patient: "",
+      doctor: "",
       diagnosis: "",
       prescription: "",
       notes: "",
@@ -148,6 +151,7 @@ export default function VisitsPage() {
 
     setForm({
       patient: visit.patient._id,
+      doctor: visit.doctor?._id || "",
       diagnosis: visit.diagnosis,
       prescription: visit.prescription || "",
       notes: visit.notes || "",
@@ -229,6 +233,25 @@ export default function VisitsPage() {
             ))}
           </select>
 
+          {/* Show doctor dropdown only for admin users */}
+          {session?.user?.role === "admin" && (
+            <select
+              value={form.doctor}
+              onChange={(e) =>
+                setForm({ ...form, doctor: e.target.value })
+              }
+              className="input"
+              required
+            >
+              <option value="">Select doctor</option>
+              {doctors.map((d) => (
+                <option key={d._id} value={d._id}>
+                  {d.name}
+                </option>
+              ))}
+            </select>
+          )}
+
           <input
             placeholder="Diagnosis"
             value={form.diagnosis}
@@ -245,7 +268,7 @@ export default function VisitsPage() {
             onChange={(e) =>
               setForm({ ...form, prescription: e.target.value })
             }
-            className="input md:col-span-2"
+            className="input"
           />
 
           <textarea
@@ -464,6 +487,7 @@ export default function VisitsPage() {
                   ))
                 )}
               </div>
+              <VisitSummary visitId={selectedVisit._id} />
             </div>
 
             <button
