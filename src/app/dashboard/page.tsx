@@ -38,25 +38,32 @@ export default function DashboardHome() {
   const COLORS = ["#16a34a", "#eab308", "#ef4444"];
 
   const fetchChart = async () => {
-    const res = await fetch("/api/dashboard/analytics");
+    const res = await fetch("/api/dashboard/analytics", {
+      cache: "no-store",
+    });
     const data = await res.json();
     setChartData(data);
+  };
+
+  const fetchStats = async () => {
+    const res = await fetch("/api/dashboard", {
+      cache: "no-store",
+    });
+    const data = await res.json();
+    setStats(data);
   };
 
   useEffect(() => {
     fetchStats();
     fetchChart();
-  }, []);
 
-  useEffect(() => {
-    fetchStats();
+    const interval = setInterval(() => {
+      fetchStats();
+      fetchChart();
+    }, 5000); 
+  
+    return () => clearInterval(interval);
   }, []);
-
-  const fetchStats = async () => {
-    const res = await fetch("/api/dashboard");
-    const data = await res.json();
-    setStats(data);
-  };
 
   if (!stats)
     return (
