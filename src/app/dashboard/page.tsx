@@ -6,6 +6,8 @@ import {
   LineChart,
   PieChart,
   Pie,
+  BarChart,
+  Bar,
   Cell,
   Legend,
   Line,
@@ -29,6 +31,7 @@ interface Stats {
 export default function DashboardHome() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [chartData, setChartData] = useState([]);
+  const [doctorWorkload, setDoctorWorkload] = useState([]);
 
   const pieChartData = stats?.appointmentStatus?.map((s: any) => ({
     name: s._id,
@@ -51,6 +54,7 @@ export default function DashboardHome() {
     });
     const data = await res.json();
     setStats(data);
+    setDoctorWorkload(data.doctorWorkload);
   };
 
   useEffect(() => {
@@ -60,8 +64,8 @@ export default function DashboardHome() {
     const interval = setInterval(() => {
       fetchStats();
       fetchChart();
-    }, 5000); 
-  
+    }, 5000);
+
     return () => clearInterval(interval);
   }, []);
 
@@ -157,7 +161,7 @@ export default function DashboardHome() {
               const appointmentDate = new Date(appt.date);
               const isToday = appointmentDate.toDateString() === new Date().toDateString();
               const isTomorrow = appointmentDate.toDateString() === new Date(Date.now() + 86400000).toDateString();
-              
+
               return (
                 <div
                   key={appt._id}
@@ -165,9 +169,8 @@ export default function DashboardHome() {
                 >
                   <div className="flex items-start gap-4">
                     {/* Calendar Icon Badge */}
-                    <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition-colors group-hover:bg-emerald-200 ${
-                      isToday ? "bg-emerald-100 text-emerald-600" : "bg-blue-100 text-blue-600"
-                    }`}>
+                    <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition-colors group-hover:bg-emerald-200 ${isToday ? "bg-emerald-100 text-emerald-600" : "bg-blue-100 text-blue-600"
+                      }`}>
                       <CalendarCheck className="h-5 w-5" />
                     </div>
 
@@ -324,7 +327,7 @@ export default function DashboardHome() {
             )}
           </div>
         </div>
-        
+
         <div className="card">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-sm font-semibold text-slate-900">
@@ -355,34 +358,50 @@ export default function DashboardHome() {
       </div>
 
       <div className="card card-muted">
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-slate-900">
-              Monthly appointments & visits
-            </h2>
-            <span className="pill">Trend</span>
-          </div>
-
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="month" />
-              <YAxis />
-              <Tooltip />
-              <Line
-                type="monotone"
-                dataKey="appointments"
-                stroke="#0284c7"
-                strokeWidth={2}
-              />
-              <Line
-                type="monotone"
-                dataKey="visits"
-                stroke="#10b981"
-                strokeWidth={2}
-              />
-            </LineChart>
-          </ResponsiveContainer>
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-sm font-semibold text-slate-900">
+            Monthly appointments & visits
+          </h2>
+          <span className="pill">Trend</span>
         </div>
+
+        <ResponsiveContainer width="100%" height={300}>
+          <LineChart data={chartData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="month" />
+            <YAxis />
+            <Tooltip />
+            <Line
+              type="monotone"
+              dataKey="appointments"
+              stroke="#0284c7"
+              strokeWidth={2}
+            />
+            <Line
+              type="monotone"
+              dataKey="visits"
+              stroke="#10b981"
+              strokeWidth={2}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* <div className="bg-white p-4 rounded-xl shadow">
+        <h2 className="text-lg font-semibold mb-4">
+          Doctor Workload
+        </h2>
+
+        <ResponsiveContainer width="100%" height={300}>
+          <BarChart data={doctorWorkload}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="name" />
+            <YAxis />
+            <Tooltip />
+            <Bar dataKey="appointments" />
+          </BarChart>
+        </ResponsiveContainer>
+      </div> */}
     </div>
   );
 }
