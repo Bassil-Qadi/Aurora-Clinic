@@ -47,6 +47,37 @@ export async function GET() {
     },
   ]);
 
+  const doctorWorkload = await Appointment.aggregate([
+    {
+      $group: {
+        _id: "$doctor",
+        appointments: { $sum: 1 },
+      },
+    },
+    {
+      $lookup: {
+        from: "users", 
+        localField: "_id",
+        foreignField: "_id",
+        as: "doctor",
+      },
+    },
+    {
+      $unwind: "$doctor",
+    },
+    {
+      $match: {
+        "doctor.role": "doctor", 
+      },
+    },
+    {
+      $project: {
+        name: "$doctor.name",
+        appointments: 1,
+      },
+    },
+  ]);
+
   return NextResponse.json({
     totalPatients,
     totalAppointments,
@@ -55,5 +86,6 @@ export async function GET() {
     upcomingAppointments,
     recentVisits,
     appointmentStatus,
+    doctorWorkload
   });
 }
