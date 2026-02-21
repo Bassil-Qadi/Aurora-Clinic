@@ -141,7 +141,7 @@ export default function DashboardHome() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <div className="card">
           <h2 className="card-title mb-4">Upcoming Appointments</h2>
 
@@ -317,10 +317,8 @@ export default function DashboardHome() {
             )}
           </div>
         </div>
-      </div>
-
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <div className="card card-muted">
+        
+        <div className="card">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-sm font-semibold text-slate-900">
               Appointments
@@ -347,8 +345,9 @@ export default function DashboardHome() {
             </PieChart>
           </ResponsiveContainer>
         </div>
+      </div>
 
-        <div className="card card-muted">
+      <div className="card card-muted">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-sm font-semibold text-slate-900">
               Monthly appointments & visits
@@ -377,7 +376,6 @@ export default function DashboardHome() {
             </LineChart>
           </ResponsiveContainer>
         </div>
-      </div>
     </div>
   );
 }
