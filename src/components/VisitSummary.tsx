@@ -43,9 +43,9 @@ export default function VisitSummary({ visitId }: { visitId: string }) {
         <div className="flex gap-2">
           <button
             onClick={downloadPDF}
-            className="flex items-center gap-1 rounded bg-sky-500 px-2 py-1 text-white text-xs hover:bg-sky-600 transition"
+            className="btn-primary text-xs"
           >
-            <Download className="h-3 w-3" /> Download PDF
+            <Download className="h-3 w-3" /> PDF
           </button>
           <button
             onClick={regenerate}

@@ -14,8 +14,11 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
     await connectDB();
 
     const visit = await Visit.findById(id)
-      .populate("patient")
-      .populate("doctor");
+      .populate({
+        path: "patient",
+        select: "firstName lastName dateOfBirth gender"
+      })
+      .populate("doctor", "name");
 
     if (!visit) {
       return NextResponse.json({ error: "Visit not found" }, { status: 404 });
@@ -31,20 +34,85 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
 
     // Only call OpenAI if no cached summary or force=true
     if (!visit.aiSummary || force) {
-      const patient = visit.patient || {};
+      // Handle Mongoose populated documents - convert to plain object if needed
+      const patient = visit.patient ? (visit.patient as any).toObject ? (visit.patient as any).toObject() : visit.patient : {};
       const doctor = visit.doctor || {};
       
+      // Debug: Log patient data to check dateOfBirth
+      console.log("Patient data:", {
+        patientId: patient._id,
+        firstName: patient.firstName,
+        lastName: patient.lastName,
+        dateOfBirth: patient.dateOfBirth,
+        dateOfBirthType: typeof patient.dateOfBirth,
+        dateOfBirthValue: patient.dateOfBirth,
+        dateOfBirthString: patient.dateOfBirth?.toString(),
+        dateOfBirthISO: patient.dateOfBirth instanceof Date ? patient.dateOfBirth.toISOString() : null,
+        patientKeys: patient ? Object.keys(patient) : "patient is null/undefined",
+        rawPatient: JSON.stringify(patient, null, 2)
+      });
+      
       // Calculate age from dateOfBirth
-      const calculateAge = (dateOfBirth: Date | undefined): string => {
-        if (!dateOfBirth) return "N/A";
-        const today = new Date();
-        const birthDate = new Date(dateOfBirth);
-        let age = today.getFullYear() - birthDate.getFullYear();
-        const monthDiff = today.getMonth() - birthDate.getMonth();
-        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-          age--;
+      const calculateAge = (dateOfBirth: Date | string | undefined): string => {
+        if (!dateOfBirth) {
+          return "N/A";
         }
-        return age.toString();
+        
+        try {
+          // Convert to Date object - handle Mongoose dates, ISO strings, etc.
+          let birthDate: Date;
+          
+          if (dateOfBirth instanceof Date) {
+            birthDate = dateOfBirth;
+          } else if (typeof dateOfBirth === 'string') {
+            // Handle ISO strings and date strings
+            birthDate = new Date(dateOfBirth);
+          } else if (typeof dateOfBirth === 'object' && (dateOfBirth as any).toISOString) {
+            // Handle Mongoose date objects
+            birthDate = new Date((dateOfBirth as any).toISOString());
+          } else {
+            birthDate = new Date(dateOfBirth as any);
+          }
+          
+          // Validate the date
+          if (isNaN(birthDate.getTime())) {
+            console.warn("Invalid dateOfBirth:", dateOfBirth);
+            return "N/A";
+          }
+          
+          // Get today's date (normalized to midnight for accurate comparison)
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          
+          // Normalize birth date to midnight
+          const normalizedBirthDate = new Date(birthDate);
+          normalizedBirthDate.setHours(0, 0, 0, 0);
+          
+          // Calculate age
+          let age = today.getFullYear() - normalizedBirthDate.getFullYear();
+          
+          // Create a date for this year's birthday
+          const thisYearBirthday = new Date(today.getFullYear(), normalizedBirthDate.getMonth(), normalizedBirthDate.getDate());
+          
+          // If birthday hasn't occurred this year, subtract 1
+          if (today < thisYearBirthday) {
+            age--;
+          }
+          
+          // Log for debugging
+          console.log("Age calculation:", {
+            dateOfBirth,
+            birthDate: normalizedBirthDate.toISOString(),
+            today: today.toISOString(),
+            thisYearBirthday: thisYearBirthday.toISOString(),
+            calculatedAge: age
+          });
+          
+          return age >= 0 ? age.toString() : "N/A";
+        } catch (error) {
+          console.error("Error calculating age:", error, "dateOfBirth:", dateOfBirth);
+          return "N/A";
+        }
       };
 
       const patientName = patient.firstName && patient.lastName
