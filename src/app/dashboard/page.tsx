@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import useSWR from "swr";
 import { Activity, Users, Calendar, Clipboard, Stethoscope, Clock, FileText, User, CalendarCheck, AlertCircle } from "lucide-react";
 import {
   LineChart,
@@ -33,6 +34,7 @@ export default function DashboardHome() {
   const [chartData, setChartData] = useState([]);
   const [doctorWorkload, setDoctorWorkload] = useState([]);
 
+  const fetcher = (url: string) => fetch(url).then((res) => res.json());
   const pieChartData = stats?.appointmentStatus?.map((s: any) => ({
     name: s._id,
     value: s.count,
