@@ -1,14 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import useSWR from "swr";
 import { Activity, Users, Calendar, Clipboard, Stethoscope, Clock, FileText, User, CalendarCheck, AlertCircle } from "lucide-react";
 import {
   LineChart,
   PieChart,
   Pie,
-  BarChart,
-  Bar,
   Cell,
   Legend,
   Line,
@@ -32,9 +29,7 @@ interface Stats {
 export default function DashboardHome() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [chartData, setChartData] = useState([]);
-  const [doctorWorkload, setDoctorWorkload] = useState([]);
 
-  const fetcher = (url: string) => fetch(url).then((res) => res.json());
   const pieChartData = stats?.appointmentStatus?.map((s: any) => ({
     name: s._id,
     value: s.count,
@@ -56,7 +51,6 @@ export default function DashboardHome() {
     });
     const data = await res.json();
     setStats(data);
-    setDoctorWorkload(data.doctorWorkload);
   };
 
   useEffect(() => {
@@ -388,22 +382,6 @@ export default function DashboardHome() {
           </LineChart>
         </ResponsiveContainer>
       </div>
-
-      {/* <div className="bg-white p-4 rounded-xl shadow">
-        <h2 className="text-lg font-semibold mb-4">
-          Doctor Workload
-        </h2>
-
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={doctorWorkload}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip />
-            <Bar dataKey="appointments" />
-          </BarChart>
-        </ResponsiveContainer>
-      </div> */}
     </div>
   );
 }

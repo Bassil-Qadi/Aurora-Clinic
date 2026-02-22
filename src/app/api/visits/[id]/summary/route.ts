@@ -39,18 +39,18 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
       const doctor = visit.doctor || {};
       
       // Debug: Log patient data to check dateOfBirth
-      console.log("Patient data:", {
-        patientId: patient._id,
-        firstName: patient.firstName,
-        lastName: patient.lastName,
-        dateOfBirth: patient.dateOfBirth,
-        dateOfBirthType: typeof patient.dateOfBirth,
-        dateOfBirthValue: patient.dateOfBirth,
-        dateOfBirthString: patient.dateOfBirth?.toString(),
-        dateOfBirthISO: patient.dateOfBirth instanceof Date ? patient.dateOfBirth.toISOString() : null,
-        patientKeys: patient ? Object.keys(patient) : "patient is null/undefined",
-        rawPatient: JSON.stringify(patient, null, 2)
-      });
+      // console.log("Patient data:", {
+      //   patientId: patient._id,
+      //   firstName: patient.firstName,
+      //   lastName: patient.lastName,
+      //   dateOfBirth: patient.dateOfBirth,
+      //   dateOfBirthType: typeof patient.dateOfBirth,
+      //   dateOfBirthValue: patient.dateOfBirth,
+      //   dateOfBirthString: patient.dateOfBirth?.toString(),
+      //   dateOfBirthISO: patient.dateOfBirth instanceof Date ? patient.dateOfBirth.toISOString() : null,
+      //   patientKeys: patient ? Object.keys(patient) : "patient is null/undefined",
+      //   rawPatient: JSON.stringify(patient, null, 2)
+      // });
       
       // Calculate age from dateOfBirth
       const calculateAge = (dateOfBirth: Date | string | undefined): string => {

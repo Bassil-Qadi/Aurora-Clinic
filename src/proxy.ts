@@ -28,9 +28,9 @@ export default withAuth(
       return NextResponse.redirect(new URL("/dashboard", req.url));
     }
 
-    if (session?.role !== "admin") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
-    }
+    // if (session?.role !== "admin") {
+    //   return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+    // }
 
     // All other pages under /dashboard are accessible if logged in
     return NextResponse.next();
