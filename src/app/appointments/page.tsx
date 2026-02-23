@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Calendar, Users, Search, Pencil, Trash2 } from "lucide-react";
+import { Calendar, Users, Search, Pencil, Trash2, Play  } from "lucide-react";
 
 interface Patient {
   _id: string;
@@ -260,11 +260,12 @@ export default function AppointmentsPage() {
                   </button>
                   <button
                     onClick={() => startVisit(a)}
-                    className="btn btn-primary"
+                    className="btn-success"
                   >
-                    {a.status === "In Progress"
+                    <Play className="h-3.5 w-3.5" />
+                    <span>{a.status === "In Progress"
                       ? "Continue Visit"
-                      : "Start Visit"}
+                      : "Start Visit"}</span>
                   </button>
                 </td>
               </tr>
