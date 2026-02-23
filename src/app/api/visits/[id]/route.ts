@@ -4,6 +4,21 @@ import { authOptions } from "@/lib/auth";
 import { connectDB } from "@/lib/db";
 import Visit from "@/models/Visit";
 
+export async function GET(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  await connectDB();
+
+  const { id } = await params;
+
+  const visit = await Visit.findById(id)
+    .populate("patient")
+    .populate("doctor");
+
+  return NextResponse.json(visit);
+}
+
 export async function PUT(
   req: Request,
   context: { params: Promise<{ id: string }> }
@@ -139,6 +154,22 @@ export async function PUT(
       { status: 500 }
     );
   }
+}
+
+export async function PATCH(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  await connectDB();
+
+  const { id } = await params;
+  const body = await req.json();
+
+  const visit = await Visit.findByIdAndUpdate(id, body, {
+    new: true,
+  });
+
+  return NextResponse.json(visit);
 }
 
 export async function DELETE(

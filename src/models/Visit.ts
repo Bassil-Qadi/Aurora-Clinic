@@ -9,6 +9,7 @@ export interface IVisit extends Document {
   notes?: string;
   followUpDate?: Date;
   createdAt: Date;
+  completed: boolean;
 }
 
 const VisitSchema = new Schema<IVisit>(
@@ -25,12 +26,13 @@ const VisitSchema = new Schema<IVisit>(
     doctor: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
+      required: false,
     },
-    diagnosis: { type: String, required: true },
+    diagnosis: { type: String, required: false },
     prescription: { type: String },
     notes: { type: String },
     followUpDate: { type: Date },
+    completed: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

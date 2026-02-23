@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Calendar, Users, Search, Pencil, Trash2 } from "lucide-react";
 
 interface Patient {
@@ -18,6 +19,9 @@ interface Appointment {
 }
 
 export default function AppointmentsPage() {
+
+  const router = useRouter();
+
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [patients, setPatients] = useState<Patient[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -96,7 +100,18 @@ export default function AppointmentsPage() {
 
     fetchAppointments();
   };
-  
+
+  const startVisit = async (appointment: any) => {
+    const res = await fetch(
+      `/api/appointments/${appointment._id}/start-visit`,
+      { method: "POST" }
+    );
+
+    const data = await res.json();
+
+    router.push(`/visits/${data.visitId}`);
+  };
+
   return (
     <div className="space-y-6 p-8">
       <div className="flex flex-wrap items-start justify-between gap-4">
@@ -221,8 +236,8 @@ export default function AppointmentsPage() {
                       a.status === "completed"
                         ? "badge-status-completed"
                         : a.status === "cancelled"
-                        ? "badge-status-cancelled"
-                        : "badge-status-scheduled"
+                          ? "badge-status-cancelled"
+                          : "badge-status-scheduled"
                     }
                   >
                     {a.status.charAt(0).toUpperCase() + a.status.slice(1)}
@@ -242,6 +257,14 @@ export default function AppointmentsPage() {
                   >
                     <Trash2 className="h-3.5 w-3.5" />
                     <span>Delete</span>
+                  </button>
+                  <button
+                    onClick={() => startVisit(a)}
+                    className="btn btn-primary"
+                  >
+                    {a.status === "In Progress"
+                      ? "Continue Visit"
+                      : "Start Visit"}
                   </button>
                 </td>
               </tr>
