@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useParams } from "next/navigation";
-import { User, Phone, Mail, Calendar, Clipboard, Pencil, Trash2, Plus, X } from "lucide-react";
+import { User, Phone, Mail, Calendar, Clipboard, Pencil, Trash2, Plus, X, LayoutDashboard  } from "lucide-react";
+import PatientTimeline from "@/components/PatientTimeline";
 
 export default function PatientDetailsPage() {
   const params = useParams();
@@ -155,7 +156,7 @@ export default function PatientDetailsPage() {
       </div>
       {/* Prescriptions */}
       <div className="card">
-        <h2 className="text-xl font-semibold">Prescription History</h2>
+        <h2 className="text-xl font-semibold mb-4">Prescription History</h2>
 
         {patientPrescriptions.length === 0 ? (
           <p className="text-sm text-gray-500">No prescriptions found.</p>
@@ -251,6 +252,15 @@ export default function PatientDetailsPage() {
           </div>
         )}
       </div>
+
+      <div className="card">
+      <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-slate-900">
+          <LayoutDashboard className="h-5 w-5 text-sky-500" />
+          <span>Patient Overview</span>
+        </h2>
+
+      <PatientTimeline patientId={String(params.id)} />
+    </div>
 
       {showVisitModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 !mt-0">
