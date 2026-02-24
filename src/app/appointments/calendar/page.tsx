@@ -25,6 +25,37 @@ import {
   CommandInput,
   CommandItem,
 } from "@/components/ui/command";
+import {
+  AppointmentStatus,
+  normalizeAppointmentStatus,
+} from "@/lib/appointmentStatus";
+
+function getStatusColor(status: string | null | undefined): string {
+  const normalized = normalizeAppointmentStatus(status) ?? "scheduled";
+
+  switch (normalized as AppointmentStatus) {
+    case "scheduled":
+      // Gray
+      return "#9ca3af";
+    case "waiting":
+      // Yellow
+      return "#eab308";
+    case "in_progress":
+      // Blue
+      return "#3b82f6";
+    case "completed":
+      // Green
+      return "#16a34a";
+    case "cancelled":
+      // Red
+      return "#ef4444";
+    case "no_show":
+      // Orange
+      return "#fb923c";
+    default:
+      return "#9ca3af";
+  }
+}
 
 export default function AppointmentCalendar() {
   const [events, setEvents] = useState<any[]>([]);
@@ -89,27 +120,24 @@ export default function AppointmentCalendar() {
 
   const fetchAppointments = async () => {
     let url = "/api/appointments";
-  
+
     if (filterDoctor !== "all") {
       url += `?doctor=${filterDoctor}`;
     }
-  
+
     const res = await fetch(url);
     const data = await res.json();
-  
+
     const formatted = data.appointments.map((appt: any) => ({
       id: appt._id,
-      title: `${appt.patient?.name} - Dr. ${appt.doctor?.name}`,
+      title: `${appt.patient?.name || `${appt.patient?.firstName ?? ""} ${appt.patient?.lastName ?? ""}`.trim()}${appt.doctor ? ` - Dr. ${appt.doctor?.name}` : ""}`,
       start: appt.date,
-      backgroundColor:
-        appt.status === "Completed"
-          ? "#16a34a"
-          : "#eab308",
+      backgroundColor: getStatusColor(appt.status),
     }));
-  
+
     setEvents(formatted);
   };
-  
+
 
   return (
     <div className="bg-white p-6 rounded-2xl shadow-sm">

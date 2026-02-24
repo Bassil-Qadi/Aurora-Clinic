@@ -3,6 +3,8 @@
 import { useParams, useRouter } from "next/navigation";
 import useSWR from "swr";
 import { useState } from "react";
+import { AppointmentStatusBadge } from "@/components/AppointmentStatusBadge";
+import { normalizeAppointmentStatus } from "@/lib/appointmentStatus";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -56,6 +58,14 @@ export default function VisitPage() {
         <p>
           <strong>Doctor:</strong> {visit.doctor?.name}
         </p>
+        {visit.appointment?.status && (
+          <p className="mt-2 flex items-center gap-2 text-sm">
+            <span className="font-medium">Appointment status:</span>
+            <AppointmentStatusBadge
+              status={normalizeAppointmentStatus(visit.appointment.status) || "scheduled"}
+            />
+          </p>
+        )}
       </div>
 
       {/* Diagnosis */}

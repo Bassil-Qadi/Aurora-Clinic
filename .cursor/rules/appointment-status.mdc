@@ -1,0 +1,66 @@
+---
+alwaysApply: true
+---
+
+## Appointment & Visit Status Lifecycle
+
+This project uses a normalized appointment status lifecycle implemented in:
+- [`src/lib/appointmentStatus.ts`](mdc:src/lib/appointmentStatus.ts)
+- [`src/models/Appointment.ts`](mdc:src/models/Appointment.ts)
+- [`src/app/api/appointments/[id]/status/route.ts`](mdc:src/app/api/appointments/[id]/status/route.ts)
+
+### Status values (stored)
+
+Statuses are stored as **lowercase snake_case**:
+- `scheduled`
+- `waiting`
+- `in_progress`
+- `completed`
+- `cancelled`
+- `no_show`
+
+The helper `normalizeAppointmentStatus` accepts legacy/free-text values (e.g. `"In Progress"`, `"No Show"`) and normalizes them to the stored forms. **Always** use this helper (or `AppointmentStatus` type) when reading or comparing appointment statuses.
+
+### Allowed transitions
+
+Allowed transitions are centrally defined in `APPOINTMENT_ALLOWED_TRANSITIONS`:
+
+| From        | To                         |
+|------------|----------------------------|
+| `scheduled`| `waiting`, `cancelled`, `no_show` |
+| `waiting`  | `in_progress`, `cancelled` |
+| `in_progress` | `completed`            |
+| `completed`   | _no transitions_       |
+| `cancelled`   | _no transitions_       |
+| `no_show`     | _no transitions_       |
+
+Use the helper `canTransitionStatus(from, to)` instead of hand-rolling transition checks.
+
+### API contracts
+
+- To change an appointment status, use:
+  - [`/api/appointments/[id]/status`](mdc:src/app/api/appointments/[id]/status/route.ts) (`PATCH { status }`)  
+    - Enforces allowed transitions and writes an `AuditLog` entry.
+- To start/resume a visit from an appointment, use:
+  - [`/api/appointments/[id]/start-visit`](mdc:src/app/api/appointments/[id]/start-visit/route.ts)  
+    - Allowed only when status is `waiting` or `in_progress`.
+    - Creates a `Visit` if missing and moves status to `in_progress` (if allowed).
+- To complete a visit and mark the appointment as completed, use:
+  - [`/api/visits/[id]/complete`](mdc:src/app/api/visits/[id]/complete/route.ts)  
+    - Sets `visit.completed = true` and, if there is an attached appointment, transitions its status to `completed` (only if allowed).
+
+Do **not** bypass these routes with ad-hoc status updates in new code.
+
+### UI conventions
+
+- Prefer using the shared status badge:
+  - [`AppointmentStatusBadge`](mdc:src/components/AppointmentStatusBadge.tsx)
+  - This badge maps statuses to human labels and colors:
+    - `scheduled` → **Gray**
+    - `waiting` → **Yellow**
+    - `in_progress` → **Blue**
+    - `completed` → **Green**
+    - `cancelled` → **Red**
+    - `no_show` → **Orange**
+- When you need colors elsewhere (e.g. calendar), derive them from the normalized status, not from raw strings.
+

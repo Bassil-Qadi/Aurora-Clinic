@@ -2,7 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Calendar, Users, Search, Pencil, Trash2, Play  } from "lucide-react";
+import { Calendar, Users, Search, Pencil, Trash2, Play, CheckCircle2, Clock3, XOctagon, EyeOff } from "lucide-react";
+import { AppointmentStatus, normalizeAppointmentStatus } from "@/lib/appointmentStatus";
+import { AppointmentStatusBadge } from "@/components/AppointmentStatusBadge";
+import { useToast } from "@/hooks/use-toast";
 
 interface Patient {
   _id: string;
@@ -19,8 +22,8 @@ interface Appointment {
 }
 
 export default function AppointmentsPage() {
-
   const router = useRouter();
+  const { toast } = useToast();
 
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [patients, setPatients] = useState<Patient[]>([]);
@@ -28,6 +31,7 @@ export default function AppointmentsPage() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [search, setSearch] = useState("");
+  const [isUpdatingId, setIsUpdatingId] = useState<string | null>(null);
 
   const [form, setForm] = useState({
     patient: "",
@@ -42,7 +46,9 @@ export default function AppointmentsPage() {
   }, [page, search]);
 
   const fetchAppointments = async () => {
-    const res = await fetch(`/api/appointments?page=${page}&limit=5&search=${search}`);
+    const res = await fetch(
+      `/api/appointments?page=${page}&limit=5&search=${search}`
+    );
     const data = await res.json();
     setAppointments(data?.appointments);
     setTotalPages(data.pages);
@@ -101,15 +107,69 @@ export default function AppointmentsPage() {
     fetchAppointments();
   };
 
-  const startVisit = async (appointment: any) => {
-    const res = await fetch(
-      `/api/appointments/${appointment._id}/start-visit`,
-      { method: "POST" }
+  const updateStatus = async (
+    appointmentId: string,
+    nextStatus: AppointmentStatus
+  ) => {
+    try {
+      setIsUpdatingId(appointmentId);
+      const res = await fetch(`/api/appointments/${appointmentId}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: nextStatus }),
+      });
+
+      if (!res.ok) {
+        const error = await res.json().catch(() => ({}));
+        throw new Error(error?.error || "Failed to update status");
+      }
+
+      await fetchAppointments();
+      toast({
+        title: "Status updated",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Status update failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsUpdatingId(null);
+    }
+  };
+
+  const startVisit = async (appointment: Appointment) => {
+    try {
+      setIsUpdatingId(appointment._id);
+      const res = await fetch(
+        `/api/appointments/${appointment._id}/start-visit`,
+        { method: "POST" }
+      );
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data?.error || "Failed to start visit");
+      }
+
+      router.push(`/visits/${data.visitId}`);
+    } catch (error: any) {
+      toast({
+        title: "Cannot start visit",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsUpdatingId(null);
+    }
+  };
+
+  const getNormalizedStatus = (appointment: Appointment): AppointmentStatus => {
+    return (
+      (normalizeAppointmentStatus(appointment.status) as AppointmentStatus) ||
+      "scheduled"
     );
-
-    const data = await res.json();
-
-    router.push(`/visits/${data.visitId}`);
   };
 
   return (
@@ -231,17 +291,7 @@ export default function AppointmentsPage() {
                 <td>{new Date(a.date).toLocaleString()}</td>
                 <td>{a.reason}</td>
                 <td>
-                  <span
-                    className={
-                      a.status === "completed"
-                        ? "badge-status-completed"
-                        : a.status === "cancelled"
-                          ? "badge-status-cancelled"
-                          : "badge-status-scheduled"
-                    }
-                  >
-                    {a.status.charAt(0).toUpperCase() + a.status.slice(1)}
-                  </span>
+                  <AppointmentStatusBadge status={a.status} />
                 </td>
                 <td className="space-x-2 text-right">
                   <button
@@ -258,15 +308,96 @@ export default function AppointmentsPage() {
                     <Trash2 className="h-3.5 w-3.5" />
                     <span>Delete</span>
                   </button>
-                  <button
-                    onClick={() => startVisit(a)}
-                    className="btn-success"
-                  >
-                    <Play className="h-3.5 w-3.5" />
-                    <span>{a.status === "In Progress"
-                      ? "Continue Visit"
-                      : "Start Visit"}</span>
-                  </button>
+                  {/* Reception: Check-in / Cancel / No-show */}
+                  {(() => {
+                    const status = getNormalizedStatus(a);
+
+                    if (status === "scheduled") {
+                      return (
+                        <>
+                          <button
+                            onClick={() => updateStatus(a._id, "waiting")}
+                            disabled={isUpdatingId === a._id}
+                            className="btn-secondary"
+                          >
+                            <Clock3 className="h-3.5 w-3.5" />
+                            <span>Check In</span>
+                          </button>
+                          <button
+                            onClick={() => updateStatus(a._id, "cancelled")}
+                            disabled={isUpdatingId === a._id}
+                            className="btn-ghost"
+                          >
+                            <XOctagon className="h-3.5 w-3.5" />
+                            <span>Cancel</span>
+                          </button>
+                          <button
+                            onClick={() => updateStatus(a._id, "no_show")}
+                            disabled={isUpdatingId === a._id}
+                            className="btn-ghost"
+                          >
+                            <EyeOff className="h-3.5 w-3.5" />
+                            <span>No Show</span>
+                          </button>
+                        </>
+                      );
+                    }
+
+                    if (status === "waiting") {
+                      return (
+                        <>
+                          <button
+                            onClick={() => startVisit(a)}
+                            disabled={isUpdatingId === a._id}
+                            className="btn-success"
+                          >
+                            <Play className="h-3.5 w-3.5" />
+                            <span>Start Visit</span>
+                          </button>
+                          <button
+                            onClick={() => updateStatus(a._id, "cancelled")}
+                            disabled={isUpdatingId === a._id}
+                            className="btn-ghost"
+                          >
+                            <XOctagon className="h-3.5 w-3.5" />
+                            <span>Cancel</span>
+                          </button>
+                        </>
+                      );
+                    }
+
+                    if (status === "in_progress") {
+                      return (
+                        <button
+                          onClick={() => startVisit(a)}
+                          disabled={isUpdatingId === a._id}
+                          className="btn-success"
+                        >
+                          <Play className="h-3.5 w-3.5" />
+                          <span>Continue Visit</span>
+                        </button>
+                      );
+                    }
+
+                    if (status === "completed") {
+                      return (
+                        <span className="text-xs text-slate-500 inline-flex items-center gap-1">
+                          <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
+                          Completed
+                        </span>
+                      );
+                    }
+
+                    if (status === "cancelled" || status === "no_show") {
+                      return (
+                        <span className="text-xs text-slate-500">
+                          No further actions
+                        </span>
+                      );
+                    }
+
+                    return null;
+                  })()}
                 </td>
               </tr>
             ))}

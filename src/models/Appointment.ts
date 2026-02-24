@@ -1,10 +1,14 @@
 import mongoose, { Schema, Document, models } from "mongoose";
+import {
+  AppointmentStatus,
+  normalizeAppointmentStatus,
+} from "@/lib/appointmentStatus";
 
 export interface IAppointment extends Document {
   patient: mongoose.Types.ObjectId;
   date: Date;
   reason: string;
-  status: "scheduled" | "completed" | "cancelled" | "In Progress";
+  status: AppointmentStatus;
   doctor: mongoose.Types.ObjectId;
   visit: mongoose.Types.ObjectId;
   createdAt: Date;
@@ -24,8 +28,17 @@ const AppointmentSchema = new Schema<IAppointment>(
     reason: { type: String },
     status: {
       type: String,
-      enum: ["scheduled", "completed", "cancelled", "In Progress"],
+      enum: [
+        "scheduled",
+        "waiting",
+        "in_progress",
+        "completed",
+        "cancelled",
+        "no_show",
+      ],
       default: "scheduled",
+      set: (value: string) =>
+        normalizeAppointmentStatus(value) ?? "scheduled",
     },
   },
   { timestamps: true }

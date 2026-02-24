@@ -2,6 +2,11 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import Visit from "@/models/Visit";
 import Appointment from "@/models/Appointment";
+import {
+  AppointmentStatus,
+  canTransitionStatus,
+  normalizeAppointmentStatus,
+} from "@/lib/appointmentStatus";
 
 export async function PATCH(
   req: Request,
@@ -24,11 +29,21 @@ export async function PATCH(
   visit.completed = true;
   await visit.save();
 
-  // Update appointment
+  // Update appointment status -> Completed with transition check
   if (visit.appointment) {
-    await Appointment.findByIdAndUpdate(visit.appointment, {
-      status: "completed",
-    });
+    const appointment = await Appointment.findById(visit.appointment);
+
+    if (appointment) {
+      const currentStatus =
+        normalizeAppointmentStatus(appointment.status as any) ?? "scheduled";
+
+      if (
+        canTransitionStatus(currentStatus as AppointmentStatus, "completed")
+      ) {
+        appointment.status = "completed";
+        await appointment.save();
+      }
+    }
   }
 
   return NextResponse.json({
