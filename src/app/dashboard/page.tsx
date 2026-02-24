@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Activity, Users, Calendar, Clipboard, Stethoscope, Clock, FileText, User, CalendarCheck, AlertCircle } from "lucide-react";
+import { DoctorQueue } from "@/components/DoctorQueue";
 import {
   LineChart,
   PieChart,
@@ -21,9 +22,10 @@ interface Stats {
   totalAppointments: number;
   totalVisits: number;
   todayAppointments: number;
-  upcomingAppointments: [],
-  recentVisits: [],
-  appointmentStatus: []
+  upcomingAppointments: [];
+  recentVisits: [];
+  waitingQueue: [];
+  appointmentStatus: [];
 }
 
 export default function DashboardHome() {
@@ -147,6 +149,9 @@ export default function DashboardHome() {
           </div>
         </div>
       </div>
+
+      {/* Doctor Queue – Waiting List */}
+      <DoctorQueue appointments={stats.waitingQueue ?? []} />
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <div className="card">
