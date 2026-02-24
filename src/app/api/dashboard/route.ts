@@ -38,6 +38,16 @@ export async function GET() {
     .sort({ createdAt: -1 })
     .limit(5);
 
+  // Doctor waiting queue – patients whose appointment status is "waiting",
+  // sorted by date ascending so the longest-waiting patient appears first.
+  const waitingQueue = await Appointment.find({
+    status: "waiting",
+  })
+    .populate("patient")
+    .populate("doctor")
+    .sort({ date: 1 })
+    .limit(20);
+
   const appointmentStatus = await Appointment.aggregate([
     {
       $group: {
@@ -85,6 +95,7 @@ export async function GET() {
     todayAppointments,
     upcomingAppointments,
     recentVisits,
+    waitingQueue,
     appointmentStatus,
     doctorWorkload
   });
