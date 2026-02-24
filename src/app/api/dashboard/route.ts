@@ -26,7 +26,7 @@ export async function GET() {
 
   const upcomingAppointments = await Appointment.find({
     date: { $gte: todayStart },
-    status: { $ne: "completed" },
+    status: { $nin: ["completed", "cancelled", "no_show"] },
   })
     .populate("patient")
     .populate("doctor")

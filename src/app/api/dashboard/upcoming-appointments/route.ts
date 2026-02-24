@@ -9,7 +9,7 @@ export async function GET() {
 
   const upcomingAppointments = await Appointment.find({
     date: { $gte: now },
-    status: { $ne: "cancelled" },
+    status: { $nin: ["cancelled", "no_show"] },
   })
     .populate("patient")
     .populate("doctor")
