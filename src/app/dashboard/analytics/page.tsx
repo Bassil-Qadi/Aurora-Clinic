@@ -325,7 +325,7 @@ export default function AnalyticsPage() {
                   <p className="text-xs font-medium text-slate-500 mb-2 text-center">
                     By Gender
                   </p>
-                  <ResponsiveContainer width="100%" height={140}>
+                  <ResponsiveContainer width="100%" height={240}>
                     <PieChart>
                       <Pie
                         data={data.patientsByGender?.map((g: any) => ({
@@ -358,7 +358,7 @@ export default function AnalyticsPage() {
                   <p className="text-xs font-medium text-slate-500 mb-2 text-center">
                     By Age Range
                   </p>
-                  <ResponsiveContainer width="100%" height={140}>
+                  <ResponsiveContainer width="100%" height={250}>
                     <BarChart data={data.patientsByAge || []}>
                       <XAxis dataKey="range" tick={{ fontSize: 9 }} />
                       <YAxis tick={{ fontSize: 9 }} />

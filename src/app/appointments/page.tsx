@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { Calendar, Users, Search, Pencil, Trash2, Play, CheckCircle2, Clock3, XOctagon, EyeOff } from "lucide-react";
 import { AppointmentStatus, normalizeAppointmentStatus } from "@/lib/appointmentStatus";
 import { AppointmentStatusBadge } from "@/components/AppointmentStatusBadge";
@@ -13,9 +14,15 @@ interface Patient {
   lastName: string;
 }
 
+interface Doctor {
+  _id: string;
+  name: string;
+}
+
 interface Appointment {
   _id: string;
   patient: Patient;
+  doctor?: Doctor;
   date: string;
   reason: string;
   status: string;
@@ -24,9 +31,12 @@ interface Appointment {
 export default function AppointmentsPage() {
   const router = useRouter();
   const { toast } = useToast();
+  const { data: session } = useSession();
+  const userRole = session?.user?.role;
 
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [patients, setPatients] = useState<Patient[]>([]);
+  const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -38,12 +48,17 @@ export default function AppointmentsPage() {
     date: "",
     reason: "",
     status: "scheduled",
+    doctor: "",
   });
 
   useEffect(() => {
     fetchAppointments();
     fetchPatients();
-  }, [page, search]);
+    // Fetch doctors for admin/receptionist to pick from
+    if (userRole && userRole !== "doctor") {
+      fetchDoctors();
+    }
+  }, [page, search, userRole]);
 
   const fetchAppointments = async () => {
     const res = await fetch(
@@ -60,18 +75,39 @@ export default function AppointmentsPage() {
     setPatients(data.patients || data);
   };
 
+  const fetchDoctors = async () => {
+    try {
+      const res = await fetch("/api/users?role=doctor");
+      const data = await res.json();
+      setDoctors(data.users || []);
+    } catch {
+      // ignore
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Build payload — only include doctor if admin/receptionist selected one
+    const payload: Record<string, any> = {
+      patient: form.patient,
+      date: form.date,
+      reason: form.reason,
+      status: form.status,
+    };
+    if (userRole !== "doctor" && form.doctor) {
+      payload.doctor = form.doctor;
+    }
 
     if (editingId) {
       await fetch(`/api/appointments/${editingId}`, {
         method: "PUT",
-        body: JSON.stringify(form),
+        body: JSON.stringify(payload),
       });
     } else {
       await fetch("/api/appointments", {
         method: "POST",
-        body: JSON.stringify(form),
+        body: JSON.stringify(payload),
       });
     }
 
@@ -80,6 +116,7 @@ export default function AppointmentsPage() {
       date: "",
       reason: "",
       status: "scheduled",
+      doctor: "",
     });
 
     setEditingId(null);
@@ -94,6 +131,7 @@ export default function AppointmentsPage() {
       date: appointment.date.slice(0, 16),
       reason: appointment.reason,
       status: appointment.status,
+      doctor: appointment.doctor?._id || "",
     });
   };
 
@@ -226,6 +264,25 @@ export default function AppointmentsPage() {
             required
           />
 
+          {/* Doctor selector – visible to admin & receptionist */}
+          {userRole !== "doctor" && (
+            <select
+              value={form.doctor}
+              onChange={(e) =>
+                setForm({ ...form, doctor: e.target.value })
+              }
+              className="input"
+              required
+            >
+              <option value="">Select doctor</option>
+              {doctors.map((d) => (
+                <option key={d._id} value={d._id}>
+                  Dr. {d.name}
+                </option>
+              ))}
+            </select>
+          )}
+
           <input
             placeholder="Reason for visit"
             value={form.reason}
@@ -276,6 +333,7 @@ export default function AppointmentsPage() {
           <thead>
             <tr>
               <th>Patient</th>
+              <th>Doctor</th>
               <th>Date</th>
               <th>Reason</th>
               <th>Status</th>
@@ -287,6 +345,9 @@ export default function AppointmentsPage() {
               <tr key={a._id}>
                 <td>
                   {a.patient?.firstName} {a.patient?.lastName}
+                </td>
+                <td className="text-slate-600 dark:text-slate-400">
+                  {a.doctor?.name ? `Dr. ${a.doctor.name}` : <span className="text-slate-400 italic">Unassigned</span>}
                 </td>
                 <td>{new Date(a.date).toLocaleString()}</td>
                 <td>{a.reason}</td>

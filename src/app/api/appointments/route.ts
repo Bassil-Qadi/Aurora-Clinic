@@ -82,8 +82,16 @@ export async function POST(req: Request) {
     );
   }
 
+  // If the logged-in user is a doctor, auto-assign them as the doctor
+  // If admin/receptionist, use the doctor field from the request body
+  const doctorId =
+    user.role === "doctor"
+      ? user.id
+      : validation.data.doctor || undefined;
+
   const appointment = await Appointment.create({
     ...validation.data,
+    doctor: doctorId,
     status: validation.data.status || "scheduled",
     clinicId: user.clinicId,
   });

@@ -5,6 +5,7 @@ import Visit from "@/models/Visit";
 import Patient from "@/models/Patient";
 import { User } from "@/models/User";
 import { requireAuth } from "@/lib/apiAuth";
+import mongoose from "mongoose";
 
 export async function GET(req: Request) {
   const auth = await requireAuth(["admin", "doctor"]);
@@ -22,7 +23,9 @@ export async function GET(req: Request) {
   startDate.setDate(startDate.getDate() - daysAgo);
   startDate.setHours(0, 0, 0, 0);
 
-  const clinicFilter = { clinicId: user.clinicId };
+  // Use ObjectId for clinicId so aggregation pipelines match correctly
+  const clinicOid = new mongoose.Types.ObjectId(user.clinicId);
+  const clinicFilter = { clinicId: clinicOid };
   const dateFilter = { ...clinicFilter, createdAt: { $gte: startDate } };
 
   if (type === "overview") {
@@ -62,7 +65,7 @@ export async function GET(req: Request) {
       ]),
       // Appointments by doctor
       Appointment.aggregate([
-        { $match: { ...clinicFilter, date: { $gte: startDate }, doctor: { $exists: true } } },
+        { $match: { ...clinicFilter, date: { $gte: startDate } } },
         { $group: { _id: "$doctor", count: { $sum: 1 } } },
         {
           $lookup: {
