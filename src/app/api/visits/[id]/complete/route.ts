@@ -7,16 +7,21 @@ import {
   canTransitionStatus,
   normalizeAppointmentStatus,
 } from "@/lib/appointmentStatus";
+import { requireAuth } from "@/lib/apiAuth";
 
 export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const auth = await requireAuth(["doctor", "admin"]);
+  if (!auth.success) return auth.response;
+  const { user } = auth;
+
   await connectDB();
 
   const { id } = await params;
 
-  const visit = await Visit.findById(id);
+  const visit = await Visit.findOne({ _id: id, clinicId: user.clinicId });
 
   if (!visit) {
     return NextResponse.json(
@@ -29,9 +34,12 @@ export async function PATCH(
   visit.completed = true;
   await visit.save();
 
-  // Update appointment status -> Completed with transition check
+  // Update appointment status → Completed with transition check
   if (visit.appointment) {
-    const appointment = await Appointment.findById(visit.appointment);
+    const appointment = await Appointment.findOne({
+      _id: visit.appointment,
+      clinicId: user.clinicId,
+    });
 
     if (appointment) {
       const currentStatus =

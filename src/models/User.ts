@@ -5,6 +5,7 @@ const UserSchema = new Schema(
     clinicId: {
       type: Schema.Types.ObjectId,
       ref: "Clinic",
+      index: true,
     },
 
     name: {

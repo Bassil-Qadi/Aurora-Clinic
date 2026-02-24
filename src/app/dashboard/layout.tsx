@@ -1,102 +1,219 @@
 "use client";
 
-import { ReactNode } from "react";
+import { ReactNode, useState, useEffect } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
-import { Activity, Users, Calendar, Clipboard, LogOut } from "lucide-react";
+import {
+  Activity,
+  Users,
+  Calendar,
+  Clipboard,
+  CalendarDays,
+  UserCog,
+  Settings,
+  LogOut,
+  BarChart3,
+  ClipboardList,
+  Menu,
+  X,
+} from "lucide-react";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { LanguageToggle } from "@/components/LanguageToggle";
+import { useI18n } from "@/lib/i18n";
 
 type Props = {
   children: ReactNode;
 };
 
+const NAV_ITEMS = [
+  { href: "/dashboard", tKey: "nav.dashboard", icon: Activity },
+  { href: "/patients", tKey: "nav.patients", icon: Users },
+  { href: "/appointments", tKey: "nav.appointments", icon: Calendar },
+  { href: "/visits", tKey: "nav.visits", icon: Clipboard },
+  { href: "/appointments/calendar", tKey: "nav.calendar", icon: CalendarDays },
+];
+
+const ADMIN_NAV_ITEMS = [
+  { href: "/dashboard/analytics", tKey: "nav.analytics", icon: BarChart3 },
+  { href: "/dashboard/staff", tKey: "nav.staffManagement", icon: UserCog },
+  { href: "/dashboard/settings", tKey: "nav.clinicSettings", icon: Settings },
+];
+
 export default function DashboardLayout({ children }: Props) {
   const { data: session } = useSession();
+  const pathname = usePathname();
+  const { t } = useI18n();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  return (
-    <div className="flex min-h-screen px-3 py-4 md:px-6 md:py-6 lg:px-10">
-      {/* Sidebar */}
-      <aside className="flex w-64 shrink-0 flex-col rounded-3xl bg-white/90 p-5 shadow-sm ring-1 ring-slate-100 backdrop-blur-sm">
-        <div className="mb-8 flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-sky-100 text-sky-600 font-semibold">
-            <Activity className="h-5 w-5" />
-          </div>
-          <div>
-            <h2 className="text-sm font-semibold tracking-tight text-slate-900">
-              Aurora Clinic
-            </h2>
-            <p className="text-xs text-slate-500">Medical Dashboard</p>
-          </div>
+  // Close sidebar on route change (mobile)
+  useEffect(() => {
+    setSidebarOpen(false);
+  }, [pathname]);
+
+  const isActive = (href: string) => {
+    if (href === "/dashboard") return pathname === "/dashboard";
+    return pathname.startsWith(href);
+  };
+
+  const linkClass = (active: boolean) =>
+    `rounded-xl px-3 py-2 transition-colors ${
+      active
+        ? "bg-sky-50 text-sky-700 font-medium dark:bg-sky-950/50 dark:text-sky-400"
+        : "text-slate-700 hover:bg-sky-50 hover:text-sky-700 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-sky-400"
+    }`;
+
+  /* ─── Sidebar content (shared desktop / mobile) ──────────── */
+  const sidebarContent = (
+    <>
+      <div className="mb-8 flex items-center gap-3">
+        <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-sky-100 text-sky-600 font-semibold dark:bg-sky-950 dark:text-sky-400">
+          <Activity className="h-5 w-5" />
         </div>
+        <div className="min-w-0 flex-1">
+          <h2 className="truncate text-sm font-semibold tracking-tight text-slate-900 dark:text-slate-100">
+            {t("common.appName")}
+          </h2>
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            {t("common.medicalDashboard")}
+          </p>
+        </div>
+        {/* Close button – mobile only */}
+        <button
+          onClick={() => setSidebarOpen(false)}
+          className="rounded-lg p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 lg:hidden"
+        >
+          <X className="h-5 w-5" />
+        </button>
+      </div>
 
-        <nav className="flex flex-1 flex-col gap-1 text-sm">
-          <Link
-            href="/dashboard"
-            className="rounded-xl px-3 py-2 text-slate-700 hover:bg-sky-50 hover:text-sky-700"
-          >
-            <span className="flex items-center gap-2">
-              <Activity className="h-4 w-4" />
-              <span>Dashboard Home</span>
-            </span>
-          </Link>
-          <Link
-            href="/patients"
-            className="rounded-xl px-3 py-2 text-slate-700 hover:bg-sky-50 hover:text-sky-700"
-          >
-            <span className="flex items-center gap-2">
-              <Users className="h-4 w-4" />
-              <span>Patients</span>
-            </span>
-          </Link>
-          <Link
-            href="/appointments"
-            className="rounded-xl px-3 py-2 text-slate-700 hover:bg-sky-50 hover:text-sky-700"
-          >
-            <span className="flex items-center gap-2">
-              <Calendar className="h-4 w-4" />
-              <span>Appointments</span>
-            </span>
-          </Link>
-          <Link
-            href="/visits"
-            className="rounded-xl px-3 py-2 text-slate-700 hover:bg-sky-50 hover:text-sky-700"
-          >
-            <span className="flex items-center gap-2">
-              <Clipboard className="h-4 w-4" />
-              <span>Visits</span>
-            </span>
-          </Link>
-          <Link
-            href="/appointments/calendar"
-            className="rounded-xl px-3 py-2 text-slate-700 hover:bg-sky-50 hover:text-sky-700"
-          >
-            <span className="flex items-center gap-2">
-              <Clipboard className="h-4 w-4" />
-              <span>Calendar</span>
-            </span>
-          </Link>
-        </nav>
+      <nav className="flex flex-1 flex-col gap-1 text-sm overflow-y-auto">
+        {NAV_ITEMS.map((item) => {
+          const Icon = item.icon;
+          return (
+            <Link key={item.href} href={item.href} className={linkClass(isActive(item.href))}>
+              <span className="flex items-center gap-2">
+                <Icon className="h-4 w-4" />
+                <span>{t(item.tKey)}</span>
+              </span>
+            </Link>
+          );
+        })}
 
-        <div className="mt-6 border-t border-slate-100 pt-4">
+        {/* Analytics – admin & doctor */}
+        {(session?.user?.role === "admin" || session?.user?.role === "doctor") && (
+          <>
+            <div className="my-3 border-t border-slate-100 dark:border-slate-800" />
+            <p className="mb-1 px-3 text-[10px] font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500">
+              {t("nav.insights")}
+            </p>
+            <Link href="/dashboard/analytics" className={linkClass(isActive("/dashboard/analytics"))}>
+              <span className="flex items-center gap-2">
+                <BarChart3 className="h-4 w-4" />
+                <span>{t("nav.analytics")}</span>
+              </span>
+            </Link>
+            {session?.user?.role === "admin" && (
+              <Link href="/dashboard/reports" className={linkClass(isActive("/dashboard/reports"))}>
+                <span className="flex items-center gap-2">
+                  <ClipboardList className="h-4 w-4" />
+                  <span>{t("nav.reports")}</span>
+                </span>
+              </Link>
+            )}
+          </>
+        )}
+
+        {/* Admin-only */}
+        {session?.user?.role === "admin" && (
+          <>
+            <div className="my-3 border-t border-slate-100 dark:border-slate-800" />
+            <p className="mb-1 px-3 text-[10px] font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500">
+              Admin
+            </p>
+            {ADMIN_NAV_ITEMS.filter((i) => i.href !== "/dashboard/analytics").map((item) => {
+              const Icon = item.icon;
+              return (
+                <Link key={item.href} href={item.href} className={linkClass(isActive(item.href))}>
+                  <span className="flex items-center gap-2">
+                    <Icon className="h-4 w-4" />
+                    <span>{t(item.tKey)}</span>
+                  </span>
+                </Link>
+              );
+            })}
+          </>
+        )}
+      </nav>
+
+      <div className="mt-6 border-t border-slate-100 pt-4 dark:border-slate-800">
+        <div className="mb-3 flex items-center justify-between gap-2">
           {session?.user && (
-            <div className="mb-3">
-              <p className="text-sm font-medium text-slate-800">
-                Hi, {session.user.name}
+            <div className="min-w-0">
+              <p className="truncate text-sm font-medium text-slate-800 dark:text-slate-200">
+                {session.user.name}
               </p>
-              <p className="text-xs text-slate-500">{session.user.role}</p>
+              <p className="text-xs capitalize text-slate-500 dark:text-slate-400">
+                {session.user.role}
+              </p>
             </div>
           )}
-          <button
-            onClick={() => signOut({ callbackUrl: "/login" })}
-            className="btn-secondary w-full justify-center text-xs"
-          >
-            <LogOut className="h-4 w-4" />
-            <span>Logout</span>
-          </button>
+          <div className="flex shrink-0 items-center gap-1.5">
+            <LanguageToggle />
+            <ThemeToggle />
+          </div>
         </div>
+        <button
+          onClick={() => signOut({ callbackUrl: "/login" })}
+          className="btn-secondary w-full justify-center text-xs"
+        >
+          <LogOut className="h-4 w-4" />
+          <span>{t("common.logout")}</span>
+        </button>
+      </div>
+    </>
+  );
+
+  return (
+    <div className="flex min-h-screen flex-col lg:flex-row px-3 py-4 md:px-6 md:py-6 lg:px-10">
+      {/* Mobile top bar */}
+      <div className="flex items-center justify-between lg:hidden mb-4">
+        <button
+          onClick={() => setSidebarOpen(true)}
+          className="rounded-xl p-2 text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+        >
+          <Menu className="h-6 w-6" />
+        </button>
+        <div className="flex items-center gap-2">
+          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-sky-100 text-sky-600 dark:bg-sky-950 dark:text-sky-400">
+            <Activity className="h-4 w-4" />
+          </div>
+          <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+            {t("common.appName")}
+          </span>
+        </div>
+        <div className="w-10" /> {/* Spacer */}
+      </div>
+
+      {/* Mobile overlay */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      {/* Sidebar – mobile slide-out */}
+      <aside
+        className={`fixed inset-y-0 start-0 z-50 flex w-72 flex-col rounded-e-3xl bg-white/95 p-5 shadow-xl ring-1 ring-slate-100 backdrop-blur-md transition-transform duration-300 dark:bg-slate-900/95 dark:ring-slate-800 lg:static lg:z-auto lg:w-64 lg:translate-x-0 lg:rounded-3xl lg:shadow-sm ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full rtl:translate-x-full"
+        }`}
+      >
+        {sidebarContent}
       </aside>
 
       {/* Main content */}
-      <main className="ml-4 flex-1 overflow-auto md:ml-6">
+      <main className="flex-1 overflow-auto lg:ms-6">
         <div className="space-y-6 pb-10">{children}</div>
       </main>
     </div>

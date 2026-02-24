@@ -9,6 +9,7 @@ const MedicationSchema = new mongoose.Schema({
 
 const PrescriptionSchema = new mongoose.Schema(
   {
+    clinicId: { type: mongoose.Schema.Types.ObjectId, ref: "Clinic", index: true },
     patient: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Patient",

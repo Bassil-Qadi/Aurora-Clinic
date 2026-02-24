@@ -1,8 +1,14 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import Appointment from "@/models/Appointment";
+import { requireAuth } from "@/lib/apiAuth";
+import { createAppointmentSchema } from "@/lib/validations";
 
 export async function GET(req: Request) {
+  const auth = await requireAuth();
+  if (!auth.success) return auth.response;
+  const { user } = auth;
+
   await connectDB();
 
   const { searchParams } = new URL(req.url);
@@ -14,41 +20,17 @@ export async function GET(req: Request) {
   const limit = Number(searchParams.get("limit")) || 5;
   const search = searchParams.get("search") || "";
 
-  // Search by patient name or phone or reason (example: "reason" field and patient fields)
-  const query: { $or?: any[] } & Record<string, any> = search
-    ? {
-        $or: [
-          { reason: { $regex: search, $options: "i" } },
-          { status: { $regex: search, $options: "i" } },
-        ],
-      }
-    : {};
+  const query: Record<string, any> = { clinicId: user.clinicId };
 
-    if (doctor) {
-      query.doctor = doctor;
-    }
+  if (doctor) query.doctor = doctor;
+  if (visit) query.visit = visit;
+  if (patient) query.patient = patient;
 
-    if (visit) query.visit = visit;
-    if (patient) query.patient = patient;
-
-  // To search by patient name, need to use aggregate or filter after populate.
-  // We'll fetch appointments with populated patient, then apply search if needed.
-  let appointmentsQuery = Appointment.find(query)
-    .populate("patient")
-    .populate("doctor")
-    .populate("visit")
-    .sort({ date: -1 })
-    .skip((page - 1) * limit)
-    .limit(limit);
-
-  let totalQuery = Appointment.countDocuments(query);
-
-  // If searching needed on patient fields, we have to use aggregate or filter after populate.
-  // Let's allow searching patient fields: firstName, lastName, phone as in patients API
+  // If search is provided, match on reason/status and patient fields
   if (search) {
-    // First, find matching patients
     const Patient = (await import("@/models/Patient")).default;
     const matchingPatients = await Patient.find({
+      clinicId: user.clinicId,
       $or: [
         { firstName: { $regex: search, $options: "i" } },
         { lastName: { $regex: search, $options: "i" } },
@@ -58,24 +40,22 @@ export async function GET(req: Request) {
 
     const patientIds = matchingPatients.map((p: any) => p._id);
 
-    // Extend the query to include matches with patient
     query.$or = [
-      ...(query.$or || []),
+      { reason: { $regex: search, $options: "i" } },
+      { status: { $regex: search, $options: "i" } },
       { patient: { $in: patientIds } },
     ];
-
-    appointmentsQuery = Appointment.find(query)
-      .populate("patient")
-      .sort({ date: -1 })
-      .skip((page - 1) * limit)
-      .limit(limit);
-
-    totalQuery = Appointment.countDocuments(query);
   }
 
   const [appointments, total] = await Promise.all([
-    appointmentsQuery,
-    totalQuery,
+    Appointment.find(query)
+      .populate("patient")
+      .populate("doctor")
+      .populate("visit")
+      .sort({ date: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit),
+    Appointment.countDocuments(query),
   ]);
 
   return NextResponse.json({
@@ -87,11 +67,26 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
+  const auth = await requireAuth();
+  if (!auth.success) return auth.response;
+  const { user } = auth;
+
   await connectDB();
 
   const body = await req.json();
+  const validation = createAppointmentSchema.safeParse(body);
+  if (!validation.success) {
+    return NextResponse.json(
+      { error: "Validation failed", details: validation.error.issues },
+      { status: 400 }
+    );
+  }
 
-  const appointment = await Appointment.create(body);
+  const appointment = await Appointment.create({
+    ...validation.data,
+    status: validation.data.status || "scheduled",
+    clinicId: user.clinicId,
+  });
 
   return NextResponse.json(appointment, { status: 201 });
 }

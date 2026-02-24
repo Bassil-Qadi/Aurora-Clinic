@@ -5,6 +5,7 @@ import {
 } from "@/lib/appointmentStatus";
 
 export interface IAppointment extends Document {
+  clinicId: mongoose.Types.ObjectId;
   patient: mongoose.Types.ObjectId;
   date: Date;
   reason: string;
@@ -16,6 +17,7 @@ export interface IAppointment extends Document {
 
 const AppointmentSchema = new Schema<IAppointment>(
   {
+    clinicId: { type: Schema.Types.ObjectId, ref: "Clinic", index: true },
     patient: {
       type: Schema.Types.ObjectId,
       ref: "Patient",

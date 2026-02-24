@@ -30,7 +30,7 @@ interface Stats {
 
 export default function DashboardHome() {
   const [stats, setStats] = useState<Stats | null>(null);
-  const [chartData, setChartData] = useState([]);
+  const [chartData, setChartData] = useState<any[]>([]);
 
   const pieChartData = stats?.appointmentStatus?.map((s: any) => ({
     name: s._id,
@@ -40,19 +40,31 @@ export default function DashboardHome() {
   const COLORS = ["#16a34a", "#eab308", "#ef4444"];
 
   const fetchChart = async () => {
-    const res = await fetch("/api/dashboard/analytics", {
-      cache: "no-store",
-    });
-    const data = await res.json();
-    setChartData(data);
+    try {
+      const res = await fetch("/api/dashboard/analytics", {
+        cache: "no-store",
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        setChartData(data);
+      }
+    } catch {
+      // ignore fetch errors
+    }
   };
 
   const fetchStats = async () => {
-    const res = await fetch("/api/dashboard", {
-      cache: "no-store",
-    });
-    const data = await res.json();
-    setStats(data);
+    try {
+      const res = await fetch("/api/dashboard", {
+        cache: "no-store",
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      setStats(data);
+    } catch {
+      // ignore fetch errors
+    }
   };
 
   useEffect(() => {

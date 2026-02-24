@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 
 const AuditLogSchema = new mongoose.Schema({
+  clinicId: { type: mongoose.Schema.Types.ObjectId, ref: "Clinic", index: true },
   action: String, // CREATE, UPDATE, DELETE
   entity: String, // Prescription
   entityId: String,

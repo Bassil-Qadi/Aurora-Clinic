@@ -1,5 +1,6 @@
 import { connectDB } from "@/lib/db";
 import Appointment from "@/models/Appointment";
+import AuditLog from "@/models/AuditLog";
 import { NextResponse } from "next/server";
 import {
   AppointmentStatus,
@@ -7,28 +8,31 @@ import {
   canTransitionStatus,
   normalizeAppointmentStatus,
 } from "@/lib/appointmentStatus";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import AuditLog from "@/models/AuditLog";
+import { requireAuth } from "@/lib/apiAuth";
+import { statusUpdateSchema } from "@/lib/validations";
 
 export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const auth = await requireAuth();
+  if (!auth.success) return auth.response;
+  const { user } = auth;
+
   await connectDB();
 
-  const { id } = await params; // <-- unwrap params
+  const { id } = await params;
 
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
+  const body = await req.json();
+  const validation = statusUpdateSchema.safeParse(body);
+  if (!validation.success) {
     return NextResponse.json(
-      { error: "Unauthorized. Please log in." },
-      { status: 401 }
+      { error: "Validation failed", details: validation.error.issues },
+      { status: 400 }
     );
   }
 
-  const body = await req.json();
-  const requestedStatus = normalizeAppointmentStatus(body.status);
+  const requestedStatus = normalizeAppointmentStatus(validation.data.status);
 
   if (!requestedStatus) {
     return NextResponse.json(
@@ -37,7 +41,10 @@ export async function PATCH(
     );
   }
 
-  const appointment = await Appointment.findById(id);
+  const appointment = await Appointment.findOne({
+    _id: id,
+    clinicId: user.clinicId,
+  });
 
   if (!appointment) {
     return NextResponse.json(
@@ -49,7 +56,9 @@ export async function PATCH(
   const currentStatus =
     normalizeAppointmentStatus(appointment.status as any) ?? "scheduled";
 
-  if (!canTransitionStatus(currentStatus as AppointmentStatus, requestedStatus)) {
+  if (
+    !canTransitionStatus(currentStatus as AppointmentStatus, requestedStatus)
+  ) {
     return NextResponse.json(
       {
         error: "Invalid status transition",
@@ -67,10 +76,11 @@ export async function PATCH(
 
   try {
     await AuditLog.create({
+      clinicId: user.clinicId,
       action: "UPDATE",
       entity: "Appointment",
       entityId: String(appointment._id),
-      performedBy: session.user.id,
+      performedBy: user.id,
       details: {
         field: "status",
         from: previousStatus,

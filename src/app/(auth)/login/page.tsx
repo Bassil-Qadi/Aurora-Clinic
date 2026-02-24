@@ -3,26 +3,37 @@
 import { signIn } from "next-auth/react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Lock, Mail, LogIn } from "lucide-react";
+import Link from "next/link";
+import { Lock, Mail, LogIn, KeyRound, Heart } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
+    setError("");
+    setLoading(true);
 
-    const res = await signIn("credentials", {
-      email,
-      password,
-      redirect: false,
-    });
+    try {
+      const res = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      });
 
-    if (res?.ok) {
-      router.push("/dashboard");
-    } else {
-      alert("Invalid credentials");
+      if (res?.ok) {
+        router.push("/dashboard");
+      } else {
+        setError("Invalid email or password. Please try again.");
+      }
+    } catch {
+      setError("An unexpected error occurred.");
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -48,6 +59,12 @@ export default function LoginPage() {
         </div>
 
         <form onSubmit={handleLogin} className="space-y-4">
+          {error && (
+            <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+              {error}
+            </div>
+          )}
+
           <div>
             <label className="mb-1 flex items-center gap-2 text-xs font-medium text-slate-600">
               <Mail className="h-3 w-3 text-sky-500" />
@@ -58,6 +75,7 @@ export default function LoginPage() {
               placeholder="you@clinic.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              required
             />
           </div>
 
@@ -72,13 +90,38 @@ export default function LoginPage() {
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              required
             />
           </div>
 
-          <button type="submit" className="btn-primary w-full justify-center">
+          <div className="flex items-center justify-end">
+            <Link
+              href="/forgot-password"
+              className="inline-flex items-center gap-1.5 text-xs font-medium text-sky-600 hover:text-sky-700 transition-colors"
+            >
+              <KeyRound className="h-3 w-3" />
+              Forgot your password?
+            </Link>
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="btn-primary w-full justify-center"
+          >
             <LogIn className="h-4 w-4" />
-            <span>Login</span>
+            <span>{loading ? "Signing in…" : "Login"}</span>
           </button>
+
+          <div className="border-t border-slate-100 pt-3">
+            <Link
+              href="/portal/login"
+              className="flex items-center justify-center gap-2 text-sm text-slate-500 hover:text-emerald-600 transition-colors"
+            >
+              <Heart className="h-3.5 w-3.5" />
+              Patient Portal
+            </Link>
+          </div>
         </form>
       </div>
     </div>

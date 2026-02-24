@@ -4,16 +4,21 @@ import { connectDB } from "@/lib/db";
 import Visit from "@/models/Visit";
 import Prescription from "@/models/Prescription";
 import { openaiClient } from "@/lib/openai";
+import { requireAuth } from "@/lib/apiAuth";
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const auth = await requireAuth();
+    if (!auth.success) return auth.response;
+    const { user } = auth;
+
     const { id } = await params;
     const url = new URL(req.url);
     const force = url.searchParams.get("force") === "true";
 
     await connectDB();
 
-    const visit = await Visit.findById(id)
+    const visit = await Visit.findOne({ _id: id, clinicId: user.clinicId })
       .populate({
         path: "patient",
         select: "firstName lastName dateOfBirth gender"
@@ -27,6 +32,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
     // Query prescriptions separately since Visit.prescription is a String, not a reference
     const prescriptions = await Prescription.find({
       visit: id,
+      clinicId: user.clinicId,
       isDeleted: { $ne: true },
     }).populate("doctor");
 
