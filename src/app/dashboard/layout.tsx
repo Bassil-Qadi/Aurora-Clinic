@@ -129,7 +129,7 @@ export default function DashboardLayout({ children }: Props) {
           <>
             <div className="my-3 border-t border-slate-100 dark:border-slate-800" />
             <p className="mb-1 px-3 text-[10px] font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500">
-              Admin
+              {t("common.admin")}
             </p>
             {ADMIN_NAV_ITEMS.filter((i) => i.href !== "/dashboard/analytics").map((item) => {
               const Icon = item.icon;
