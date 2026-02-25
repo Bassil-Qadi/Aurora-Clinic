@@ -105,6 +105,39 @@
            dark:text-slate-400;
   }
 
+  .card-title {
+    @apply text-sm font-semibold text-slate-900
+           dark:text-slate-100;
+  }
+
+  /* Alert / message banners */
+  .alert-success {
+    @apply rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700
+           dark:border-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-400;
+  }
+
+  .alert-error {
+    @apply rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700
+           dark:border-rose-800 dark:bg-rose-950/50 dark:text-rose-400;
+  }
+
+  .alert-info {
+    @apply rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-700
+           dark:border-sky-800 dark:bg-sky-950/50 dark:text-sky-400;
+  }
+
+  /* Section heading (used inside cards) */
+  .section-heading {
+    @apply text-lg font-semibold text-slate-900
+           dark:text-slate-100;
+  }
+
+  /* Form labels */
+  .form-label {
+    @apply mb-1 block text-xs font-medium text-slate-600
+           dark:text-slate-400;
+  }
+
   .pill {
     @apply inline-flex items-center rounded-full px-3 py-1 text-xs font-medium bg-sky-50 text-sky-700
            dark:bg-sky-950/50 dark:text-sky-400;

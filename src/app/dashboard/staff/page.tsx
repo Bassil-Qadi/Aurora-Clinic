@@ -34,11 +34,11 @@ const ROLE_ICONS: Record<string, React.ReactNode> = {
 
 const ROLE_COLORS: Record<string, string> = {
   admin:
-    "bg-violet-50 text-violet-700 border-violet-200",
+    "bg-violet-50 text-violet-700 border-violet-200 dark:bg-violet-900/30 dark:text-violet-400 dark:border-violet-700",
   doctor:
-    "bg-sky-50 text-sky-700 border-sky-200",
+    "bg-sky-50 text-sky-700 border-sky-200 dark:bg-sky-900/30 dark:text-sky-400 dark:border-sky-700",
   receptionist:
-    "bg-emerald-50 text-emerald-700 border-emerald-200",
+    "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-700",
 };
 
 export default function StaffManagementPage() {
@@ -258,8 +258,8 @@ export default function StaffManagementPage() {
         <div
           className={`rounded-xl border px-4 py-3 text-sm font-medium ${
             message.type === "success"
-              ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-              : "border-rose-200 bg-rose-50 text-rose-700"
+              ? "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400"
+              : "border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-700 dark:bg-rose-950/30 dark:text-rose-400"
           }`}
         >
           {message.text}
@@ -279,7 +279,7 @@ export default function StaffManagementPage() {
 
       {/* Staff Table */}
       {loading ? (
-        <div className="card text-center py-10 text-slate-500 text-sm">
+        <div className="card text-center py-10 text-slate-500 dark:text-slate-400 text-sm">
           Loading staff…
         </div>
       ) : (
@@ -298,14 +298,14 @@ export default function StaffManagementPage() {
             <tbody>
               {filteredStaff.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="text-center py-8 text-slate-500">
+                  <td colSpan={6} className="text-center py-8 text-slate-500 dark:text-slate-400">
                     No staff members found.
                   </td>
                 </tr>
               ) : (
                 filteredStaff.map((member) => (
                   <tr key={member._id}>
-                    <td className="font-medium text-slate-900">
+                    <td className="font-medium text-slate-900 dark:text-slate-100">
                       {member.name}
                     </td>
                     <td>{member.email}</td>
@@ -324,8 +324,8 @@ export default function StaffManagementPage() {
                       <span
                         className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${
                           member.isActive
-                            ? "bg-emerald-50 text-emerald-700"
-                            : "bg-slate-100 text-slate-500"
+                            ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
+                            : "bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400"
                         }`}
                       >
                         <span
@@ -336,7 +336,7 @@ export default function StaffManagementPage() {
                         {member.isActive ? "Active" : "Inactive"}
                       </span>
                     </td>
-                    <td className="text-slate-500">
+                    <td className="text-slate-500 dark:text-slate-400">
                       {new Date(member.createdAt).toLocaleDateString()}
                     </td>
                     <td>
@@ -383,7 +383,7 @@ export default function StaffManagementPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm !mt-0">
           <div className="card w-full max-w-md space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
+              <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
                 <UserPlus className="h-5 w-5 text-sky-500" />
                 <span>Add Staff Member</span>
               </h2>
@@ -396,7 +396,7 @@ export default function StaffManagementPage() {
             </div>
 
             <div>
-              <label className="mb-1 block text-xs font-medium text-slate-600">
+              <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
                 Full Name
               </label>
               <input
@@ -408,7 +408,7 @@ export default function StaffManagementPage() {
             </div>
 
             <div>
-              <label className="mb-1 block text-xs font-medium text-slate-600">
+              <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
                 Email
               </label>
               <input
@@ -421,7 +421,7 @@ export default function StaffManagementPage() {
             </div>
 
             <div>
-              <label className="mb-1 block text-xs font-medium text-slate-600">
+              <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
                 Temporary Password
               </label>
               <input
@@ -434,7 +434,7 @@ export default function StaffManagementPage() {
             </div>
 
             <div>
-              <label className="mb-1 block text-xs font-medium text-slate-600">
+              <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
                 Role
               </label>
               <select
@@ -472,7 +472,7 @@ export default function StaffManagementPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm !mt-0">
           <div className="card w-full max-w-md space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
+              <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
                 <Pencil className="h-5 w-5 text-sky-500" />
                 <span>Edit Staff Member</span>
               </h2>
@@ -485,7 +485,7 @@ export default function StaffManagementPage() {
             </div>
 
             <div>
-              <label className="mb-1 block text-xs font-medium text-slate-600">
+              <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
                 Full Name
               </label>
               <input
@@ -496,7 +496,7 @@ export default function StaffManagementPage() {
             </div>
 
             <div>
-              <label className="mb-1 block text-xs font-medium text-slate-600">
+              <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
                 Email
               </label>
               <input
@@ -508,7 +508,7 @@ export default function StaffManagementPage() {
             </div>
 
             <div>
-              <label className="mb-1 block text-xs font-medium text-slate-600">
+              <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
                 Role
               </label>
               <select
@@ -546,7 +546,7 @@ export default function StaffManagementPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm !mt-0">
           <div className="card w-full max-w-md space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
+              <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
                 <KeyRound className="h-5 w-5 text-amber-500" />
                 <span>Reset Password</span>
               </h2>
@@ -558,14 +558,14 @@ export default function StaffManagementPage() {
               </button>
             </div>
 
-            <p className="text-sm text-slate-600">
+            <p className="text-sm text-slate-600 dark:text-slate-400">
               Set a new password for{" "}
               <span className="font-semibold">{selectedUser.name}</span> (
               {selectedUser.email}).
             </p>
 
             <div>
-              <label className="mb-1 block text-xs font-medium text-slate-600">
+              <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
                 New Password
               </label>
               <input

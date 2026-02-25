@@ -78,10 +78,10 @@ export default function PortalDashboard() {
         <div className="card">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+              <p className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
                 Upcoming Appointments
               </p>
-              <p className="mt-3 text-3xl font-semibold text-slate-900">
+              <p className="mt-3 text-3xl font-semibold text-slate-900 dark:text-slate-100">
                 {upcomingAppointments.length}
               </p>
             </div>
@@ -91,10 +91,10 @@ export default function PortalDashboard() {
         <div className="card">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+              <p className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
                 Total Appointments
               </p>
-              <p className="mt-3 text-3xl font-semibold text-slate-900">
+              <p className="mt-3 text-3xl font-semibold text-slate-900 dark:text-slate-100">
                 {appointments.length}
               </p>
             </div>
@@ -104,10 +104,10 @@ export default function PortalDashboard() {
         <div className="card">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+              <p className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
                 Completed Visits
               </p>
-              <p className="mt-3 text-3xl font-semibold text-slate-900">
+              <p className="mt-3 text-3xl font-semibold text-slate-900 dark:text-slate-100">
                 {visits.length}
               </p>
             </div>
@@ -119,17 +119,17 @@ export default function PortalDashboard() {
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Upcoming Appointments */}
         <div className="card">
-          <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900 mb-4">
+          <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900 mb-4 dark:text-slate-100">
             <CalendarCheck className="h-5 w-5 text-emerald-500" />
             Upcoming Appointments
           </h2>
           {upcomingAppointments.length === 0 ? (
             <div className="py-8 text-center">
-              <CalendarCheck className="h-8 w-8 mx-auto mb-2 text-slate-300" />
-              <p className="text-sm text-slate-500">No upcoming appointments.</p>
+              <CalendarCheck className="h-8 w-8 mx-auto mb-2 text-slate-300 dark:text-slate-600" />
+              <p className="text-sm text-slate-500 dark:text-slate-400">No upcoming appointments.</p>
               <Link
                 href="/portal/book"
-                className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-emerald-600 hover:text-emerald-700"
+                className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300"
               >
                 Book one now →
               </Link>
@@ -144,13 +144,13 @@ export default function PortalDashboard() {
                 return (
                   <div
                     key={appt._id}
-                    className="rounded-xl border border-slate-200 bg-white p-4 transition-all hover:border-emerald-300 hover:shadow-sm"
+                    className="rounded-xl border border-slate-200 bg-white p-4 transition-all hover:border-emerald-300 hover:shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:hover:border-emerald-600"
                   >
                     <div className="flex items-start justify-between">
                       <div>
                         <div className="flex items-center gap-2 mb-1">
-                          <Clock className="h-3.5 w-3.5 text-slate-400" />
-                          <span className="text-sm font-medium text-slate-900">
+                          <Clock className="h-3.5 w-3.5 text-slate-400 dark:text-slate-500" />
+                          <span className="text-sm font-medium text-slate-900 dark:text-slate-100">
                             {apptDate.toLocaleDateString("en-US", {
                               weekday: "short",
                               month: "short",
@@ -164,18 +164,18 @@ export default function PortalDashboard() {
                           </span>
                         </div>
                         {appt.reason && (
-                          <p className="text-xs text-slate-500 mt-1">
+                          <p className="text-xs text-slate-500 mt-1 dark:text-slate-400">
                             {appt.reason}
                           </p>
                         )}
                         {appt.doctor && (
-                          <p className="text-xs text-slate-500 mt-0.5">
+                          <p className="text-xs text-slate-500 mt-0.5 dark:text-slate-400">
                             Dr. {appt.doctor.name}
                           </p>
                         )}
                       </div>
                       {isToday && (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400">
                           <AlertCircle className="h-3 w-3" />
                           Today
                         </span>
@@ -190,14 +190,14 @@ export default function PortalDashboard() {
 
         {/* Recent Visits */}
         <div className="card">
-          <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900 mb-4">
+          <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900 mb-4 dark:text-slate-100">
             <Stethoscope className="h-5 w-5 text-violet-500" />
             Recent Visit Summaries
           </h2>
           {visits.length === 0 ? (
             <div className="py-8 text-center">
-              <Stethoscope className="h-8 w-8 mx-auto mb-2 text-slate-300" />
-              <p className="text-sm text-slate-500">
+              <Stethoscope className="h-8 w-8 mx-auto mb-2 text-slate-300 dark:text-slate-600" />
+              <p className="text-sm text-slate-500 dark:text-slate-400">
                 No completed visits yet.
               </p>
             </div>
@@ -206,12 +206,12 @@ export default function PortalDashboard() {
               {visits.slice(0, 5).map((visit) => (
                 <div
                   key={visit._id}
-                  className="rounded-xl border border-slate-200 bg-white p-4"
+                  className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800"
                 >
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex items-center gap-2">
-                      <FileText className="h-3.5 w-3.5 text-slate-400" />
-                      <span className="text-xs text-slate-500">
+                      <FileText className="h-3.5 w-3.5 text-slate-400 dark:text-slate-500" />
+                      <span className="text-xs text-slate-500 dark:text-slate-400">
                         {new Date(visit.createdAt).toLocaleDateString("en-US", {
                           month: "short",
                           day: "numeric",
@@ -219,19 +219,19 @@ export default function PortalDashboard() {
                         })}
                       </span>
                     </div>
-                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-medium text-emerald-700">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-medium text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400">
                       <CheckCircle2 className="h-3 w-3" />
                       Completed
                     </span>
                   </div>
                   {visit.diagnosis && (
-                    <p className="text-sm text-slate-700">
+                    <p className="text-sm text-slate-700 dark:text-slate-300">
                       <span className="font-medium">Diagnosis:</span>{" "}
                       {visit.diagnosis}
                     </p>
                   )}
                   {visit.doctor && (
-                    <p className="text-xs text-slate-500 mt-1">
+                    <p className="text-xs text-slate-500 mt-1 dark:text-slate-400">
                       Dr. {visit.doctor.name}
                     </p>
                   )}
@@ -245,7 +245,7 @@ export default function PortalDashboard() {
       {/* Past Appointments */}
       {pastAppointments.length > 0 && (
         <div className="card">
-          <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900 mb-4">
+          <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900 mb-4 dark:text-slate-100">
             <Calendar className="h-5 w-5 text-sky-500" />
             Past Appointments
           </h2>

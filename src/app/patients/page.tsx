@@ -107,7 +107,7 @@ export default function PatientsPage() {
 
       {/* Form */}
       <div className="card card-muted">
-        <h2 className="mb-4 text-sm font-semibold text-slate-900">
+        <h2 className="mb-4 text-sm font-semibold text-slate-900 dark:text-slate-100">
           {editingId ? "Edit patient" : "Add new patient"}
         </h2>
 
@@ -154,7 +154,7 @@ export default function PatientsPage() {
         </form>
 
         {/* Validation Errors */}
-        <div className="mt-2 text-xs text-rose-600">
+        <div className="mt-2 text-xs text-rose-600 dark:text-rose-400">
           {Object.values(errors).map((err, index) => (
             <p key={index}>{err?.message}</p>
           ))}
@@ -193,7 +193,7 @@ export default function PatientsPage() {
                 <td>
                   <Link
                     href={`/dashboard/patients/${p._id}`}
-                    className="font-medium text-sky-700 hover:underline"
+                    className="font-medium text-sky-700 hover:underline dark:text-sky-400"
                   >
                     {p.firstName} {p.lastName}
                   </Link>
@@ -221,13 +221,13 @@ export default function PatientsPage() {
         </table>
 
         {patients.length === 0 && (
-          <p className="px-4 pb-4 pt-2 text-sm text-slate-500">
+          <p className="px-4 pb-4 pt-2 text-sm text-slate-500 dark:text-slate-400">
             No patients yet. Add your first patient using the form above.
           </p>
         )}
       </div>
 
-      <div className="mt-2 flex items-center justify-center gap-3 text-xs text-slate-600">
+      <div className="mt-2 flex items-center justify-center gap-3 text-xs text-slate-600 dark:text-slate-400">
         <button
           disabled={page === 1}
           onClick={() => setPage(page - 1)}

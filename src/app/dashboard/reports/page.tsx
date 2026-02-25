@@ -236,25 +236,25 @@ export default function ReportsPage() {
               }}
               className={`card text-left transition-all ${
                 active
-                  ? "ring-2 ring-sky-400 bg-sky-50/50"
-                  : "hover:ring-1 hover:ring-slate-200"
+                  ? "ring-2 ring-sky-400 bg-sky-50/50 dark:bg-sky-900/20"
+                  : "hover:ring-1 hover:ring-slate-200 dark:hover:ring-slate-600"
               }`}
             >
               <div className="flex items-center gap-3">
                 <div
                   className={`flex h-10 w-10 items-center justify-center rounded-xl ${
                     active
-                      ? "bg-sky-100 text-sky-600"
-                      : "bg-slate-100 text-slate-500"
+                      ? "bg-sky-100 text-sky-600 dark:bg-sky-900/30 dark:text-sky-400"
+                      : "bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400"
                   }`}
                 >
                   <Icon className="h-5 w-5" />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-slate-900">
+                  <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
                     {rt.label}
                   </p>
-                  <p className="text-xs text-slate-500">{rt.description}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">{rt.description}</p>
                 </div>
               </div>
             </button>
@@ -266,12 +266,12 @@ export default function ReportsPage() {
       <div className="card">
         <div className="flex items-center gap-2 mb-4">
           <Filter className="h-4 w-4 text-slate-400" />
-          <h3 className="text-sm font-semibold text-slate-900">Filters</h3>
+          <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Filters</h3>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <div>
-            <label className="mb-1 text-xs font-medium text-slate-600 block">
+            <label className="mb-1 text-xs font-medium text-slate-600 dark:text-slate-400 block">
               From Date
             </label>
             <input
@@ -282,7 +282,7 @@ export default function ReportsPage() {
             />
           </div>
           <div>
-            <label className="mb-1 text-xs font-medium text-slate-600 block">
+            <label className="mb-1 text-xs font-medium text-slate-600 dark:text-slate-400 block">
               To Date
             </label>
             <input
@@ -294,7 +294,7 @@ export default function ReportsPage() {
           </div>
           {reportType !== "patientList" && (
             <div>
-              <label className="mb-1 text-xs font-medium text-slate-600 block">
+              <label className="mb-1 text-xs font-medium text-slate-600 dark:text-slate-400 block">
                 Doctor
               </label>
               <select
@@ -313,7 +313,7 @@ export default function ReportsPage() {
           )}
           {reportType === "appointmentList" && (
             <div>
-              <label className="mb-1 text-xs font-medium text-slate-600 block">
+              <label className="mb-1 text-xs font-medium text-slate-600 dark:text-slate-400 block">
                 Status
               </label>
               <select
@@ -347,19 +347,19 @@ export default function ReportsPage() {
 
       {/* Results */}
       {loading ? (
-        <div className="card py-10 text-center text-sm text-slate-500">
+        <div className="card py-10 text-center text-sm text-slate-500 dark:text-slate-400">
           Generating report…
         </div>
       ) : searched ? (
         rows.length === 0 ? (
-          <div className="card py-10 text-center text-sm text-slate-500">
-            <FileText className="h-8 w-8 mx-auto mb-2 text-slate-300" />
+          <div className="card py-10 text-center text-sm text-slate-500 dark:text-slate-400">
+            <FileText className="h-8 w-8 mx-auto mb-2 text-slate-300 dark:text-slate-600" />
             <p>No records found for the selected criteria.</p>
           </div>
         ) : (
           <div className="card overflow-hidden">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-semibold text-slate-900">
+              <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
                 {currentReport?.label} — {rows.length} record
                 {rows.length !== 1 ? "s" : ""}
               </h3>
@@ -405,16 +405,16 @@ export default function ReportsPage() {
                           <span
                             className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
                               r.status === "completed"
-                                ? "bg-emerald-50 text-emerald-700"
+                                ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
                                 : r.status === "cancelled"
-                                ? "bg-rose-50 text-rose-700"
+                                ? "bg-rose-50 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400"
                                 : r.status === "no_show"
-                                ? "bg-orange-50 text-orange-700"
+                                ? "bg-orange-50 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400"
                                 : r.status === "in_progress"
-                                ? "bg-blue-50 text-blue-700"
+                                ? "bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
                                 : r.status === "waiting"
-                                ? "bg-yellow-50 text-yellow-700"
-                                : "bg-slate-50 text-slate-700"
+                                ? "bg-yellow-50 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400"
+                                : "bg-slate-50 text-slate-700 dark:bg-slate-800 dark:text-slate-400"
                             }`}
                           >
                             {r.status}
@@ -456,8 +456,8 @@ export default function ReportsPage() {
                           <span
                             className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
                               r.completed
-                                ? "bg-emerald-50 text-emerald-700"
-                                : "bg-blue-50 text-blue-700"
+                                ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
+                                : "bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
                             }`}
                           >
                             {r.completed ? "Completed" : "In Progress"}

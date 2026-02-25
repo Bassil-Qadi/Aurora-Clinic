@@ -374,13 +374,13 @@ export default function VisitsPage() {
         </table>
 
         {visits.length === 0 && (
-          <p className="px-4 pb-4 pt-2 text-sm text-slate-500">
+          <p className="px-4 pb-4 pt-2 text-sm text-slate-500 dark:text-slate-400">
             No visits yet. Add your first visit using the form above.
           </p>
         )}
       </div>
 
-      <div className="mt-2 flex items-center justify-center gap-3 text-xs text-slate-600">
+      <div className="mt-2 flex items-center justify-center gap-3 text-xs text-slate-600 dark:text-slate-400">
         <button
           disabled={page === 1}
           onClick={() => setPage(page - 1)}
@@ -405,16 +405,16 @@ export default function VisitsPage() {
       {selectedVisit && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 !mt-0">
           <div className="card w-full max-w-md">
-            <h2 className="mb-4 text-lg font-semibold text-slate-900">
+            <h2 className="mb-4 text-lg font-semibold text-slate-900 dark:text-slate-100">
               <span className="inline-flex items-center gap-2">
                 <FileText className="h-5 w-5 text-sky-500" />
                 <span>Visit details</span>
               </span>
             </h2>
 
-            <div className="space-y-3 text-sm text-slate-700">
+            <div className="space-y-3 text-sm text-slate-700 dark:text-slate-300">
               <div>
-                <p className="text-xs font-semibold text-slate-500">
+                <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">
                   Patient
                 </p>
                 <p>
@@ -424,21 +424,21 @@ export default function VisitsPage() {
               </div>
 
               <div>
-                <p className="text-xs font-semibold text-slate-500">
+                <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">
                   Diagnosis
                 </p>
                 <p>{selectedVisit.diagnosis}</p>
               </div>
 
               <div>
-                <h3 className="text-lg font-semibold mt-4">Prescriptions</h3>
+                <h3 className="text-lg font-semibold mt-4 dark:text-slate-100">Prescriptions</h3>
 
                 {visitPrescriptions.length === 0 ? (
-                  <p className="text-sm text-gray-500">No prescriptions for this visit.</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">No prescriptions for this visit.</p>
                 ) : (
                   visitPrescriptions.map((p: any) => (
-                    <div key={p._id} className="border p-3 rounded mb-2">
-                      <p className="text-sm text-gray-500">
+                    <div key={p._id} className="border p-3 rounded mb-2 dark:border-slate-700">
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
                         {new Date(p.createdAt).toLocaleDateString()}
                       </p>
 
@@ -551,17 +551,17 @@ export default function VisitsPage() {
               {historyVersions.map((v: any) => (
                 <div
                   key={v._id}
-                  className={`w-full border p-3 rounded mb-3 ${v.isSuperseded ? "bg-gray-50" : "bg-green-50"
-                    }`}
+                  className={`w-full border p-3 rounded mb-3 ${v.isSuperseded ? "bg-gray-50 dark:bg-gray-800/50" : "bg-green-50 dark:bg-green-900/20"
+                    } dark:border-slate-700`}
                 >
                   <p className="text-sm font-semibold">
                     Version {v.version}
                     {!v.isSuperseded && (
-                      <span className="ml-2 text-green-600">(Current)</span>
+                      <span className="ml-2 text-green-600 dark:text-green-400">(Current)</span>
                     )}
                   </p>
 
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
                     {new Date(v.createdAt).toLocaleString()}
                   </p>
 
@@ -686,7 +686,7 @@ export default function VisitsPage() {
           </Button>
 
           <select
-            className="w-full border rounded-lg p-2 mt-4"
+            className="w-full border rounded-lg p-2 mt-4 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
             value={selectedDoctorId}
             onChange={(e) => setSelectedDoctorId(e.target.value)}
           >
@@ -699,7 +699,7 @@ export default function VisitsPage() {
           </select>
 
           <textarea
-            className="w-full border rounded-lg p-2 mt-4"
+            className="w-full border rounded-lg p-2 mt-4 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:placeholder:text-slate-500"
             placeholder="Additional Notes..."
             value={notes}
             onChange={(e) => setNotes(e.target.value)}

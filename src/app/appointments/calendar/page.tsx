@@ -140,12 +140,12 @@ export default function AppointmentCalendar() {
 
 
   return (
-    <div className="bg-white p-6 rounded-2xl shadow-sm">
+    <div className="bg-white p-6 rounded-2xl shadow-sm dark:bg-slate-900">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold">Appointments</h2>
+        <h2 className="text-lg font-semibold dark:text-slate-100">Appointments</h2>
 
         <select
-          className="border rounded-lg px-3 py-2"
+          className="border rounded-lg px-3 py-2 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
           value={filterDoctor}
           onChange={(e) => setFilterDoctor(e.target.value)}
         >

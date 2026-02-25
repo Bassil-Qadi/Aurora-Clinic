@@ -108,10 +108,10 @@ export default function DashboardHome() {
         <div className="card">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+              <p className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
                 Total Patients
               </p>
-              <p className="mt-3 text-3xl font-semibold text-slate-900">
+              <p className="mt-3 text-3xl font-semibold text-slate-900 dark:text-slate-100">
                 {stats.totalPatients}
               </p>
             </div>
@@ -122,10 +122,10 @@ export default function DashboardHome() {
         <div className="card">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+              <p className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
                 Total Appointments
               </p>
-              <p className="mt-3 text-3xl font-semibold text-slate-900">
+              <p className="mt-3 text-3xl font-semibold text-slate-900 dark:text-slate-100">
                 {stats.totalAppointments}
               </p>
             </div>
@@ -136,10 +136,10 @@ export default function DashboardHome() {
         <div className="card">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+              <p className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
                 Today&apos;s Appointments
               </p>
-              <p className="mt-3 text-3xl font-semibold text-slate-900">
+              <p className="mt-3 text-3xl font-semibold text-slate-900 dark:text-slate-100">
                 {stats.todayAppointments}
               </p>
             </div>
@@ -150,10 +150,10 @@ export default function DashboardHome() {
         <div className="card">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+              <p className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
                 Total Visits
               </p>
-              <p className="mt-3 text-3xl font-semibold text-slate-900">
+              <p className="mt-3 text-3xl font-semibold text-slate-900 dark:text-slate-100">
                 {stats.totalVisits}
               </p>
             </div>
@@ -178,11 +178,11 @@ export default function DashboardHome() {
               return (
                 <div
                   key={appt._id}
-                  className="group relative overflow-hidden rounded-lg border border-slate-200 bg-gradient-to-br from-white to-slate-50/50 p-4 transition-all hover:border-emerald-300 hover:shadow-md"
+                  className="group relative overflow-hidden rounded-lg border border-slate-200 bg-gradient-to-br from-white to-slate-50/50 p-4 transition-all hover:border-emerald-300 hover:shadow-md dark:border-slate-700 dark:from-slate-800 dark:to-slate-800/50 dark:hover:border-emerald-700"
                 >
                   <div className="flex items-start gap-4">
                     {/* Calendar Icon Badge */}
-                    <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition-colors group-hover:bg-emerald-200 ${isToday ? "bg-emerald-100 text-emerald-600" : "bg-blue-100 text-blue-600"
+                    <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition-colors group-hover:bg-emerald-200 dark:group-hover:bg-emerald-900 ${isToday ? "bg-emerald-100 text-emerald-600 dark:bg-emerald-950 dark:text-emerald-400" : "bg-blue-100 text-blue-600 dark:bg-blue-950 dark:text-blue-400"
                       }`}>
                       <CalendarCheck className="h-5 w-5" />
                     </div>
@@ -192,19 +192,19 @@ export default function DashboardHome() {
                       <div className="flex items-start justify-between gap-2 mb-2">
                         <div className="flex items-center gap-2 min-w-0">
                           <User className="h-4 w-4 text-slate-400 shrink-0" />
-                          <p className="font-semibold text-slate-900 truncate">
+                          <p className="font-semibold text-slate-900 dark:text-slate-100 truncate">
                             {appt.patient?.firstName} {appt.patient?.lastName}
                           </p>
                         </div>
                         {/* Status Badge */}
                         {isToday && (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700 shrink-0">
+                          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700 shrink-0 dark:bg-emerald-950/50 dark:text-emerald-400">
                             <AlertCircle className="h-3 w-3" />
                             Today
                           </span>
                         )}
                         {isTomorrow && !isToday && (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700 shrink-0">
+                          <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700 shrink-0 dark:bg-blue-950/50 dark:text-blue-400">
                             Tomorrow
                           </span>
                         )}
@@ -215,8 +215,8 @@ export default function DashboardHome() {
                         <div className="mb-2">
                           <div className="flex items-start gap-2">
                             <FileText className="h-3.5 w-3.5 text-slate-400 mt-0.5 shrink-0" />
-                            <p className="text-sm text-slate-700 line-clamp-2">
-                              <span className="font-medium text-slate-600">Reason:</span>{" "}
+                            <p className="text-sm text-slate-700 dark:text-slate-300 line-clamp-2">
+                              <span className="font-medium text-slate-600 dark:text-slate-400">Reason:</span>{" "}
                               {appt.reason}
                             </p>
                           </div>
@@ -226,7 +226,7 @@ export default function DashboardHome() {
                       {/* Doctor Name */}
                       {appt.doctor && (
                         <div className="mb-2">
-                          <p className="text-xs text-slate-600">
+                          <p className="text-xs text-slate-600 dark:text-slate-400">
                             <span className="font-medium">Dr.</span> {appt.doctor?.name || "Not assigned"}
                           </p>
                         </div>
@@ -256,8 +256,8 @@ export default function DashboardHome() {
             })}
 
             {(!stats?.upcomingAppointments || stats.upcomingAppointments.length === 0) && (
-              <div className="py-8 text-center text-sm text-slate-500">
-                <CalendarCheck className="h-8 w-8 mx-auto mb-2 text-slate-300" />
+              <div className="py-8 text-center text-sm text-slate-500 dark:text-slate-400">
+                <CalendarCheck className="h-8 w-8 mx-auto mb-2 text-slate-300 dark:text-slate-600" />
                 <p>No upcoming appointments</p>
               </div>
             )}
@@ -271,11 +271,11 @@ export default function DashboardHome() {
             {stats?.recentVisits?.map((visit: any) => (
               <div
                 key={visit._id}
-                className="group relative overflow-hidden rounded-lg border border-slate-200 bg-gradient-to-br from-white to-slate-50/50 p-4 transition-all hover:border-sky-300 hover:shadow-md"
+                className="group relative overflow-hidden rounded-lg border border-slate-200 bg-gradient-to-br from-white to-slate-50/50 p-4 transition-all hover:border-sky-300 hover:shadow-md dark:border-slate-700 dark:from-slate-800 dark:to-slate-800/50 dark:hover:border-sky-700"
               >
                 <div className="flex items-start gap-4">
                   {/* Medical Icon Badge */}
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-sky-100 text-sky-600 transition-colors group-hover:bg-sky-200">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-sky-100 text-sky-600 transition-colors group-hover:bg-sky-200 dark:bg-sky-950 dark:text-sky-400 dark:group-hover:bg-sky-900">
                     <Stethoscope className="h-5 w-5" />
                   </div>
 
@@ -284,7 +284,7 @@ export default function DashboardHome() {
                     <div className="flex items-start justify-between gap-2 mb-2">
                       <div className="flex items-center gap-2 min-w-0">
                         <User className="h-4 w-4 text-slate-400 shrink-0" />
-                        <p className="font-semibold text-slate-900 truncate">
+                        <p className="font-semibold text-slate-900 dark:text-slate-100 truncate">
                           {visit.patient?.firstName} {visit.patient?.lastName}
                         </p>
                       </div>
@@ -294,8 +294,8 @@ export default function DashboardHome() {
                     <div className="mb-2">
                       <div className="flex items-start gap-2">
                         <FileText className="h-3.5 w-3.5 text-slate-400 mt-0.5 shrink-0" />
-                        <p className="text-sm text-slate-700 line-clamp-2">
-                          <span className="font-medium text-slate-600">Diagnosis:</span>{" "}
+                        <p className="text-sm text-slate-700 dark:text-slate-300 line-clamp-2">
+                          <span className="font-medium text-slate-600 dark:text-slate-400">Diagnosis:</span>{" "}
                           {visit.diagnosis || "No diagnosis recorded"}
                         </p>
                       </div>
@@ -304,7 +304,7 @@ export default function DashboardHome() {
                     {/* Prescription indicator */}
                     {visit.prescription && (
                       <div className="mb-2">
-                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400">
                           <Clipboard className="h-3 w-3" />
                           Prescription issued
                         </span>
@@ -333,8 +333,8 @@ export default function DashboardHome() {
             ))}
 
             {(!stats?.recentVisits || stats.recentVisits.length === 0) && (
-              <div className="py-8 text-center text-sm text-slate-500">
-                <Stethoscope className="h-8 w-8 mx-auto mb-2 text-slate-300" />
+              <div className="py-8 text-center text-sm text-slate-500 dark:text-slate-400">
+                <Stethoscope className="h-8 w-8 mx-auto mb-2 text-slate-300 dark:text-slate-600" />
                 <p>No recent visits recorded</p>
               </div>
             )}
@@ -343,7 +343,7 @@ export default function DashboardHome() {
 
         <div className="card">
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-slate-900">
+            <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
               Appointments
             </h2>
             <span className="pill">Trend</span>
@@ -372,7 +372,7 @@ export default function DashboardHome() {
 
       <div className="card card-muted">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-slate-900">
+          <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
             Monthly appointments & visits
           </h2>
           <span className="pill">Trend</span>

@@ -51,13 +51,13 @@ const DOC_CATEGORIES = [
 ];
 
 const CATEGORY_COLORS: Record<string, string> = {
-  lab_result: "bg-violet-50 text-violet-700 border-violet-200",
-  imaging: "bg-blue-50 text-blue-700 border-blue-200",
-  prescription: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  referral: "bg-amber-50 text-amber-700 border-amber-200",
-  consent: "bg-slate-50 text-slate-700 border-slate-200",
-  insurance: "bg-cyan-50 text-cyan-700 border-cyan-200",
-  other: "bg-gray-50 text-gray-700 border-gray-200",
+  lab_result: "bg-violet-50 text-violet-700 border-violet-200 dark:bg-violet-900/30 dark:text-violet-400 dark:border-violet-700",
+  imaging: "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-700",
+  prescription: "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-700",
+  referral: "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-700",
+  consent: "bg-slate-50 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-600",
+  insurance: "bg-cyan-50 text-cyan-700 border-cyan-200 dark:bg-cyan-900/30 dark:text-cyan-400 dark:border-cyan-700",
+  other: "bg-gray-50 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600",
 };
 
 const BLOOD_TYPES = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
@@ -323,7 +323,7 @@ export default function PatientDetailsPage() {
 
       {/* Patient Info Card */}
       <div className="card">
-        <div className="grid gap-4 text-sm text-slate-700 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 text-sm text-slate-700 dark:text-slate-300 sm:grid-cols-2 lg:grid-cols-4">
           <div className="flex items-center gap-2">
             <Mail className="h-4 w-4 text-sky-500" />
             <div>
@@ -360,7 +360,7 @@ export default function PatientDetailsPage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 rounded-xl bg-slate-100 p-1">
+      <div className="flex gap-1 rounded-xl bg-slate-100 dark:bg-slate-800 p-1">
         {TABS.map((tab) => {
           const Icon = tab.icon;
           return (
@@ -369,8 +369,8 @@ export default function PatientDetailsPage() {
               onClick={() => setActiveTab(tab.key)}
               className={`flex-1 flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all ${
                 activeTab === tab.key
-                  ? "bg-white text-sky-700 shadow-sm"
-                  : "text-slate-500 hover:text-slate-700"
+                  ? "bg-white text-sky-700 shadow-sm dark:bg-slate-700 dark:text-sky-400"
+                  : "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
               }`}
             >
               <Icon className="h-4 w-4" />
@@ -385,25 +385,25 @@ export default function PatientDetailsPage() {
         <div className="space-y-6">
           {/* Prescriptions */}
           <div className="card">
-            <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900 mb-4">
+            <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">
               <Pill className="h-5 w-5 text-emerald-500" />
               Prescription History
             </h2>
             {patientPrescriptions.length === 0 ? (
-              <p className="text-sm text-slate-500">No prescriptions found.</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400">No prescriptions found.</p>
             ) : (
               <div className="space-y-3">
                 {patientPrescriptions.map((p: any) => (
                   <div
                     key={p._id}
-                    className="rounded-xl border border-slate-200 bg-white p-4"
+                    className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800/50"
                   >
-                    <p className="text-xs font-medium text-slate-500">
+                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
                       {new Date(p.createdAt).toLocaleDateString()}
                     </p>
                     <div className="mt-2 space-y-1">
                       {p.medications?.map((m: any, idx: number) => (
-                        <div key={idx} className="text-sm text-slate-700">
+                        <div key={idx} className="text-sm text-slate-700 dark:text-slate-300">
                           <span className="font-medium">{m.name}</span> — {m.dosage} —{" "}
                           {m.frequency} — {m.duration}
                         </div>
@@ -417,12 +417,12 @@ export default function PatientDetailsPage() {
 
           {/* Appointments */}
           <div className="card">
-            <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900 mb-4">
+            <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">
               <Calendar className="h-5 w-5 text-sky-500" />
               Appointment History
             </h2>
             {appointments.length === 0 ? (
-              <p className="text-sm text-slate-500">No appointments found.</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400">No appointments found.</p>
             ) : (
               <div className="table-container">
                 <table className="table">
@@ -452,7 +452,7 @@ export default function PatientDetailsPage() {
           {/* Visits */}
           <div className="card">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900">
+              <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900 dark:text-slate-100">
                 <Clipboard className="h-5 w-5 text-sky-500" />
                 Visit History
               </h2>
@@ -462,7 +462,7 @@ export default function PatientDetailsPage() {
               </button>
             </div>
             {visits.length === 0 ? (
-              <p className="text-sm text-slate-500">No visits yet.</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400">No visits yet.</p>
             ) : (
               <div className="table-container">
                 <table className="table">
@@ -482,8 +482,8 @@ export default function PatientDetailsPage() {
                           <span
                             className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ${
                               visit.completed
-                                ? "bg-emerald-50 text-emerald-700"
-                                : "bg-amber-50 text-amber-700"
+                                ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
+                                : "bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
                             }`}
                           >
                             {visit.completed ? "Completed" : "In Progress"}
@@ -505,8 +505,8 @@ export default function PatientDetailsPage() {
             <div
               className={`rounded-xl border px-4 py-3 text-sm font-medium ${
                 medicalMessage.type === "success"
-                  ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                  : "border-rose-200 bg-rose-50 text-rose-700"
+                  ? "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400"
+                  : "border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-700 dark:bg-rose-950/30 dark:text-rose-400"
               }`}
             >
               {medicalMessage.text}
@@ -516,14 +516,14 @@ export default function PatientDetailsPage() {
           <div className="grid gap-6 lg:grid-cols-2">
             {/* Medical History */}
             <div className="card space-y-4">
-              <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900">
+              <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900 dark:text-slate-100">
                 <Heart className="h-5 w-5 text-rose-500" />
                 Medical History
               </h2>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="mb-1 block text-xs font-medium text-slate-600">
+                  <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
                     Blood Type
                   </label>
                   <select
@@ -542,7 +542,7 @@ export default function PatientDetailsPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="mb-1 block text-xs font-medium text-slate-600">
+                  <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
                     Smoking Status
                   </label>
                   <select
@@ -561,7 +561,7 @@ export default function PatientDetailsPage() {
               </div>
 
               <div>
-                <label className="mb-1 block text-xs font-medium text-slate-600">
+                <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
                   Alcohol Use
                 </label>
                 <select
@@ -581,7 +581,7 @@ export default function PatientDetailsPage() {
 
               {/* Allergies */}
               <div>
-                <label className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600">
+                <label className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600 dark:text-slate-400">
                   <AlertTriangle className="h-3 w-3 text-amber-500" />
                   Allergies
                 </label>
@@ -589,7 +589,7 @@ export default function PatientDetailsPage() {
                   {(medicalHistory.allergies || []).map((a: string, i: number) => (
                     <span
                       key={i}
-                      className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700"
+                      className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700 dark:border-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
                     >
                       {a}
                       <button
@@ -640,7 +640,7 @@ export default function PatientDetailsPage() {
 
               {/* Chronic Conditions */}
               <div>
-                <label className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600">
+                <label className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600 dark:text-slate-400">
                   <ShieldAlert className="h-3 w-3 text-rose-500" />
                   Chronic Conditions
                 </label>
@@ -648,7 +648,7 @@ export default function PatientDetailsPage() {
                   {(medicalHistory.chronicConditions || []).map((c: string, i: number) => (
                     <span
                       key={i}
-                      className="inline-flex items-center gap-1 rounded-full border border-rose-200 bg-rose-50 px-2.5 py-1 text-xs font-medium text-rose-700"
+                      className="inline-flex items-center gap-1 rounded-full border border-rose-200 bg-rose-50 px-2.5 py-1 text-xs font-medium text-rose-700 dark:border-rose-700 dark:bg-rose-900/30 dark:text-rose-400"
                     >
                       {c}
                       <button
@@ -699,7 +699,7 @@ export default function PatientDetailsPage() {
 
               {/* Current Medications */}
               <div>
-                <label className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600">
+                <label className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600 dark:text-slate-400">
                   <Pill className="h-3 w-3 text-emerald-500" />
                   Current Medications
                 </label>
@@ -707,7 +707,7 @@ export default function PatientDetailsPage() {
                   {(medicalHistory.currentMedications || []).map((m: string, i: number) => (
                     <span
                       key={i}
-                      className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700"
+                      className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700 dark:border-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
                     >
                       {m}
                       <button
@@ -758,7 +758,7 @@ export default function PatientDetailsPage() {
 
               {/* Family History */}
               <div>
-                <label className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600">
+                <label className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600 dark:text-slate-400">
                   <Syringe className="h-3 w-3 text-violet-500" />
                   Family History
                 </label>
@@ -766,7 +766,7 @@ export default function PatientDetailsPage() {
                   {(medicalHistory.familyHistory || []).map((f: string, i: number) => (
                     <span
                       key={i}
-                      className="inline-flex items-center gap-1 rounded-full border border-violet-200 bg-violet-50 px-2.5 py-1 text-xs font-medium text-violet-700"
+                      className="inline-flex items-center gap-1 rounded-full border border-violet-200 bg-violet-50 px-2.5 py-1 text-xs font-medium text-violet-700 dark:border-violet-700 dark:bg-violet-900/30 dark:text-violet-400"
                     >
                       {f}
                       <button
@@ -816,7 +816,7 @@ export default function PatientDetailsPage() {
               </div>
 
               <div>
-                <label className="mb-1 block text-xs font-medium text-slate-600">
+                <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
                   Additional Notes
                 </label>
                 <textarea
@@ -833,12 +833,12 @@ export default function PatientDetailsPage() {
             {/* Emergency Contact & Insurance */}
             <div className="space-y-6">
               <div className="card space-y-4">
-                <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900">
+                <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900 dark:text-slate-100">
                   <UserPlus className="h-5 w-5 text-amber-500" />
                   Emergency Contact
                 </h2>
                 <div>
-                  <label className="mb-1 block text-xs font-medium text-slate-600">
+                  <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
                     Contact Name
                   </label>
                   <input
@@ -851,7 +851,7 @@ export default function PatientDetailsPage() {
                   />
                 </div>
                 <div>
-                  <label className="mb-1 block text-xs font-medium text-slate-600">
+                  <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
                     Relationship
                   </label>
                   <input
@@ -864,7 +864,7 @@ export default function PatientDetailsPage() {
                   />
                 </div>
                 <div>
-                  <label className="mb-1 block text-xs font-medium text-slate-600">
+                  <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
                     Phone Number
                   </label>
                   <input
@@ -880,12 +880,12 @@ export default function PatientDetailsPage() {
               </div>
 
               <div className="card space-y-4">
-                <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900">
+                <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900 dark:text-slate-100">
                   <CreditCard className="h-5 w-5 text-cyan-500" />
                   Insurance Information
                 </h2>
                 <div>
-                  <label className="mb-1 block text-xs font-medium text-slate-600">
+                  <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
                     Provider
                   </label>
                   <input
@@ -898,7 +898,7 @@ export default function PatientDetailsPage() {
                   />
                 </div>
                 <div>
-                  <label className="mb-1 block text-xs font-medium text-slate-600">
+                  <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
                     Policy Number
                   </label>
                   <input
@@ -911,7 +911,7 @@ export default function PatientDetailsPage() {
                   />
                 </div>
                 <div>
-                  <label className="mb-1 block text-xs font-medium text-slate-600">
+                  <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
                     Group Number
                   </label>
                   <input
@@ -943,7 +943,7 @@ export default function PatientDetailsPage() {
       {activeTab === "documents" && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900">
+            <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900 dark:text-slate-100">
               <FileText className="h-5 w-5 text-sky-500" />
               Medical Documents
             </h2>
@@ -955,9 +955,9 @@ export default function PatientDetailsPage() {
 
           {documents.length === 0 ? (
             <div className="card text-center py-12">
-              <FileText className="h-10 w-10 mx-auto mb-3 text-slate-300" />
-              <p className="text-sm text-slate-500">No documents uploaded yet.</p>
-              <p className="text-xs text-slate-400 mt-1">
+              <FileText className="h-10 w-10 mx-auto mb-3 text-slate-300 dark:text-slate-600" />
+              <p className="text-sm text-slate-500 dark:text-slate-400">No documents uploaded yet.</p>
+              <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
                 Upload lab results, imaging, or other medical documents.
               </p>
             </div>
@@ -970,10 +970,10 @@ export default function PatientDetailsPage() {
                 >
                   <div className="flex items-start justify-between">
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium text-slate-900">
+                      <p className="truncate text-sm font-medium text-slate-900 dark:text-slate-100">
                         {doc.originalName}
                       </p>
-                      <p className="text-xs text-slate-500 mt-0.5">
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                         {(doc.fileSize / 1024).toFixed(1)} KB •{" "}
                         {new Date(doc.createdAt).toLocaleDateString()}
                       </p>
@@ -989,10 +989,10 @@ export default function PatientDetailsPage() {
                   </div>
 
                   {doc.description && (
-                    <p className="text-xs text-slate-500 line-clamp-2">{doc.description}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2">{doc.description}</p>
                   )}
 
-                  <div className="flex items-center justify-between mt-auto pt-2 border-t border-slate-100">
+                  <div className="flex items-center justify-between mt-auto pt-2 border-t border-slate-100 dark:border-slate-700">
                     <span className="text-[10px] text-slate-400">
                       by {doc.uploadedBy?.name || "Unknown"}
                     </span>
@@ -1032,7 +1032,7 @@ export default function PatientDetailsPage() {
 
       {activeTab === "timeline" && (
         <div className="card">
-          <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-slate-900">
+          <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-slate-900 dark:text-slate-100">
             <LayoutDashboard className="h-5 w-5 text-sky-500" />
             Patient Overview
           </h2>
@@ -1045,7 +1045,7 @@ export default function PatientDetailsPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm !mt-0">
           <div className="card w-full max-w-md space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
+              <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
                 <Clipboard className="h-5 w-5 text-sky-500" />
                 New Visit
               </h2>
@@ -1055,7 +1055,7 @@ export default function PatientDetailsPage() {
             </div>
 
             <div>
-              <label className="mb-1 block text-xs font-medium text-slate-600">Diagnosis</label>
+              <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">Diagnosis</label>
               <textarea
                 className="input min-h-[80px]"
                 placeholder="Enter diagnosis…"
@@ -1065,7 +1065,7 @@ export default function PatientDetailsPage() {
             </div>
 
             <div>
-              <label className="mb-1 block text-xs font-medium text-slate-600">Treatment</label>
+              <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">Treatment</label>
               <textarea
                 className="input min-h-[80px]"
                 placeholder="Enter treatment…"
@@ -1092,7 +1092,7 @@ export default function PatientDetailsPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm !mt-0">
           <div className="card w-full max-w-md space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
+              <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
                 <Pencil className="h-5 w-5 text-sky-500" />
                 Edit Patient
               </h2>
@@ -1103,7 +1103,7 @@ export default function PatientDetailsPage() {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="mb-1 block text-xs font-medium text-slate-600">First Name</label>
+                <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">First Name</label>
                 <input
                   className="input"
                   value={editFirstName}
@@ -1111,7 +1111,7 @@ export default function PatientDetailsPage() {
                 />
               </div>
               <div>
-                <label className="mb-1 block text-xs font-medium text-slate-600">Last Name</label>
+                <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">Last Name</label>
                 <input
                   className="input"
                   value={editLastName}
@@ -1121,7 +1121,7 @@ export default function PatientDetailsPage() {
             </div>
 
             <div>
-              <label className="mb-1 block text-xs font-medium text-slate-600">Email</label>
+              <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">Email</label>
               <input
                 className="input"
                 type="email"
@@ -1131,7 +1131,7 @@ export default function PatientDetailsPage() {
             </div>
 
             <div>
-              <label className="mb-1 block text-xs font-medium text-slate-600">Phone</label>
+              <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">Phone</label>
               <input
                 className="input"
                 value={editPhone}
@@ -1140,7 +1140,7 @@ export default function PatientDetailsPage() {
             </div>
 
             <div>
-              <label className="mb-1 block text-xs font-medium text-slate-600">Gender</label>
+              <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">Gender</label>
               <select
                 className="input"
                 value={editGender}
@@ -1169,7 +1169,7 @@ export default function PatientDetailsPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm !mt-0">
           <div className="card w-full max-w-md space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
+              <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
                 <Upload className="h-5 w-5 text-sky-500" />
                 Upload Document
               </h2>
@@ -1179,7 +1179,7 @@ export default function PatientDetailsPage() {
             </div>
 
             <div>
-              <label className="mb-1 block text-xs font-medium text-slate-600">File</label>
+              <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">File</label>
               <input
                 type="file"
                 accept=".pdf,.jpg,.jpeg,.png,.webp,.gif,.doc,.docx"
@@ -1192,7 +1192,7 @@ export default function PatientDetailsPage() {
             </div>
 
             <div>
-              <label className="mb-1 block text-xs font-medium text-slate-600">Category</label>
+              <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">Category</label>
               <select
                 className="input"
                 value={uploadCategory}
@@ -1207,7 +1207,7 @@ export default function PatientDetailsPage() {
             </div>
 
             <div>
-              <label className="mb-1 block text-xs font-medium text-slate-600">
+              <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
                 Description (optional)
               </label>
               <textarea

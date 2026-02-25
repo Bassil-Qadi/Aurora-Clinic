@@ -21,7 +21,7 @@ export default function HomePage() {
               <LogIn className="h-4 w-4" />
               <span>Go to Login</span>
             </Link>
-            <span className="inline-flex items-center gap-2 text-xs text-slate-500">
+            <span className="inline-flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
               <span className="h-2 w-2 rounded-full bg-emerald-500" />
               System status: Online
             </span>
@@ -31,10 +31,10 @@ export default function HomePage() {
         <div className="card card-muted">
           <div className="mb-4 flex items-center justify-between">
             <div>
-              <p className="text-xs font-medium uppercase tracking-wide text-sky-700">
+              <p className="text-xs font-medium uppercase tracking-wide text-sky-700 dark:text-sky-400">
                 Today at a glance
               </p>
-              <p className="text-sm text-slate-500">
+              <p className="text-sm text-slate-500 dark:text-slate-400">
                 Patients, Appointments, Visits
               </p>
             </div>
@@ -44,26 +44,26 @@ export default function HomePage() {
           </div>
 
           <div className="grid grid-cols-3 gap-3 text-xs">
-            <div className="rounded-xl bg-white/70 p-3">
-              <p className="flex items-center gap-1.5 text-[11px] text-slate-500">
+            <div className="rounded-xl bg-white/70 p-3 dark:bg-slate-800/70">
+              <p className="flex items-center gap-1.5 text-[11px] text-slate-500 dark:text-slate-400">
                 <Users className="h-3.5 w-3.5 text-sky-500" />
                 <span>Patients</span>
               </p>
-              <p className="mt-1 text-lg font-semibold text-slate-900">—</p>
+              <p className="mt-1 text-lg font-semibold text-slate-900 dark:text-slate-100">—</p>
             </div>
-            <div className="rounded-xl bg-white/70 p-3">
-              <p className="flex items-center gap-1.5 text-[11px] text-slate-500">
+            <div className="rounded-xl bg-white/70 p-3 dark:bg-slate-800/70">
+              <p className="flex items-center gap-1.5 text-[11px] text-slate-500 dark:text-slate-400">
                 <Calendar className="h-3.5 w-3.5 text-sky-500" />
                 <span>Appointments</span>
               </p>
-              <p className="mt-1 text-lg font-semibold text-slate-900">—</p>
+              <p className="mt-1 text-lg font-semibold text-slate-900 dark:text-slate-100">—</p>
             </div>
-            <div className="rounded-xl bg-white/70 p-3">
-              <p className="flex items-center gap-1.5 text-[11px] text-slate-500">
+            <div className="rounded-xl bg-white/70 p-3 dark:bg-slate-800/70">
+              <p className="flex items-center gap-1.5 text-[11px] text-slate-500 dark:text-slate-400">
                 <Clipboard className="h-3.5 w-3.5 text-sky-500" />
                 <span>Visits</span>
               </p>
-              <p className="mt-1 text-lg font-semibold text-slate-900">—</p>
+              <p className="mt-1 text-lg font-semibold text-slate-900 dark:text-slate-100">—</p>
             </div>
           </div>
 

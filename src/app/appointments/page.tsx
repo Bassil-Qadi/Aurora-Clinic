@@ -230,7 +230,7 @@ export default function AppointmentsPage() {
 
       {/* Form */}
       <div className="card card-muted">
-        <h2 className="mb-4 text-sm font-semibold text-slate-900">
+        <h2 className="mb-4 text-sm font-semibold text-slate-900 dark:text-slate-100">
           {editingId ? "Update appointment" : "Schedule appointment"}
         </h2>
 
@@ -442,7 +442,7 @@ export default function AppointmentsPage() {
 
                     if (status === "completed") {
                       return (
-                        <span className="text-xs text-slate-500 inline-flex items-center gap-1">
+                        <span className="text-xs text-slate-500 dark:text-slate-400 inline-flex items-center gap-1">
                           <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
                           Completed
                         </span>
@@ -451,7 +451,7 @@ export default function AppointmentsPage() {
 
                     if (status === "cancelled" || status === "no_show") {
                       return (
-                        <span className="text-xs text-slate-500">
+                        <span className="text-xs text-slate-500 dark:text-slate-400">
                           No further actions
                         </span>
                       );
@@ -466,13 +466,13 @@ export default function AppointmentsPage() {
         </table>
 
         {appointments.length === 0 && (
-          <p className="px-4 pb-4 pt-2 text-sm text-slate-500">
+          <p className="px-4 pb-4 pt-2 text-sm text-slate-500 dark:text-slate-400">
             No appointments yet. Use the form above to schedule the first one.
           </p>
         )}
       </div>
 
-      <div className="mt-2 flex items-center justify-center gap-3 text-xs text-slate-600">
+      <div className="mt-2 flex items-center justify-center gap-3 text-xs text-slate-600 dark:text-slate-400">
         <button
           disabled={page === 1}
           onClick={() => setPage(page - 1)}

@@ -83,13 +83,13 @@ export default function BookAppointmentPage() {
     return (
       <div className="space-y-6 p-8">
         <div className="card max-w-lg mx-auto text-center space-y-4 py-10">
-          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-100 mx-auto">
-            <CheckCircle2 className="h-8 w-8 text-emerald-600" />
+          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-100 mx-auto dark:bg-emerald-900/30">
+            <CheckCircle2 className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
           </div>
-          <h2 className="text-xl font-semibold text-slate-900">
+          <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">
             Appointment Booked!
           </h2>
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-slate-500 dark:text-slate-400">
             Your appointment has been scheduled. You&apos;ll receive a
             confirmation and reminders.
           </p>
@@ -135,14 +135,14 @@ export default function BookAppointmentPage() {
       <div className="card max-w-2xl">
         <form onSubmit={handleSubmit} className="space-y-5">
           {error && (
-            <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+            <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-700 dark:bg-rose-950/30 dark:text-rose-400">
               {error}
             </div>
           )}
 
           {/* Doctor */}
           <div>
-            <label className="mb-1 flex items-center gap-2 text-xs font-medium text-slate-600">
+            <label className="mb-1 flex items-center gap-2 text-xs font-medium text-slate-600 dark:text-slate-400">
               <Stethoscope className="h-3 w-3 text-emerald-500" />
               Doctor (optional)
             </label>
@@ -163,7 +163,7 @@ export default function BookAppointmentPage() {
           {/* Date and Time */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="mb-1 flex items-center gap-2 text-xs font-medium text-slate-600">
+              <label className="mb-1 flex items-center gap-2 text-xs font-medium text-slate-600 dark:text-slate-400">
                 <Clock className="h-3 w-3 text-emerald-500" />
                 Date
               </label>
@@ -177,7 +177,7 @@ export default function BookAppointmentPage() {
               />
             </div>
             <div>
-              <label className="mb-1 flex items-center gap-2 text-xs font-medium text-slate-600">
+              <label className="mb-1 flex items-center gap-2 text-xs font-medium text-slate-600 dark:text-slate-400">
                 <Clock className="h-3 w-3 text-emerald-500" />
                 Time
               </label>
@@ -199,7 +199,7 @@ export default function BookAppointmentPage() {
 
           {/* Reason */}
           <div>
-            <label className="mb-1 flex items-center gap-2 text-xs font-medium text-slate-600">
+            <label className="mb-1 flex items-center gap-2 text-xs font-medium text-slate-600 dark:text-slate-400">
               <FileText className="h-3 w-3 text-emerald-500" />
               Reason for Visit (optional)
             </label>

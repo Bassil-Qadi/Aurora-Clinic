@@ -31,8 +31,8 @@ export default function VisitSummary({ visitId }: { visitId: string }) {
     setGenerating(false);
   };
 
-  if (isLoading) return <p className="text-slate-500">Generating AI summary…</p>;
-  if (!data) return <p className="text-slate-500">No summary available</p>;
+  if (isLoading) return <p className="text-slate-500 dark:text-slate-400">Generating AI summary…</p>;
+  if (!data) return <p className="text-slate-500 dark:text-slate-400">No summary available</p>;
 
   return (
     <div className="card p-4 space-y-3">
@@ -55,7 +55,7 @@ export default function VisitSummary({ visitId }: { visitId: string }) {
           </button>
         </div>
       </div>
-      <pre className="text-sm whitespace-pre-wrap">{data.summary}</pre>
+      <pre className="text-sm whitespace-pre-wrap text-slate-800 dark:text-slate-200">{data.summary}</pre>
     </div>
   );
 }

@@ -301,8 +301,8 @@ export default function VisitPage() {
         <div
           className={`rounded-xl border px-4 py-3 text-sm font-medium ${
             message.type === "success"
-              ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-              : "border-rose-200 bg-rose-50 text-rose-700"
+              ? "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400"
+              : "border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-700 dark:bg-rose-950/30 dark:text-rose-400"
           }`}
         >
           {message.text}
@@ -312,11 +312,11 @@ export default function VisitPage() {
       {/* Patient Info Card */}
       <div className="card">
         <div className="flex items-start gap-4">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-sky-100 text-sky-600">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-sky-100 text-sky-600 dark:bg-sky-900/30 dark:text-sky-400">
             <User className="h-6 w-6" />
           </div>
           <div className="flex-1">
-            <h2 className="text-lg font-semibold text-slate-900">
+            <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
               {visit.patient?.firstName} {visit.patient?.lastName}
             </h2>
             <div className="mt-1 flex flex-wrap items-center gap-4 text-sm text-slate-500">
@@ -351,7 +351,7 @@ export default function VisitPage() {
       {/* Vital Signs */}
       <div className="card">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900">
+          <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900 dark:text-slate-100">
             <Heart className="h-5 w-5 text-rose-500" />
             Vital Signs
           </h2>
@@ -376,10 +376,10 @@ export default function VisitPage() {
                 key={field.key}
                 className={`relative rounded-xl border p-3 transition-colors ${
                   vitalStatus.status === "critical"
-                    ? "border-rose-300 bg-rose-50"
+                    ? "border-rose-300 bg-rose-50 dark:border-rose-700 dark:bg-rose-950/30"
                     : vitalStatus.status === "warning"
-                    ? "border-amber-300 bg-amber-50"
-                    : "border-slate-200 bg-white"
+                    ? "border-amber-300 bg-amber-50 dark:border-amber-700 dark:bg-amber-950/30"
+                    : "border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800"
                 }`}
               >
                 <div className="flex items-center gap-2 mb-2">
@@ -397,7 +397,7 @@ export default function VisitPage() {
                 <div className="flex items-end gap-1">
                   <input
                     type="number"
-                    className="w-full rounded-lg border border-slate-200 bg-white/80 px-2 py-1.5 text-sm font-semibold text-slate-900 outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-200 disabled:opacity-50"
+                    className="w-full rounded-lg border border-slate-200 bg-white/80 px-2 py-1.5 text-sm font-semibold text-slate-900 outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-200 disabled:opacity-50 dark:border-slate-600 dark:bg-slate-700/80 dark:text-slate-100 dark:focus:border-sky-400 dark:focus:ring-sky-800"
                     placeholder={field.placeholder}
                     min={field.min}
                     max={field.max}
@@ -453,7 +453,7 @@ export default function VisitPage() {
 
       {/* Diagnosis */}
       <div className="card">
-        <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900 mb-3">
+        <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900 dark:text-slate-100 mb-3">
           <FileText className="h-5 w-5 text-sky-500" />
           Diagnosis
         </h2>
@@ -468,7 +468,7 @@ export default function VisitPage() {
 
       {/* Prescription */}
       <div className="card">
-        <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900 mb-3">
+        <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900 dark:text-slate-100 mb-3">
           <Clipboard className="h-5 w-5 text-emerald-500" />
           Prescription
         </h2>
@@ -483,7 +483,7 @@ export default function VisitPage() {
 
       {/* Notes */}
       <div className="card">
-        <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900 mb-3">
+        <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900 dark:text-slate-100 mb-3">
           <FileText className="h-5 w-5 text-violet-500" />
           Clinical Notes
         </h2>

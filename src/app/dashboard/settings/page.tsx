@@ -177,8 +177,8 @@ export default function ClinicSettingsPage() {
         <div
           className={`rounded-xl border px-4 py-3 text-sm font-medium ${
             message.type === "success"
-              ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-              : "border-rose-200 bg-rose-50 text-rose-700"
+              ? "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400"
+              : "border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-700 dark:bg-rose-950/30 dark:text-rose-400"
           }`}
         >
           {message.text}
@@ -186,20 +186,20 @@ export default function ClinicSettingsPage() {
       )}
 
       {loading ? (
-        <div className="card text-center py-10 text-slate-500 text-sm">
+        <div className="card text-center py-10 text-slate-500 dark:text-slate-400 text-sm">
           Loading settings…
         </div>
       ) : (
         <div className="grid gap-6 lg:grid-cols-2">
           {/* Clinic Information */}
           <div className="card space-y-4">
-            <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900">
+            <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900 dark:text-slate-100">
               <Building2 className="h-5 w-5 text-sky-500" />
               Clinic Information
             </h2>
 
             <div>
-              <label className="mb-1 block text-xs font-medium text-slate-600">
+              <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
                 Clinic Name
               </label>
               <input
@@ -210,7 +210,7 @@ export default function ClinicSettingsPage() {
             </div>
 
             <div>
-              <label className="mb-1 block text-xs font-medium text-slate-600">
+              <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
                 Address
               </label>
               <input
@@ -222,7 +222,7 @@ export default function ClinicSettingsPage() {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="mb-1 block text-xs font-medium text-slate-600">
+                <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
                   Phone
                 </label>
                 <input
@@ -232,7 +232,7 @@ export default function ClinicSettingsPage() {
                 />
               </div>
               <div>
-                <label className="mb-1 block text-xs font-medium text-slate-600">
+                <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
                   Email
                 </label>
                 <input
@@ -245,7 +245,7 @@ export default function ClinicSettingsPage() {
             </div>
 
             <div>
-              <label className="mb-1 block text-xs font-medium text-slate-600">
+              <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
                 Logo URL
               </label>
               <input
@@ -259,14 +259,14 @@ export default function ClinicSettingsPage() {
 
           {/* Working Hours & Preferences */}
           <div className="card space-y-4">
-            <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900">
+            <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900 dark:text-slate-100">
               <Clock className="h-5 w-5 text-sky-500" />
               Schedule & Preferences
             </h2>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="mb-1 block text-xs font-medium text-slate-600">
+                <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
                   Work Start
                 </label>
                 <input
@@ -277,7 +277,7 @@ export default function ClinicSettingsPage() {
                 />
               </div>
               <div>
-                <label className="mb-1 block text-xs font-medium text-slate-600">
+                <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
                   Work End
                 </label>
                 <input
@@ -290,7 +290,7 @@ export default function ClinicSettingsPage() {
             </div>
 
             <div>
-              <label className="mb-1 block text-xs font-medium text-slate-600">
+              <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
                 Working Days
               </label>
               <div className="flex flex-wrap gap-2">
@@ -300,8 +300,8 @@ export default function ClinicSettingsPage() {
                     onClick={() => toggleDay(day.value)}
                     className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${
                       workingDays.includes(day.value)
-                        ? "border-sky-300 bg-sky-50 text-sky-700"
-                        : "border-slate-200 bg-white text-slate-500 hover:bg-slate-50"
+                        ? "border-sky-300 bg-sky-50 text-sky-700 dark:border-sky-600 dark:bg-sky-900/30 dark:text-sky-400"
+                        : "border-slate-200 bg-white text-slate-500 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700"
                     }`}
                   >
                     {day.label}
@@ -312,7 +312,7 @@ export default function ClinicSettingsPage() {
 
             <div className="grid grid-cols-3 gap-4">
               <div>
-                <label className="mb-1 block text-xs font-medium text-slate-600">
+                <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
                   Apt. Duration (min)
                 </label>
                 <input
@@ -327,7 +327,7 @@ export default function ClinicSettingsPage() {
                 />
               </div>
               <div>
-                <label className="mb-1 block text-xs font-medium text-slate-600">
+                <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
                   Currency
                 </label>
                 <select
@@ -343,7 +343,7 @@ export default function ClinicSettingsPage() {
                 </select>
               </div>
               <div>
-                <label className="mb-1 block text-xs font-medium text-slate-600">
+                <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
                   Timezone
                 </label>
                 <select
@@ -366,13 +366,13 @@ export default function ClinicSettingsPage() {
 
           {/* Change Password */}
           <div className="card space-y-4">
-            <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900">
+            <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900 dark:text-slate-100">
               <KeyRound className="h-5 w-5 text-amber-500" />
               Change Your Password
             </h2>
 
             <div className="relative">
-              <label className="mb-1 block text-xs font-medium text-slate-600">
+              <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
                 Current Password
               </label>
               <input
@@ -384,7 +384,7 @@ export default function ClinicSettingsPage() {
               <button
                 type="button"
                 onClick={() => setShowPasswords(!showPasswords)}
-                className="absolute right-3 top-8 text-slate-400 hover:text-slate-600"
+                className="absolute right-3 top-8 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
               >
                 {showPasswords ? (
                   <EyeOff className="h-4 w-4" />
@@ -395,7 +395,7 @@ export default function ClinicSettingsPage() {
             </div>
 
             <div>
-              <label className="mb-1 block text-xs font-medium text-slate-600">
+              <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
                 New Password
               </label>
               <input

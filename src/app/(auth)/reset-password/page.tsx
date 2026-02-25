@@ -61,13 +61,13 @@ function ResetPasswordForm() {
       <div className="flex min-h-screen items-center justify-center px-4 py-10">
         <div className="card w-full max-w-md space-y-5">
           <div className="flex flex-col items-center text-center space-y-3">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-100">
-              <AlertTriangle className="h-7 w-7 text-amber-600" />
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-100 dark:bg-amber-900/30">
+              <AlertTriangle className="h-7 w-7 text-amber-600 dark:text-amber-400" />
             </div>
-            <h2 className="text-xl font-semibold text-slate-900">
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">
               Invalid Reset Link
             </h2>
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-slate-500 dark:text-slate-400">
               This password reset link is invalid or has expired. Please request
               a new one.
             </p>
@@ -81,7 +81,7 @@ function ResetPasswordForm() {
           </Link>
           <Link
             href="/login"
-            className="flex items-center justify-center gap-2 text-sm text-slate-500 hover:text-sky-600"
+            className="flex items-center justify-center gap-2 text-sm text-slate-500 hover:text-sky-600 dark:text-slate-400 dark:hover:text-sky-400"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
             Back to Login
@@ -96,13 +96,13 @@ function ResetPasswordForm() {
       <div className="flex min-h-screen items-center justify-center px-4 py-10">
         <div className="card w-full max-w-md space-y-5">
           <div className="flex flex-col items-center text-center space-y-3">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100">
-              <CheckCircle2 className="h-7 w-7 text-emerald-600" />
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-900/30">
+              <CheckCircle2 className="h-7 w-7 text-emerald-600 dark:text-emerald-400" />
             </div>
-            <h2 className="text-xl font-semibold text-slate-900">
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">
               Password Reset Successfully
             </h2>
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-slate-500 dark:text-slate-400">
               Your password has been updated. You can now sign in with your new
               password.
             </p>
@@ -136,13 +136,13 @@ function ResetPasswordForm() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
-            <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+            <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-700 dark:bg-rose-950/30 dark:text-rose-400">
               {error}
             </div>
           )}
 
           <div>
-            <label className="mb-1 flex items-center gap-2 text-xs font-medium text-slate-600">
+            <label className="mb-1 flex items-center gap-2 text-xs font-medium text-slate-600 dark:text-slate-400">
               <Lock className="h-3 w-3 text-sky-500" />
               New Password
             </label>
@@ -158,7 +158,7 @@ function ResetPasswordForm() {
           </div>
 
           <div>
-            <label className="mb-1 flex items-center gap-2 text-xs font-medium text-slate-600">
+            <label className="mb-1 flex items-center gap-2 text-xs font-medium text-slate-600 dark:text-slate-400">
               <Lock className="h-3 w-3 text-sky-500" />
               Confirm Password
             </label>
@@ -183,7 +183,7 @@ function ResetPasswordForm() {
 
           <Link
             href="/login"
-            className="flex items-center justify-center gap-2 text-sm text-slate-500 hover:text-sky-600"
+            className="flex items-center justify-center gap-2 text-sm text-slate-500 hover:text-sky-600 dark:text-slate-400 dark:hover:text-sky-400"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
             Back to Login
@@ -199,7 +199,7 @@ export default function ResetPasswordPage() {
     <Suspense
       fallback={
         <div className="flex min-h-screen items-center justify-center">
-          <p className="text-sm text-slate-500">Loading…</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400">Loading…</p>
         </div>
       }
     >

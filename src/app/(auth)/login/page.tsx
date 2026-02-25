@@ -51,7 +51,7 @@ export default function LoginPage() {
             records securely.
           </p>
 
-          <ul className="mt-4 space-y-2 text-xs text-slate-500">
+          <ul className="mt-4 space-y-2 text-xs text-slate-500 dark:text-slate-400">
             <li>• Role-based access to sensitive medical data.</li>
             <li>• Real-time overview of today&apos;s schedule.</li>
             <li>• Structured visits and follow-up planning.</li>
@@ -60,13 +60,13 @@ export default function LoginPage() {
 
         <form onSubmit={handleLogin} className="space-y-4">
           {error && (
-            <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+            <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-700 dark:bg-rose-950/30 dark:text-rose-400">
               {error}
             </div>
           )}
 
           <div>
-            <label className="mb-1 flex items-center gap-2 text-xs font-medium text-slate-600">
+            <label className="mb-1 flex items-center gap-2 text-xs font-medium text-slate-600 dark:text-slate-400">
               <Mail className="h-3 w-3 text-sky-500" />
               <span>Email</span>
             </label>
@@ -80,7 +80,7 @@ export default function LoginPage() {
           </div>
 
           <div>
-            <label className="mb-1 flex items-center gap-2 text-xs font-medium text-slate-600">
+            <label className="mb-1 flex items-center gap-2 text-xs font-medium text-slate-600 dark:text-slate-400">
               <Lock className="h-3 w-3 text-sky-500" />
               <span>Password</span>
             </label>
@@ -97,7 +97,7 @@ export default function LoginPage() {
           <div className="flex items-center justify-end">
             <Link
               href="/forgot-password"
-              className="inline-flex items-center gap-1.5 text-xs font-medium text-sky-600 hover:text-sky-700 transition-colors"
+              className="inline-flex items-center gap-1.5 text-xs font-medium text-sky-600 hover:text-sky-700 dark:text-sky-400 dark:hover:text-sky-300 transition-colors"
             >
               <KeyRound className="h-3 w-3" />
               Forgot your password?
@@ -113,10 +113,10 @@ export default function LoginPage() {
             <span>{loading ? "Signing in…" : "Login"}</span>
           </button>
 
-          <div className="border-t border-slate-100 pt-3">
+          <div className="border-t border-slate-100 pt-3 dark:border-slate-700">
             <Link
               href="/portal/login"
-              className="flex items-center justify-center gap-2 text-sm text-slate-500 hover:text-emerald-600 transition-colors"
+              className="flex items-center justify-center gap-2 text-sm text-slate-500 hover:text-emerald-600 dark:text-slate-400 dark:hover:text-emerald-400 transition-colors"
             >
               <Heart className="h-3.5 w-3.5" />
               Patient Portal

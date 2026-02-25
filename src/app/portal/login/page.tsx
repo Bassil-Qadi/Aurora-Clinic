@@ -42,7 +42,7 @@ export default function PortalLoginPage() {
     <div className="flex min-h-screen items-center justify-center px-4 py-10">
       <div className="card grid w-full max-w-3xl grid-cols-1 gap-8 md:grid-cols-[1.1fr,0.9fr]">
         <div className="space-y-4">
-          <span className="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium bg-emerald-50 text-emerald-700">
+          <span className="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400">
             Patient Access
           </span>
           <h2 className="page-title text-2xl">
@@ -54,7 +54,7 @@ export default function PortalLoginPage() {
             from the comfort of your home.
           </p>
 
-          <ul className="mt-4 space-y-2 text-xs text-slate-500">
+          <ul className="mt-4 space-y-2 text-xs text-slate-500 dark:text-slate-400">
             <li>• View your upcoming and past appointments.</li>
             <li>• Book new appointments online.</li>
             <li>• Access visit summaries and records.</li>
@@ -63,13 +63,13 @@ export default function PortalLoginPage() {
 
         <form onSubmit={handleLogin} className="space-y-4">
           {error && (
-            <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+            <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-700 dark:bg-rose-950/30 dark:text-rose-400">
               {error}
             </div>
           )}
 
           <div>
-            <label className="mb-1 flex items-center gap-2 text-xs font-medium text-slate-600">
+            <label className="mb-1 flex items-center gap-2 text-xs font-medium text-slate-600 dark:text-slate-400">
               <Mail className="h-3 w-3 text-emerald-500" />
               Email
             </label>
@@ -84,7 +84,7 @@ export default function PortalLoginPage() {
           </div>
 
           <div>
-            <label className="mb-1 flex items-center gap-2 text-xs font-medium text-slate-600">
+            <label className="mb-1 flex items-center gap-2 text-xs font-medium text-slate-600 dark:text-slate-400">
               <Lock className="h-3 w-3 text-emerald-500" />
               Password
             </label>
@@ -109,7 +109,7 @@ export default function PortalLoginPage() {
 
           <Link
             href="/login"
-            className="flex items-center justify-center gap-2 text-sm text-slate-500 hover:text-emerald-600 transition-colors"
+            className="flex items-center justify-center gap-2 text-sm text-slate-500 hover:text-emerald-600 transition-colors dark:text-slate-400 dark:hover:text-emerald-400"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
             Staff Login

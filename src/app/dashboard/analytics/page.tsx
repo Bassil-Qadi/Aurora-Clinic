@@ -158,7 +158,7 @@ export default function AnalyticsPage() {
       </div>
 
       {loading ? (
-        <div className="card text-center py-10 text-sm text-slate-500">
+        <div className="card text-center py-10 text-sm text-slate-500 dark:text-slate-400">
           Loading analytics…
         </div>
       ) : data ? (
@@ -168,10 +168,10 @@ export default function AnalyticsPage() {
             <div className="card">
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                  <p className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
                     Total Patients
                   </p>
-                  <p className="mt-2 text-2xl font-semibold text-slate-900">
+                  <p className="mt-2 text-2xl font-semibold text-slate-900 dark:text-slate-100">
                     {data.summary.totalPatients}
                   </p>
                 </div>
@@ -179,7 +179,7 @@ export default function AnalyticsPage() {
               </div>
               <div className="mt-2 flex items-center gap-1 text-xs">
                 <UserPlus className="h-3 w-3 text-emerald-500" />
-                <span className="text-emerald-600 font-medium">
+                <span className="text-emerald-600 font-medium dark:text-emerald-400">
                   +{data.summary.newPatients}
                 </span>
                 <span className="text-slate-400">new</span>
@@ -189,10 +189,10 @@ export default function AnalyticsPage() {
             <div className="card">
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                  <p className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
                     Appointments
                   </p>
-                  <p className="mt-2 text-2xl font-semibold text-slate-900">
+                  <p className="mt-2 text-2xl font-semibold text-slate-900 dark:text-slate-100">
                     {data.summary.totalAppointments}
                   </p>
                 </div>
@@ -200,7 +200,7 @@ export default function AnalyticsPage() {
               </div>
               <div className="mt-2 flex items-center gap-1 text-xs">
                 <CheckCircle2 className="h-3 w-3 text-emerald-500" />
-                <span className="text-emerald-600 font-medium">
+                <span className="text-emerald-600 font-medium dark:text-emerald-400">
                   {data.summary.completionRate}%
                 </span>
                 <span className="text-slate-400">completion</span>
@@ -210,10 +210,10 @@ export default function AnalyticsPage() {
             <div className="card">
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                  <p className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
                     Completed Visits
                   </p>
-                  <p className="mt-2 text-2xl font-semibold text-slate-900">
+                  <p className="mt-2 text-2xl font-semibold text-slate-900 dark:text-slate-100">
                     {data.summary.completedVisits}
                   </p>
                 </div>
@@ -224,10 +224,10 @@ export default function AnalyticsPage() {
             <div className="card">
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                  <p className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
                     Cancellations
                   </p>
-                  <p className="mt-2 text-2xl font-semibold text-slate-900">
+                  <p className="mt-2 text-2xl font-semibold text-slate-900 dark:text-slate-100">
                     {data.summary.cancelledAppointments}
                   </p>
                 </div>
@@ -235,7 +235,7 @@ export default function AnalyticsPage() {
               </div>
               <div className="mt-2 flex items-center gap-1 text-xs">
                 <AlertTriangle className="h-3 w-3 text-amber-500" />
-                <span className="text-amber-600 font-medium">
+                <span className="text-amber-600 font-medium dark:text-amber-400">
                   {data.summary.noShowAppointments}
                 </span>
                 <span className="text-slate-400">no-shows</span>
@@ -247,7 +247,7 @@ export default function AnalyticsPage() {
           <div className="grid gap-6 lg:grid-cols-2">
             {/* Appointments by Status */}
             <div className="card">
-              <h3 className="text-sm font-semibold text-slate-900 mb-4">
+              <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-4">
                 Appointments by Status
               </h3>
               <ResponsiveContainer width="100%" height={280}>
@@ -278,7 +278,7 @@ export default function AnalyticsPage() {
 
             {/* Appointments by Day */}
             <div className="card">
-              <h3 className="text-sm font-semibold text-slate-900 mb-4">
+              <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-4">
                 Appointments by Day of Week
               </h3>
               <ResponsiveContainer width="100%" height={280}>
@@ -297,7 +297,7 @@ export default function AnalyticsPage() {
           <div className="grid gap-6 lg:grid-cols-2">
             {/* Appointments by Doctor */}
             <div className="card">
-              <h3 className="text-sm font-semibold text-slate-900 mb-4">
+              <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-4">
                 Appointments by Doctor
               </h3>
               <ResponsiveContainer width="100%" height={280}>
@@ -316,13 +316,13 @@ export default function AnalyticsPage() {
 
             {/* Patients by Gender & Age */}
             <div className="card">
-              <h3 className="text-sm font-semibold text-slate-900 mb-4">
+              <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-4">
                 Patient Demographics
               </h3>
               <div className="grid grid-cols-2 gap-4">
                 {/* Gender */}
                 <div>
-                  <p className="text-xs font-medium text-slate-500 mb-2 text-center">
+                  <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-2 text-center">
                     By Gender
                   </p>
                   <ResponsiveContainer width="100%" height={240}>
@@ -355,7 +355,7 @@ export default function AnalyticsPage() {
 
                 {/* Age */}
                 <div>
-                  <p className="text-xs font-medium text-slate-500 mb-2 text-center">
+                  <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-2 text-center">
                     By Age Range
                   </p>
                   <ResponsiveContainer width="100%" height={250}>
@@ -378,7 +378,7 @@ export default function AnalyticsPage() {
           {/* Visits by Doctor table */}
           {data.visitsByDoctor?.length > 0 && (
             <div className="card">
-              <h3 className="text-sm font-semibold text-slate-900 mb-4">
+              <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-4">
                 Visits by Doctor
               </h3>
               <div className="table-container">
@@ -406,13 +406,13 @@ export default function AnalyticsPage() {
                           <td>{d.count}</td>
                           <td>
                             <div className="flex items-center gap-2">
-                              <div className="h-2 flex-1 max-w-[100px] rounded-full bg-slate-100">
+                              <div className="h-2 flex-1 max-w-[100px] rounded-full bg-slate-100 dark:bg-slate-700">
                                 <div
                                   className="h-2 rounded-full bg-emerald-500"
                                   style={{ width: `${pct}%` }}
                                 />
                               </div>
-                              <span className="text-xs text-slate-500">
+                              <span className="text-xs text-slate-500 dark:text-slate-400">
                                 {pct}%
                               </span>
                             </div>
