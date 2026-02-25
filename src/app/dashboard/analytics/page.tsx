@@ -30,13 +30,7 @@ import {
   Legend,
 } from "recharts";
 import jsPDF from "jspdf";
-
-const PERIODS = [
-  { value: "7", label: "Last 7 days" },
-  { value: "30", label: "Last 30 days" },
-  { value: "90", label: "Last 90 days" },
-  { value: "365", label: "Last year" },
-];
+import { useI18n } from "@/lib/i18n";
 
 const STATUS_COLORS: Record<string, string> = {
   scheduled: "#94a3b8",
@@ -50,8 +44,16 @@ const STATUS_COLORS: Record<string, string> = {
 const PIE_COLORS = ["#0ea5e9", "#10b981", "#8b5cf6", "#f59e0b", "#ef4444", "#06b6d4"];
 
 export default function AnalyticsPage() {
+  const { t } = useI18n();
   const { data: session } = useSession();
   const router = useRouter();
+
+  const PERIODS = [
+    { value: "7", label: t("analytics.last7Days") },
+    { value: "30", label: t("analytics.last30Days") },
+    { value: "90", label: t("analytics.last90Days") },
+    { value: "365", label: t("analytics.lastYear") },
+  ];
   const [period, setPeriod] = useState("30");
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -132,10 +134,10 @@ export default function AnalyticsPage() {
         <div>
           <h1 className="page-title">
             <BarChart3 className="h-6 w-6 text-sky-500" />
-            <span>Analytics & Reports</span>
+            <span>{t("analytics.title")}</span>
           </h1>
           <p className="page-subtitle mt-1">
-            Comprehensive clinic performance insights.
+            {t("analytics.subtitle")}
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -152,14 +154,14 @@ export default function AnalyticsPage() {
           </select>
           <button onClick={exportPDF} disabled={!data} className="btn-primary">
             <Download className="h-4 w-4" />
-            Export PDF
+            {t("analytics.exportPDF")}
           </button>
         </div>
       </div>
 
       {loading ? (
         <div className="card text-center py-10 text-sm text-slate-500 dark:text-slate-400">
-          Loading analytics…
+          {t("analytics.loadingAnalytics")}
         </div>
       ) : data ? (
         <>
@@ -169,7 +171,7 @@ export default function AnalyticsPage() {
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                    Total Patients
+                    {t("dashboard.totalPatients")}
                   </p>
                   <p className="mt-2 text-2xl font-semibold text-slate-900 dark:text-slate-100">
                     {data.summary.totalPatients}
@@ -182,7 +184,7 @@ export default function AnalyticsPage() {
                 <span className="text-emerald-600 font-medium dark:text-emerald-400">
                   +{data.summary.newPatients}
                 </span>
-                <span className="text-slate-400">new</span>
+                <span className="text-slate-400">{t("analytics.new")}</span>
               </div>
             </div>
 
@@ -190,7 +192,7 @@ export default function AnalyticsPage() {
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                    Appointments
+                    {t("dashboard.appointments")}
                   </p>
                   <p className="mt-2 text-2xl font-semibold text-slate-900 dark:text-slate-100">
                     {data.summary.totalAppointments}
@@ -203,7 +205,7 @@ export default function AnalyticsPage() {
                 <span className="text-emerald-600 font-medium dark:text-emerald-400">
                   {data.summary.completionRate}%
                 </span>
-                <span className="text-slate-400">completion</span>
+                <span className="text-slate-400">{t("analytics.completion")}</span>
               </div>
             </div>
 
@@ -211,7 +213,7 @@ export default function AnalyticsPage() {
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                    Completed Visits
+                    {t("dashboard.completedVisits")}
                   </p>
                   <p className="mt-2 text-2xl font-semibold text-slate-900 dark:text-slate-100">
                     {data.summary.completedVisits}
@@ -225,7 +227,7 @@ export default function AnalyticsPage() {
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                    Cancellations
+                    {t("analytics.cancellations")}
                   </p>
                   <p className="mt-2 text-2xl font-semibold text-slate-900 dark:text-slate-100">
                     {data.summary.cancelledAppointments}
@@ -238,7 +240,7 @@ export default function AnalyticsPage() {
                 <span className="text-amber-600 font-medium dark:text-amber-400">
                   {data.summary.noShowAppointments}
                 </span>
-                <span className="text-slate-400">no-shows</span>
+                <span className="text-slate-400">{t("analytics.noShows")}</span>
               </div>
             </div>
           </div>
@@ -248,7 +250,7 @@ export default function AnalyticsPage() {
             {/* Appointments by Status */}
             <div className="card">
               <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-4">
-                Appointments by Status
+                {t("analytics.appointmentsByStatus")}
               </h3>
               <ResponsiveContainer width="100%" height={280}>
                 <PieChart>
@@ -279,7 +281,7 @@ export default function AnalyticsPage() {
             {/* Appointments by Day */}
             <div className="card">
               <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-4">
-                Appointments by Day of Week
+                {t("analytics.appointmentsByDay")}
               </h3>
               <ResponsiveContainer width="100%" height={280}>
                 <BarChart data={data.appointmentsByDay || []}>
@@ -298,7 +300,7 @@ export default function AnalyticsPage() {
             {/* Appointments by Doctor */}
             <div className="card">
               <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-4">
-                Appointments by Doctor
+                {t("analytics.appointmentsByDoctor")}
               </h3>
               <ResponsiveContainer width="100%" height={280}>
                 <BarChart
@@ -317,13 +319,13 @@ export default function AnalyticsPage() {
             {/* Patients by Gender & Age */}
             <div className="card">
               <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-4">
-                Patient Demographics
+                {t("analytics.patientDemographics")}
               </h3>
               <div className="grid grid-cols-2 gap-4">
                 {/* Gender */}
                 <div>
                   <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-2 text-center">
-                    By Gender
+                    {t("analytics.byGender")}
                   </p>
                   <ResponsiveContainer width="100%" height={240}>
                     <PieChart>
@@ -356,7 +358,7 @@ export default function AnalyticsPage() {
                 {/* Age */}
                 <div>
                   <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-2 text-center">
-                    By Age Range
+                    {t("analytics.byAgeRange")}
                   </p>
                   <ResponsiveContainer width="100%" height={250}>
                     <BarChart data={data.patientsByAge || []}>
@@ -379,15 +381,15 @@ export default function AnalyticsPage() {
           {data.visitsByDoctor?.length > 0 && (
             <div className="card">
               <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-4">
-                Visits by Doctor
+                {t("analytics.visitsByDoctor")}
               </h3>
               <div className="table-container">
                 <table className="table">
                   <thead>
                     <tr>
-                      <th>Doctor</th>
-                      <th>Visits</th>
-                      <th>% of Total</th>
+                      <th>{t("common.doctor")}</th>
+                      <th>{t("nav.visits")}</th>
+                      <th>%</th>
                     </tr>
                   </thead>
                   <tbody>

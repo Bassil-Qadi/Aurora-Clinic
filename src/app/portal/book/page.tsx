@@ -10,8 +10,10 @@ import {
   CheckCircle2,
   ArrowLeft,
 } from "lucide-react";
+import { useI18n } from "@/lib/i18n";
 
 export default function BookAppointmentPage() {
+  const { t } = useI18n();
   const router = useRouter();
   const [doctors, setDoctors] = useState<any[]>([]);
   const [selectedDoctor, setSelectedDoctor] = useState("");
@@ -46,7 +48,7 @@ export default function BookAppointmentPage() {
     setError("");
 
     if (!date || !time) {
-      setError("Please select a date and time.");
+      setError(t("portal.selectDateAndTime"));
       return;
     }
 
@@ -70,10 +72,10 @@ export default function BookAppointmentPage() {
       if (res.ok) {
         setSuccess(true);
       } else {
-        setError(data.error || "Failed to book appointment.");
+        setError(data.error || t("portal.failedToBook"));
       }
     } catch {
-      setError("An unexpected error occurred.");
+      setError(t("portal.unexpectedError"));
     } finally {
       setLoading(false);
     }
@@ -87,11 +89,10 @@ export default function BookAppointmentPage() {
             <CheckCircle2 className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
           </div>
           <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">
-            Appointment Booked!
+            {t("portal.appointmentBooked")}
           </h2>
           <p className="text-sm text-slate-500 dark:text-slate-400">
-            Your appointment has been scheduled. You&apos;ll receive a
-            confirmation and reminders.
+            {t("portal.appointmentBookedDesc")}
           </p>
           <div className="flex items-center justify-center gap-3 pt-4">
             <button
@@ -99,7 +100,7 @@ export default function BookAppointmentPage() {
               className="btn-secondary"
             >
               <ArrowLeft className="h-4 w-4" />
-              Back to Dashboard
+              {t("portal.backToDashboard")}
             </button>
             <button
               onClick={() => {
@@ -112,7 +113,7 @@ export default function BookAppointmentPage() {
               className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 px-5 py-2.5 text-sm font-semibold text-white shadow-md transition-all hover:shadow-lg"
             >
               <CalendarPlus className="h-4 w-4" />
-              Book Another
+              {t("portal.bookAnother")}
             </button>
           </div>
         </div>
@@ -125,10 +126,10 @@ export default function BookAppointmentPage() {
       <div>
         <h1 className="page-title">
           <CalendarPlus className="h-6 w-6 text-emerald-500" />
-          <span>Book an Appointment</span>
+          <span>{t("portal.bookAnAppointment")}</span>
         </h1>
         <p className="page-subtitle mt-1">
-          Choose your preferred doctor, date, and time.
+          {t("portal.choosePreferred")}
         </p>
       </div>
 
@@ -144,17 +145,17 @@ export default function BookAppointmentPage() {
           <div>
             <label className="mb-1 flex items-center gap-2 text-xs font-medium text-slate-600 dark:text-slate-400">
               <Stethoscope className="h-3 w-3 text-emerald-500" />
-              Doctor (optional)
+              {t("portal.doctorOptional")}
             </label>
             <select
               className="input"
               value={selectedDoctor}
               onChange={(e) => setSelectedDoctor(e.target.value)}
             >
-              <option value="">Any available doctor</option>
+              <option value="">{t("portal.anyAvailableDoctor")}</option>
               {doctors.map((doc) => (
                 <option key={doc._id} value={doc._id}>
-                  Dr. {doc.name}
+                  {t("common.dr")} {doc.name}
                 </option>
               ))}
             </select>
@@ -165,7 +166,7 @@ export default function BookAppointmentPage() {
             <div>
               <label className="mb-1 flex items-center gap-2 text-xs font-medium text-slate-600 dark:text-slate-400">
                 <Clock className="h-3 w-3 text-emerald-500" />
-                Date
+                {t("common.date")}
               </label>
               <input
                 className="input"
@@ -179,7 +180,7 @@ export default function BookAppointmentPage() {
             <div>
               <label className="mb-1 flex items-center gap-2 text-xs font-medium text-slate-600 dark:text-slate-400">
                 <Clock className="h-3 w-3 text-emerald-500" />
-                Time
+                {t("common.time") || "Time"}
               </label>
               <select
                 className="input"
@@ -187,7 +188,7 @@ export default function BookAppointmentPage() {
                 onChange={(e) => setTime(e.target.value)}
                 required
               >
-                <option value="">Select time…</option>
+                <option value="">{t("portal.selectTime")}</option>
                 {timeSlots.map((slot) => (
                   <option key={slot} value={slot}>
                     {slot}
@@ -201,11 +202,11 @@ export default function BookAppointmentPage() {
           <div>
             <label className="mb-1 flex items-center gap-2 text-xs font-medium text-slate-600 dark:text-slate-400">
               <FileText className="h-3 w-3 text-emerald-500" />
-              Reason for Visit (optional)
+              {t("portal.reasonForVisit")}
             </label>
             <textarea
               className="input min-h-[100px] resize-y"
-              placeholder="Describe your symptoms or reason for the visit…"
+              placeholder={t("portal.reasonPlaceholder")}
               value={reason}
               onChange={(e) => setReason(e.target.value)}
             />
@@ -218,7 +219,7 @@ export default function BookAppointmentPage() {
               className="btn-secondary"
             >
               <ArrowLeft className="h-4 w-4" />
-              Cancel
+              {t("common.cancel")}
             </button>
             <button
               type="submit"
@@ -226,7 +227,7 @@ export default function BookAppointmentPage() {
               className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 px-5 py-2.5 text-sm font-semibold text-white shadow-md transition-all hover:shadow-lg hover:from-emerald-600 hover:to-teal-600 disabled:opacity-60"
             >
               <CalendarPlus className="h-4 w-4" />
-              {loading ? "Booking…" : "Book Appointment"}
+              {loading ? t("portal.booking") : t("portal.bookAppointment")}
             </button>
           </div>
         </form>

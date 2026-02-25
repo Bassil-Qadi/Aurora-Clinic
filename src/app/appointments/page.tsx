@@ -7,6 +7,7 @@ import { Calendar, Users, Search, Pencil, Trash2, Play, CheckCircle2, Clock3, XO
 import { AppointmentStatus, normalizeAppointmentStatus } from "@/lib/appointmentStatus";
 import { AppointmentStatusBadge } from "@/components/AppointmentStatusBadge";
 import { useToast } from "@/hooks/use-toast";
+import { useI18n } from "@/lib/i18n";
 
 interface Patient {
   _id: string;
@@ -29,6 +30,7 @@ interface Appointment {
 }
 
 export default function AppointmentsPage() {
+  const { t } = useI18n();
   const router = useRouter();
   const { toast } = useToast();
   const { data: session } = useSession();
@@ -136,7 +138,7 @@ export default function AppointmentsPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Delete this appointment?")) return;
+    if (!confirm(t("appointments.deleteAppointment"))) return;
 
     await fetch(`/api/appointments/${id}`, {
       method: "DELETE",
@@ -159,16 +161,16 @@ export default function AppointmentsPage() {
 
       if (!res.ok) {
         const error = await res.json().catch(() => ({}));
-        throw new Error(error?.error || "Failed to update status");
+        throw new Error(error?.error || t("appointments.statusUpdateFailed"));
       }
 
       await fetchAppointments();
       toast({
-        title: "Status updated",
+        title: t("appointments.statusUpdated"),
       });
     } catch (error: any) {
       toast({
-        title: "Status update failed",
+        title: t("appointments.statusUpdateFailed"),
         description: error.message,
         variant: "destructive",
       });
@@ -188,13 +190,13 @@ export default function AppointmentsPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data?.error || "Failed to start visit");
+        throw new Error(data?.error || t("appointments.cannotStartVisit"));
       }
 
       router.push(`/visits/${data.visitId}`);
     } catch (error: any) {
       toast({
-        title: "Cannot start visit",
+        title: t("appointments.cannotStartVisit"),
         description: error.message,
         variant: "destructive",
       });
@@ -216,22 +218,22 @@ export default function AppointmentsPage() {
         <div>
           <h1 className="page-title">
             <Calendar className="h-6 w-6 text-sky-500" />
-            <span>Appointments</span>
+            <span>{t("appointments.title")}</span>
           </h1>
           <p className="page-subtitle">
-            Schedule, review, and update upcoming patient appointments.
+            {t("appointments.subtitle")}
           </p>
         </div>
         <span className="pill">
           <Users className="mr-1 h-3.5 w-3.5" />
-          Total: {appointments.length}
+          {t("common.total")}: {appointments.length}
         </span>
       </div>
 
       {/* Form */}
       <div className="card card-muted">
         <h2 className="mb-4 text-sm font-semibold text-slate-900 dark:text-slate-100">
-          {editingId ? "Update appointment" : "Schedule appointment"}
+          {editingId ? t("appointments.updateAppointment") : t("appointments.scheduleAppointment")}
         </h2>
 
         <form
@@ -246,7 +248,7 @@ export default function AppointmentsPage() {
             className="input"
             required
           >
-            <option value="">Select patient</option>
+            <option value="">{t("appointments.selectPatient")}</option>
             {patients.map((p) => (
               <option key={p._id} value={p._id}>
                 {p.firstName} {p.lastName}
@@ -274,17 +276,17 @@ export default function AppointmentsPage() {
               className="input"
               required
             >
-              <option value="">Select doctor</option>
+              <option value="">{t("appointments.selectDoctor")}</option>
               {doctors.map((d) => (
                 <option key={d._id} value={d._id}>
-                  Dr. {d.name}
+                  {t("common.dr")} {d.name}
                 </option>
               ))}
             </select>
           )}
 
           <input
-            placeholder="Reason for visit"
+            placeholder={t("appointments.reasonForVisit")}
             value={form.reason}
             onChange={(e) =>
               setForm({ ...form, reason: e.target.value })
@@ -300,13 +302,13 @@ export default function AppointmentsPage() {
             }
             className="input md:max-w-xs"
           >
-            <option value="scheduled">Scheduled</option>
-            <option value="completed">Completed</option>
-            <option value="cancelled">Cancelled</option>
+            <option value="scheduled">{t("appointments.scheduled")}</option>
+            <option value="completed">{t("appointments.completed")}</option>
+            <option value="cancelled">{t("appointments.cancelled")}</option>
           </select>
 
           <button className="btn-primary md:col-span-2 justify-center">
-            {editingId ? "Save changes" : "Schedule appointment"}
+            {editingId ? t("common.saveChanges") : t("appointments.scheduleAppointment")}
           </button>
         </form>
       </div>
@@ -316,7 +318,7 @@ export default function AppointmentsPage() {
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
           <input
             type="text"
-            placeholder="Search patients…"
+            placeholder={t("appointments.searchPlaceholder")}
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
@@ -332,12 +334,12 @@ export default function AppointmentsPage() {
         <table className="table">
           <thead>
             <tr>
-              <th>Patient</th>
-              <th>Doctor</th>
-              <th>Date</th>
-              <th>Reason</th>
-              <th>Status</th>
-              <th className="text-right">Actions</th>
+              <th>{t("common.patient")}</th>
+              <th>{t("common.doctor")}</th>
+              <th>{t("common.date")}</th>
+              <th>{t("common.reason")}</th>
+              <th>{t("common.status")}</th>
+              <th className="text-right">{t("common.actions")}</th>
             </tr>
           </thead>
           <tbody>
@@ -347,7 +349,7 @@ export default function AppointmentsPage() {
                   {a.patient?.firstName} {a.patient?.lastName}
                 </td>
                 <td className="text-slate-600 dark:text-slate-400">
-                  {a.doctor?.name ? `Dr. ${a.doctor.name}` : <span className="text-slate-400 italic">Unassigned</span>}
+                  {a.doctor?.name ? `${t("common.dr")} ${a.doctor.name}` : <span className="text-slate-400 italic">{t("common.unassigned")}</span>}
                 </td>
                 <td>{new Date(a.date).toLocaleString()}</td>
                 <td>{a.reason}</td>
@@ -360,14 +362,14 @@ export default function AppointmentsPage() {
                     className="btn-ghost"
                   >
                     <Pencil className="h-3.5 w-3.5" />
-                    <span>Edit</span>
+                    <span>{t("common.edit")}</span>
                   </button>
                   <button
                     onClick={() => handleDelete(a._id)}
                     className="btn-danger"
                   >
                     <Trash2 className="h-3.5 w-3.5" />
-                    <span>Delete</span>
+                    <span>{t("common.delete")}</span>
                   </button>
                   {/* Reception: Check-in / Cancel / No-show */}
                   {(() => {
@@ -382,7 +384,7 @@ export default function AppointmentsPage() {
                             className="btn-secondary"
                           >
                             <Clock3 className="h-3.5 w-3.5" />
-                            <span>Check In</span>
+                            <span>{t("appointments.checkIn")}</span>
                           </button>
                           <button
                             onClick={() => updateStatus(a._id, "cancelled")}
@@ -390,7 +392,7 @@ export default function AppointmentsPage() {
                             className="btn-ghost"
                           >
                             <XOctagon className="h-3.5 w-3.5" />
-                            <span>Cancel</span>
+                            <span>{t("common.cancel")}</span>
                           </button>
                           <button
                             onClick={() => updateStatus(a._id, "no_show")}
@@ -398,7 +400,7 @@ export default function AppointmentsPage() {
                             className="btn-ghost"
                           >
                             <EyeOff className="h-3.5 w-3.5" />
-                            <span>No Show</span>
+                            <span>{t("appointments.noShow")}</span>
                           </button>
                         </>
                       );
@@ -413,7 +415,7 @@ export default function AppointmentsPage() {
                             className="btn-success"
                           >
                             <Play className="h-3.5 w-3.5" />
-                            <span>Start Visit</span>
+                            <span>{t("appointments.startVisit")}</span>
                           </button>
                           <button
                             onClick={() => updateStatus(a._id, "cancelled")}
@@ -421,7 +423,7 @@ export default function AppointmentsPage() {
                             className="btn-ghost"
                           >
                             <XOctagon className="h-3.5 w-3.5" />
-                            <span>Cancel</span>
+                            <span>{t("common.cancel")}</span>
                           </button>
                         </>
                       );
@@ -435,7 +437,7 @@ export default function AppointmentsPage() {
                           className="btn-success"
                         >
                           <Play className="h-3.5 w-3.5" />
-                          <span>Continue Visit</span>
+                          <span>{t("appointments.continueVisit")}</span>
                         </button>
                       );
                     }
@@ -444,7 +446,7 @@ export default function AppointmentsPage() {
                       return (
                         <span className="text-xs text-slate-500 dark:text-slate-400 inline-flex items-center gap-1">
                           <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
-                          Completed
+                          {t("appointments.completed")}
                         </span>
                       );
                     }
@@ -452,7 +454,7 @@ export default function AppointmentsPage() {
                     if (status === "cancelled" || status === "no_show") {
                       return (
                         <span className="text-xs text-slate-500 dark:text-slate-400">
-                          No further actions
+                          {t("common.noFurtherActions")}
                         </span>
                       );
                     }
@@ -467,7 +469,7 @@ export default function AppointmentsPage() {
 
         {appointments.length === 0 && (
           <p className="px-4 pb-4 pt-2 text-sm text-slate-500 dark:text-slate-400">
-            No appointments yet. Use the form above to schedule the first one.
+            {t("appointments.noAppointments")}
           </p>
         )}
       </div>
@@ -478,11 +480,11 @@ export default function AppointmentsPage() {
           onClick={() => setPage(page - 1)}
           className="btn-ghost disabled:opacity-50"
         >
-          Prev
+          {t("common.prev")}
         </button>
 
         <span>
-          Page {page} of {totalPages}
+          {t("common.page")} {page} {t("common.of")} {totalPages}
         </span>
 
         <button
@@ -490,7 +492,7 @@ export default function AppointmentsPage() {
           onClick={() => setPage(page + 1)}
           className="btn-ghost disabled:opacity-50"
         >
-          Next
+          {t("common.next")}
         </button>
       </div>
     </div>

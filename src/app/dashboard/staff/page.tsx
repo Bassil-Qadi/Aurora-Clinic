@@ -16,6 +16,7 @@ import {
   X,
   Users,
 } from "lucide-react";
+import { useI18n } from "@/lib/i18n";
 
 type StaffMember = {
   _id: string;
@@ -42,6 +43,7 @@ const ROLE_COLORS: Record<string, string> = {
 };
 
 export default function StaffManagementPage() {
+  const { t } = useI18n();
   const { data: session } = useSession();
   const router = useRouter();
 
@@ -83,7 +85,7 @@ export default function StaffManagementPage() {
       const data = await res.json();
       setStaff(data.users || []);
     } catch {
-      setMessage({ type: "error", text: "Failed to load staff." });
+      setMessage({ type: "error", text: t("staff.failedToLoad") });
     } finally {
       setLoading(false);
     }
@@ -109,15 +111,15 @@ export default function StaffManagementPage() {
       });
       const data = await res.json();
       if (!res.ok) {
-        showMsg("error", data.error || "Failed to create user.");
+        showMsg("error", data.error || t("staff.failedToCreate"));
         return;
       }
-      showMsg("success", `${data.name} has been added as ${data.role}.`);
+      showMsg("success", t("staff.addedSuccess", { name: data.name, role: data.role }));
       setShowAddModal(false);
       resetForm();
       fetchStaff();
     } catch {
-      showMsg("error", "Failed to create user.");
+      showMsg("error", t("staff.failedToCreate"));
     } finally {
       setSaving(false);
     }
@@ -138,15 +140,15 @@ export default function StaffManagementPage() {
       });
       const data = await res.json();
       if (!res.ok) {
-        showMsg("error", data.error || "Failed to update user.");
+        showMsg("error", data.error || t("staff.failedToUpdate"));
         return;
       }
-      showMsg("success", "Staff member updated successfully.");
+      showMsg("success", t("staff.updatedSuccess"));
       setShowEditModal(false);
       resetForm();
       fetchStaff();
     } catch {
-      showMsg("error", "Failed to update user.");
+      showMsg("error", t("staff.failedToUpdate"));
     } finally {
       setSaving(false);
     }
@@ -159,16 +161,18 @@ export default function StaffManagementPage() {
       });
       if (!res.ok) {
         const data = await res.json();
-        showMsg("error", data.error || "Failed to toggle status.");
+        showMsg("error", data.error || t("staff.failedToToggle"));
         return;
       }
       showMsg(
         "success",
-        `${member.name} has been ${member.isActive ? "deactivated" : "activated"}.`
+        member.isActive
+          ? t("staff.deactivatedSuccess", { name: member.name })
+          : t("staff.activatedSuccess", { name: member.name })
       );
       fetchStaff();
     } catch {
-      showMsg("error", "Failed to toggle status.");
+      showMsg("error", t("staff.failedToToggle"));
     }
   };
 
@@ -183,15 +187,15 @@ export default function StaffManagementPage() {
       });
       const data = await res.json();
       if (!res.ok) {
-        showMsg("error", data.error || "Failed to reset password.");
+        showMsg("error", data.error || t("staff.passwordResetFailed"));
         return;
       }
-      showMsg("success", `Password for ${selectedUser.name} has been reset.`);
+      showMsg("success", t("staff.passwordResetSuccess", { name: selectedUser.name }));
       setShowResetModal(false);
       setResetPassword("");
       setSelectedUser(null);
     } catch {
-      showMsg("error", "Failed to reset password.");
+      showMsg("error", t("staff.passwordResetFailed"));
     } finally {
       setSaving(false);
     }
@@ -226,6 +230,15 @@ export default function StaffManagementPage() {
       s.role.toLowerCase().includes(search.toLowerCase())
   );
 
+  const getRoleLabel = (role: string) => {
+    const map: Record<string, string> = {
+      admin: t("common.admin"),
+      doctor: t("common.doctor"),
+      receptionist: t("common.receptionist"),
+    };
+    return map[role] || role;
+  };
+
   if (session?.user?.role !== "admin") return null;
 
   return (
@@ -235,10 +248,10 @@ export default function StaffManagementPage() {
         <div>
           <h1 className="page-title">
             <Users className="h-6 w-6 text-sky-500" />
-            <span>Staff Management</span>
+            <span>{t("staff.title")}</span>
           </h1>
           <p className="page-subtitle mt-1">
-            Manage your clinic staff — add, edit, or deactivate team members.
+            {t("staff.subtitle")}
           </p>
         </div>
         <button
@@ -249,7 +262,7 @@ export default function StaffManagementPage() {
           className="btn-primary"
         >
           <UserPlus className="h-4 w-4" />
-          <span>Add Staff</span>
+          <span>{t("staff.addStaff")}</span>
         </button>
       </div>
 
@@ -271,7 +284,7 @@ export default function StaffManagementPage() {
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
         <input
           className="input pl-10"
-          placeholder="Search by name, email, or role…"
+          placeholder={t("staff.searchPlaceholder")}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
@@ -280,26 +293,26 @@ export default function StaffManagementPage() {
       {/* Staff Table */}
       {loading ? (
         <div className="card text-center py-10 text-slate-500 dark:text-slate-400 text-sm">
-          Loading staff…
+          {t("staff.loadingStaff")}
         </div>
       ) : (
         <div className="table-container">
           <table className="table">
             <thead>
               <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Role</th>
-                <th>Status</th>
-                <th>Joined</th>
-                <th className="text-right">Actions</th>
+                <th>{t("common.name")}</th>
+                <th>{t("common.email")}</th>
+                <th>{t("common.role")}</th>
+                <th>{t("common.status")}</th>
+                <th>{t("staff.joined")}</th>
+                <th className="text-right">{t("common.actions")}</th>
               </tr>
             </thead>
             <tbody>
               {filteredStaff.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="text-center py-8 text-slate-500 dark:text-slate-400">
-                    No staff members found.
+                    {t("staff.noStaff")}
                   </td>
                 </tr>
               ) : (
@@ -316,8 +329,7 @@ export default function StaffManagementPage() {
                         }`}
                       >
                         {ROLE_ICONS[member.role]}
-                        {member.role.charAt(0).toUpperCase() +
-                          member.role.slice(1)}
+                        {getRoleLabel(member.role)}
                       </span>
                     </td>
                     <td>
@@ -333,7 +345,7 @@ export default function StaffManagementPage() {
                             member.isActive ? "bg-emerald-500" : "bg-slate-400"
                           }`}
                         />
-                        {member.isActive ? "Active" : "Inactive"}
+                        {member.isActive ? t("common.active") : t("common.inactive")}
                       </span>
                     </td>
                     <td className="text-slate-500 dark:text-slate-400">
@@ -344,14 +356,14 @@ export default function StaffManagementPage() {
                         <button
                           onClick={() => openEdit(member)}
                           className="btn-ghost"
-                          title="Edit"
+                          title={t("common.edit")}
                         >
                           <Pencil className="h-3.5 w-3.5" />
                         </button>
                         <button
                           onClick={() => openResetPassword(member)}
                           className="btn-ghost"
-                          title="Reset Password"
+                          title={t("staff.resetPassword")}
                         >
                           <KeyRound className="h-3.5 w-3.5" />
                         </button>
@@ -359,7 +371,7 @@ export default function StaffManagementPage() {
                           onClick={() => handleToggleActive(member)}
                           className="btn-ghost"
                           title={
-                            member.isActive ? "Deactivate" : "Activate"
+                            member.isActive ? t("staff.deactivate") : t("staff.activate")
                           }
                         >
                           {member.isActive ? (
@@ -385,7 +397,7 @@ export default function StaffManagementPage() {
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
                 <UserPlus className="h-5 w-5 text-sky-500" />
-                <span>Add Staff Member</span>
+                <span>{t("staff.addStaffMember")}</span>
               </h2>
               <button
                 onClick={() => setShowAddModal(false)}
@@ -397,7 +409,7 @@ export default function StaffManagementPage() {
 
             <div>
               <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
-                Full Name
+                {t("staff.fullName")}
               </label>
               <input
                 className="input"
@@ -409,7 +421,7 @@ export default function StaffManagementPage() {
 
             <div>
               <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
-                Email
+                {t("common.email")}
               </label>
               <input
                 className="input"
@@ -422,12 +434,12 @@ export default function StaffManagementPage() {
 
             <div>
               <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
-                Temporary Password
+                {t("staff.temporaryPassword")}
               </label>
               <input
                 className="input"
                 type="password"
-                placeholder="Min 6 characters"
+                placeholder={t("staff.minSixCharacters")}
                 value={formPassword}
                 onChange={(e) => setFormPassword(e.target.value)}
               />
@@ -435,16 +447,16 @@ export default function StaffManagementPage() {
 
             <div>
               <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
-                Role
+                {t("common.role")}
               </label>
               <select
                 className="input"
                 value={formRole}
                 onChange={(e) => setFormRole(e.target.value)}
               >
-                <option value="receptionist">Receptionist</option>
-                <option value="doctor">Doctor</option>
-                <option value="admin">Admin</option>
+                <option value="receptionist">{t("common.receptionist")}</option>
+                <option value="doctor">{t("common.doctor")}</option>
+                <option value="admin">{t("common.admin")}</option>
               </select>
             </div>
 
@@ -453,14 +465,14 @@ export default function StaffManagementPage() {
                 onClick={() => setShowAddModal(false)}
                 className="btn-secondary"
               >
-                Cancel
+                {t("common.cancel")}
               </button>
               <button
                 onClick={handleAdd}
                 disabled={saving || !formName || !formEmail || !formPassword}
                 className="btn-primary"
               >
-                {saving ? "Creating…" : "Create Staff"}
+                {saving ? t("staff.creating") : t("staff.createStaff")}
               </button>
             </div>
           </div>
@@ -474,7 +486,7 @@ export default function StaffManagementPage() {
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
                 <Pencil className="h-5 w-5 text-sky-500" />
-                <span>Edit Staff Member</span>
+                <span>{t("staff.editStaffMember")}</span>
               </h2>
               <button
                 onClick={() => setShowEditModal(false)}
@@ -486,7 +498,7 @@ export default function StaffManagementPage() {
 
             <div>
               <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
-                Full Name
+                {t("staff.fullName")}
               </label>
               <input
                 className="input"
@@ -497,7 +509,7 @@ export default function StaffManagementPage() {
 
             <div>
               <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
-                Email
+                {t("common.email")}
               </label>
               <input
                 className="input"
@@ -509,16 +521,16 @@ export default function StaffManagementPage() {
 
             <div>
               <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
-                Role
+                {t("common.role")}
               </label>
               <select
                 className="input"
                 value={formRole}
                 onChange={(e) => setFormRole(e.target.value)}
               >
-                <option value="receptionist">Receptionist</option>
-                <option value="doctor">Doctor</option>
-                <option value="admin">Admin</option>
+                <option value="receptionist">{t("common.receptionist")}</option>
+                <option value="doctor">{t("common.doctor")}</option>
+                <option value="admin">{t("common.admin")}</option>
               </select>
             </div>
 
@@ -527,14 +539,14 @@ export default function StaffManagementPage() {
                 onClick={() => setShowEditModal(false)}
                 className="btn-secondary"
               >
-                Cancel
+                {t("common.cancel")}
               </button>
               <button
                 onClick={handleEdit}
                 disabled={saving || !formName || !formEmail}
                 className="btn-primary"
               >
-                {saving ? "Saving…" : "Save Changes"}
+                {saving ? t("staff.saving") : t("common.saveChanges")}
               </button>
             </div>
           </div>
@@ -548,7 +560,7 @@ export default function StaffManagementPage() {
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
                 <KeyRound className="h-5 w-5 text-amber-500" />
-                <span>Reset Password</span>
+                <span>{t("staff.resetPassword")}</span>
               </h2>
               <button
                 onClick={() => setShowResetModal(false)}
@@ -559,19 +571,19 @@ export default function StaffManagementPage() {
             </div>
 
             <p className="text-sm text-slate-600 dark:text-slate-400">
-              Set a new password for{" "}
+              {t("staff.setNewPasswordFor")}{" "}
               <span className="font-semibold">{selectedUser.name}</span> (
               {selectedUser.email}).
             </p>
 
             <div>
               <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
-                New Password
+                {t("staff.newPassword")}
               </label>
               <input
                 className="input"
                 type="password"
-                placeholder="Min 6 characters"
+                placeholder={t("staff.minSixCharacters")}
                 value={resetPassword}
                 onChange={(e) => setResetPassword(e.target.value)}
               />
@@ -582,14 +594,14 @@ export default function StaffManagementPage() {
                 onClick={() => setShowResetModal(false)}
                 className="btn-secondary"
               >
-                Cancel
+                {t("common.cancel")}
               </button>
               <button
                 onClick={handleResetPassword}
                 disabled={saving || resetPassword.length < 6}
                 className="btn-primary"
               >
-                {saving ? "Resetting…" : "Reset Password"}
+                {saving ? t("staff.resetting") : t("staff.resetPassword")}
               </button>
             </div>
           </div>

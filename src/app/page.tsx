@@ -1,29 +1,32 @@
+"use client";
+
 import Link from "next/link";
 import { Activity, LogIn, Users, Calendar, Clipboard } from "lucide-react";
+import { useI18n } from "@/lib/i18n";
 
 export default function HomePage() {
+  const { t } = useI18n();
   return (
     <div className="flex min-h-screen items-center justify-center px-4 py-10">
       <div className="max-w-4xl grid items-center gap-10 md:grid-cols-[1.1fr,0.9fr]">
         <div className="space-y-4">
-          <span className="pill">Clinic Management</span>
+          <span className="pill">{t("common.appName")}</span>
           <h1 className="page-title">
             <Activity className="h-7 w-7 text-sky-500" />
-            <span>A calmer way to manage your patients and visits.</span>
+            <span>{t("home.heroTitle")} {t("home.heroTitleHighlight")} {t("home.heroTitleEnd")}</span>
           </h1>
           <p className="page-subtitle max-w-xl">
-            Securely track patients, appointments, and medical records in a
-            single, modern dashboard designed for clinics and healthcare teams.
+            {t("home.heroSubtitle")}
           </p>
 
           <div className="flex flex-wrap gap-3 pt-3">
             <Link href="/login" className="btn-primary">
               <LogIn className="h-4 w-4" />
-              <span>Go to Login</span>
+              <span>{t("home.getStarted")}</span>
             </Link>
             <span className="inline-flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
               <span className="h-2 w-2 rounded-full bg-emerald-500" />
-              System status: Online
+              {t("common.systemOnline")}
             </span>
           </div>
         </div>
@@ -32,10 +35,10 @@ export default function HomePage() {
           <div className="mb-4 flex items-center justify-between">
             <div>
               <p className="text-xs font-medium uppercase tracking-wide text-sky-700 dark:text-sky-400">
-                Today at a glance
+                {t("dashboard.todayAtAGlance")}
               </p>
               <p className="text-sm text-slate-500 dark:text-slate-400">
-                Patients, Appointments, Visits
+                {t("dashboard.patientsAppointmentsVisits")}
               </p>
             </div>
             <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-sky-600 text-white text-sm font-semibold">
@@ -47,28 +50,28 @@ export default function HomePage() {
             <div className="rounded-xl bg-white/70 p-3 dark:bg-slate-800/70">
               <p className="flex items-center gap-1.5 text-[11px] text-slate-500 dark:text-slate-400">
                 <Users className="h-3.5 w-3.5 text-sky-500" />
-                <span>Patients</span>
+                <span>{t("nav.patients")}</span>
               </p>
               <p className="mt-1 text-lg font-semibold text-slate-900 dark:text-slate-100">—</p>
             </div>
             <div className="rounded-xl bg-white/70 p-3 dark:bg-slate-800/70">
               <p className="flex items-center gap-1.5 text-[11px] text-slate-500 dark:text-slate-400">
                 <Calendar className="h-3.5 w-3.5 text-sky-500" />
-                <span>Appointments</span>
+                <span>{t("nav.appointments")}</span>
               </p>
               <p className="mt-1 text-lg font-semibold text-slate-900 dark:text-slate-100">—</p>
             </div>
             <div className="rounded-xl bg-white/70 p-3 dark:bg-slate-800/70">
               <p className="flex items-center gap-1.5 text-[11px] text-slate-500 dark:text-slate-400">
                 <Clipboard className="h-3.5 w-3.5 text-sky-500" />
-                <span>Visits</span>
+                <span>{t("nav.visits")}</span>
               </p>
               <p className="mt-1 text-lg font-semibold text-slate-900 dark:text-slate-100">—</p>
             </div>
           </div>
 
           <p className="mt-5 text-[11px] text-slate-500">
-            Log in to start capturing clinical data and see live metrics here.
+            {t("dashboard.loginToStart")}
           </p>
         </div>
       </div>

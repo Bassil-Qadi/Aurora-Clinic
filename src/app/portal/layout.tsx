@@ -41,7 +41,7 @@ const NAV = [
 export default function PortalLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { t } = useI18n();
+  const { t, dir } = useI18n();
   const [patient, setPatient] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -198,7 +198,7 @@ export default function PortalLayout({ children }: { children: ReactNode }) {
         {/* Sidebar */}
         <aside
           className={`fixed inset-y-0 start-0 z-50 flex w-72 flex-col rounded-e-3xl bg-white/95 p-5 shadow-xl ring-1 ring-slate-100 backdrop-blur-md transition-transform duration-300 dark:bg-slate-900/95 dark:ring-slate-800 lg:static lg:z-auto lg:w-64 lg:translate-x-0 lg:rounded-3xl lg:shadow-sm ${
-            sidebarOpen ? "translate-x-0" : "-translate-x-full rtl:translate-x-full"
+            sidebarOpen ? "translate-x-0" : dir === "rtl" ? "translate-x-full" : "-translate-x-full"
           }`}
         >
           {sidebarContent}

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { Clipboard, Pencil, Trash2, Eye, FileText, Search, Printer } from "lucide-react";
+import { useI18n } from "@/lib/i18n";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -34,7 +35,7 @@ interface Visit {
 }
 
 export default function VisitsPage() {
-
+  const { t } = useI18n();
   const { data: session } = useSession();
 
   const [visits, setVisits] = useState<Visit[]>([]);
@@ -160,7 +161,7 @@ export default function VisitsPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Delete this visit?")) return;
+    if (!confirm(t("common.areYouSure"))) return;
 
     await fetch(`/api/visits/${id}`, {
       method: "DELETE",
@@ -202,13 +203,13 @@ export default function VisitsPage() {
         <div>
           <h1 className="page-title">
             <Clipboard className="h-6 w-6 text-sky-500" />
-            <span>Visits / Medical records</span>
+            <span>{t("visits.title")}</span>
           </h1>
           <p className="page-subtitle">
-            Document diagnoses, prescriptions, notes, and follow-up dates.
+            {t("visits.subtitle")}
           </p>
         </div>
-        <span className="pill">Total: {visits.length}</span>
+        <span className="pill">{t("common.total")}: {visits.length}</span>
       </div>
 
       {/* Form */}
@@ -225,7 +226,7 @@ export default function VisitsPage() {
             className="input"
             required
           >
-            <option value="">Select patient</option>
+            <option value="">{t("appointments.selectPatient")}</option>
             {patients.map((p) => (
               <option key={p._id} value={p._id}>
                 {p.firstName} {p.lastName}
@@ -243,7 +244,7 @@ export default function VisitsPage() {
               className="input"
               required
             >
-              <option value="">Select doctor</option>
+              <option value="">{t("appointments.selectDoctor")}</option>
               {doctors.map((d) => (
                 <option key={d._id} value={d._id}>
                   {d.name}
@@ -253,7 +254,7 @@ export default function VisitsPage() {
           )}
 
           <input
-            placeholder="Diagnosis"
+            placeholder={t("visits.diagnosis")}
             value={form.diagnosis}
             onChange={(e) =>
               setForm({ ...form, diagnosis: e.target.value })
@@ -263,7 +264,7 @@ export default function VisitsPage() {
           />
 
           <input
-            placeholder="Prescription"
+            placeholder={t("visits.prescription")}
             value={form.prescription}
             onChange={(e) =>
               setForm({ ...form, prescription: e.target.value })
@@ -272,7 +273,7 @@ export default function VisitsPage() {
           />
 
           <textarea
-            placeholder="Clinical notes"
+            placeholder={t("visits.clinicalNotes")}
             value={form.notes}
             onChange={(e) =>
               setForm({ ...form, notes: e.target.value })
@@ -290,7 +291,7 @@ export default function VisitsPage() {
           />
 
           <button className="btn-primary md:col-span-2 justify-center">
-            {editingId ? "Update visit" : "Add visit"}
+            {editingId ? t("common.update") : t("common.add")}
           </button>
         </form>
       </div>
@@ -300,7 +301,7 @@ export default function VisitsPage() {
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
           <input
             type="text"
-            placeholder="Search patients…"
+            placeholder={t("visits.searchPlaceholder")}
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
@@ -316,10 +317,10 @@ export default function VisitsPage() {
         <table className="table">
           <thead>
             <tr>
-              <th>Patient</th>
-              <th>Diagnosis</th>
-              <th>Follow up</th>
-              <th className="text-right">Actions</th>
+              <th>{t("common.patient")}</th>
+              <th>{t("visits.diagnosis")}</th>
+              <th>{t("visits.followUp")}</th>
+              <th className="text-right">{t("common.actions")}</th>
             </tr>
           </thead>
           <tbody>
@@ -340,21 +341,21 @@ export default function VisitsPage() {
                     className="btn-ghost"
                   >
                     <Pencil className="h-3.5 w-3.5" />
-                    <span>Edit</span>
+                    <span>{t("common.edit")}</span>
                   </button>
                   <button
                     onClick={() => handleDelete(v._id)}
                     className="btn-danger"
                   >
                     <Trash2 className="h-3.5 w-3.5" />
-                    <span>Delete</span>
+                    <span>{t("common.delete")}</span>
                   </button>
                   <button
                     onClick={() => setSelectedVisit(v)}
                     className="btn-secondary"
                   >
                     <Eye className="h-3.5 w-3.5" />
-                    <span>View</span>
+                    <span>{t("common.view")}</span>
                   </button>
                   {session?.user?.role === "doctor" && <button
                     onClick={() => {
@@ -365,7 +366,7 @@ export default function VisitsPage() {
                     className="btn-secondary"
                   >
                     <FileText className="h-3.5 w-3.5" />
-                    <span>Add Prescription</span>
+                    <span>{t("visits.addPrescription")}</span>
                   </button>}
                 </td>
               </tr>
@@ -375,7 +376,7 @@ export default function VisitsPage() {
 
         {visits.length === 0 && (
           <p className="px-4 pb-4 pt-2 text-sm text-slate-500 dark:text-slate-400">
-            No visits yet. Add your first visit using the form above.
+            {t("visits.noVisitsFound")}
           </p>
         )}
       </div>
@@ -386,11 +387,11 @@ export default function VisitsPage() {
           onClick={() => setPage(page - 1)}
           className="btn-ghost disabled:opacity-50"
         >
-          Prev
+          {t("common.prev")}
         </button>
 
         <span>
-          Page {page} of {totalPages}
+          {t("common.page")} {page} {t("common.of")} {totalPages}
         </span>
 
         <button
@@ -398,7 +399,7 @@ export default function VisitsPage() {
           onClick={() => setPage(page + 1)}
           className="btn-ghost disabled:opacity-50"
         >
-          Next
+          {t("common.next")}
         </button>
       </div>
 
@@ -408,14 +409,14 @@ export default function VisitsPage() {
             <h2 className="mb-4 text-lg font-semibold text-slate-900 dark:text-slate-100">
               <span className="inline-flex items-center gap-2">
                 <FileText className="h-5 w-5 text-sky-500" />
-                <span>Visit details</span>
+                <span>{t("visits.visitDetails")}</span>
               </span>
             </h2>
 
             <div className="space-y-3 text-sm text-slate-700 dark:text-slate-300">
               <div>
                 <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">
-                  Patient
+                  {t("common.patient")}
                 </p>
                 <p>
                   {selectedVisit.patient?.firstName}{" "}
@@ -425,16 +426,16 @@ export default function VisitsPage() {
 
               <div>
                 <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">
-                  Diagnosis
+                  {t("visits.diagnosis")}
                 </p>
                 <p>{selectedVisit.diagnosis}</p>
               </div>
 
               <div>
-                <h3 className="text-lg font-semibold mt-4 dark:text-slate-100">Prescriptions</h3>
+                <h3 className="text-lg font-semibold mt-4 dark:text-slate-100">{t("visits.prescriptions")}</h3>
 
                 {visitPrescriptions.length === 0 ? (
-                  <p className="text-sm text-gray-500 dark:text-gray-400">No prescriptions for this visit.</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{t("visits.noPrescriptions")}</p>
                 ) : (
                   visitPrescriptions.map((p: any) => (
                     <div key={p._id} className="border p-3 rounded mb-2 dark:border-slate-700">
@@ -449,7 +450,7 @@ export default function VisitsPage() {
                       ))}
 
                       {p.notes && (
-                        <p className="text-sm mt-1 italic">Notes: {p.notes}</p>
+                        <p className="text-sm mt-1 italic">{t("visits.notes")}: {p.notes}</p>
                       )}
 
                       <div className="flex items-center gap-4 mt-4">
@@ -459,7 +460,7 @@ export default function VisitsPage() {
                           className="text-sm btn-primary"
                         >
                           <Printer className="h-3.5 w-3.5" />
-                          <span>Print</span>
+                          <span>{t("common.print")}</span>
                         </Link>
 
                         <button
@@ -469,7 +470,7 @@ export default function VisitsPage() {
                           }}
                           className="text-sm btn-secondary"
                         >
-                          View History
+                          {t("visits.history")}
                         </button>
 
                         {session?.user?.role === "admin" && <button
@@ -480,7 +481,7 @@ export default function VisitsPage() {
                           className="text-sm btn-danger py-3"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
-                          <span>Delete</span>
+                          <span>{t("common.delete")}</span>
                         </button>}
                       </div>
                     </div>
@@ -494,7 +495,7 @@ export default function VisitsPage() {
               onClick={() => setSelectedVisit(null)}
               className="btn-primary mt-5 w-full justify-center"
             >
-              Close
+              {t("common.close")}
             </button>
           </div>
         </div>
@@ -543,7 +544,7 @@ export default function VisitsPage() {
       >
         <DialogContent className="max-w-2xl" aria-describedby={'Prescription-Delete'}>
           <DialogHeader>
-            <DialogTitle>Prescription Version History</DialogTitle>
+            <DialogTitle>{t("visits.history")}</DialogTitle>
           </DialogHeader>
 
           <div className="modal">
@@ -583,11 +584,11 @@ export default function VisitsPage() {
       >
         <DialogContent className="max-w-2xl" aria-describedby={'Prescription-Delete'}>
           <DialogHeader>
-            <DialogTitle>Confirm Deletion</DialogTitle>
+            <DialogTitle>{t("common.confirm")}</DialogTitle>
           </DialogHeader>
 
           <div className="modal">
-            <p className="mb-4">Are you sure you want to delete this prescription?</p>
+            <p className="mb-4">{t("common.areYouSure")}</p>
 
             <div className="flex items-center gap-4">
               <button
@@ -604,7 +605,7 @@ export default function VisitsPage() {
                 }}
                 className="btn-danger"
               >
-                Confirm Delete
+                {t("common.confirm")} {t("common.delete")}
               </button>
 
               <button
@@ -613,7 +614,7 @@ export default function VisitsPage() {
                   setDeleteTarget(null);
                   setShowDeleteDialog(false);
                 }}>
-                Cancel
+                {t("common.cancel")}
               </button>
             </div>
           </div>
@@ -626,13 +627,13 @@ export default function VisitsPage() {
       >
         <DialogContent className="max-w-2xl" aria-describedby={'Prescription-Content'}>
           <DialogHeader>
-            <DialogTitle>Create Prescription</DialogTitle>
+            <DialogTitle>{t("visits.addPrescription")}</DialogTitle>
           </DialogHeader>
 
           {medications.map((med, index) => (
             <div key={index} className="grid grid-cols-4 gap-2 mb-3">
               <Input
-                placeholder="Medication Name"
+                placeholder={t("visits.medicationName")}
                 value={med.name}
                 onChange={(e) => {
                   const updated = [...medications];
@@ -642,7 +643,7 @@ export default function VisitsPage() {
               />
 
               <Input
-                placeholder="Dosage"
+                placeholder={t("visits.dosage")}
                 value={med.dosage}
                 onChange={(e) => {
                   const updated = [...medications];
@@ -652,7 +653,7 @@ export default function VisitsPage() {
               />
 
               <Input
-                placeholder="Frequency"
+                placeholder={t("visits.frequency")}
                 value={med.frequency}
                 onChange={(e) => {
                   const updated = [...medications];
@@ -662,7 +663,7 @@ export default function VisitsPage() {
               />
 
               <Input
-                placeholder="Duration"
+                placeholder={t("visits.duration")}
                 value={med.duration}
                 onChange={(e) => {
                   const updated = [...medications];
@@ -682,7 +683,7 @@ export default function VisitsPage() {
               ])
             }
           >
-            + Add Medication
+            + {t("visits.addPrescription")}
           </Button>
 
           <select
@@ -690,23 +691,23 @@ export default function VisitsPage() {
             value={selectedDoctorId}
             onChange={(e) => setSelectedDoctorId(e.target.value)}
           >
-            <option value="">Select doctor</option>
+            <option value="">{t("appointments.selectDoctor")}</option>
             {doctors.map((doctor) => (
               <option key={doctor._id} value={doctor._id}>
-                Dr. {doctor.name}
+                {t("common.dr")} {doctor.name}
               </option>
             ))}
           </select>
 
           <textarea
             className="w-full border rounded-lg p-2 mt-4 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:placeholder:text-slate-500"
-            placeholder="Additional Notes..."
+            placeholder={t("visits.notes")}
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
           />
 
           <Button onClick={savePrescription} className="mt-4">
-            Save Prescription
+            {t("common.save")}
           </Button>
         </DialogContent>
       </Dialog>

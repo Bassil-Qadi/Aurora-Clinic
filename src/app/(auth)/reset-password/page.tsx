@@ -4,8 +4,10 @@ import { useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { KeyRound, Lock, ArrowLeft, CheckCircle2, AlertTriangle } from "lucide-react";
+import { useI18n } from "@/lib/i18n";
 
 function ResetPasswordForm() {
+  const { t } = useI18n();
   const searchParams = useSearchParams();
   const token = searchParams.get("token") || "";
 
@@ -65,11 +67,10 @@ function ResetPasswordForm() {
               <AlertTriangle className="h-7 w-7 text-amber-600 dark:text-amber-400" />
             </div>
             <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">
-              Invalid Reset Link
+              {t("auth.invalidResetLink")}
             </h2>
             <p className="text-sm text-slate-500 dark:text-slate-400">
-              This password reset link is invalid or has expired. Please request
-              a new one.
+              {t("auth.invalidResetLinkDesc")}
             </p>
           </div>
           <Link
@@ -77,14 +78,14 @@ function ResetPasswordForm() {
             className="btn-primary w-full justify-center"
           >
             <KeyRound className="h-4 w-4" />
-            Request New Link
+            {t("auth.requestResetLink")}
           </Link>
           <Link
             href="/login"
             className="flex items-center justify-center gap-2 text-sm text-slate-500 hover:text-sky-600 dark:text-slate-400 dark:hover:text-sky-400"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
-            Back to Login
+            {t("auth.backToLogin")}
           </Link>
         </div>
       </div>
@@ -100,11 +101,10 @@ function ResetPasswordForm() {
               <CheckCircle2 className="h-7 w-7 text-emerald-600 dark:text-emerald-400" />
             </div>
             <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">
-              Password Reset Successfully
+              {t("auth.passwordResetSuccess")}
             </h2>
             <p className="text-sm text-slate-500 dark:text-slate-400">
-              Your password has been updated. You can now sign in with your new
-              password.
+              {t("auth.resetSuccessDesc")}
             </p>
           </div>
           <Link
@@ -112,7 +112,7 @@ function ResetPasswordForm() {
             className="btn-primary w-full justify-center"
           >
             <Lock className="h-4 w-4" />
-            Go to Login
+            {t("common.login")}
           </Link>
         </div>
       </div>
@@ -123,14 +123,13 @@ function ResetPasswordForm() {
     <div className="flex min-h-screen items-center justify-center px-4 py-10">
       <div className="card w-full max-w-md space-y-5">
         <div className="space-y-2">
-          <span className="pill">Account Recovery</span>
+          <span className="pill">{t("auth.resetPassword")}</span>
           <h2 className="page-title text-2xl">
             <KeyRound className="h-6 w-6 text-amber-500" />
-            <span>Reset your password</span>
+            <span>{t("auth.setNewPassword")}</span>
           </h2>
           <p className="page-subtitle">
-            Enter your new password below. Make sure it&apos;s at least 6
-            characters.
+            {t("auth.enterEmailForReset")}
           </p>
         </div>
 
@@ -144,7 +143,7 @@ function ResetPasswordForm() {
           <div>
             <label className="mb-1 flex items-center gap-2 text-xs font-medium text-slate-600 dark:text-slate-400">
               <Lock className="h-3 w-3 text-sky-500" />
-              New Password
+              {t("settings.newPassword")}
             </label>
             <input
               className="input"
@@ -160,7 +159,7 @@ function ResetPasswordForm() {
           <div>
             <label className="mb-1 flex items-center gap-2 text-xs font-medium text-slate-600 dark:text-slate-400">
               <Lock className="h-3 w-3 text-sky-500" />
-              Confirm Password
+              {t("settings.confirmPassword")}
             </label>
             <input
               className="input"
@@ -178,7 +177,7 @@ function ResetPasswordForm() {
             disabled={loading || password.length < 6}
             className="btn-primary w-full justify-center"
           >
-            {loading ? "Resetting…" : "Reset Password"}
+            {loading ? t("auth.resetting") : t("auth.resetPassword")}
           </button>
 
           <Link
@@ -186,7 +185,7 @@ function ResetPasswordForm() {
             className="flex items-center justify-center gap-2 text-sm text-slate-500 hover:text-sky-600 dark:text-slate-400 dark:hover:text-sky-400"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
-            Back to Login
+            {t("auth.backToLogin")}
           </Link>
         </form>
       </div>

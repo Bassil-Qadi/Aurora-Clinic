@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Activity, Users, Calendar, Clipboard, Stethoscope, Clock, FileText, User, CalendarCheck, AlertCircle } from "lucide-react";
 import { DoctorQueue } from "@/components/DoctorQueue";
+import { useI18n } from "@/lib/i18n";
 import {
   LineChart,
   PieChart,
@@ -29,6 +30,7 @@ interface Stats {
 }
 
 export default function DashboardHome() {
+  const { t } = useI18n();
   const [stats, setStats] = useState<Stats | null>(null);
   const [chartData, setChartData] = useState<any[]>([]);
 
@@ -82,9 +84,9 @@ export default function DashboardHome() {
   if (!stats)
     return (
       <div className="space-y-4">
-        <p className="page-title text-xl">Loading dashboard…</p>
+        <p className="page-title text-xl">{t("dashboard.loadingDashboard")}</p>
         <p className="page-subtitle">
-          Fetching your clinic overview and activity.
+          {t("dashboard.fetchingOverview")}
         </p>
       </div>
     );
@@ -95,13 +97,13 @@ export default function DashboardHome() {
         <div>
           <h1 className="page-title">
             <Activity className="h-6 w-6 text-sky-500" />
-            <span>Clinic overview</span>
+            <span>{t("dashboard.clinicOverview")}</span>
           </h1>
           <p className="page-subtitle">
-            Monitor patients, appointments, and visits at a glance.
+            {t("dashboard.clinicOverviewSubtitle")}
           </p>
         </div>
-        <span className="pill">Today&apos;s load: {stats.todayAppointments} appts</span>
+        <span className="pill">{t("dashboard.todaysLoad", { count: stats.todayAppointments })}</span>
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
@@ -109,7 +111,7 @@ export default function DashboardHome() {
           <div className="flex items-start justify-between">
             <div>
               <p className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                Total Patients
+                {t("dashboard.totalPatients")}
               </p>
               <p className="mt-3 text-3xl font-semibold text-slate-900 dark:text-slate-100">
                 {stats.totalPatients}
@@ -123,7 +125,7 @@ export default function DashboardHome() {
           <div className="flex items-start justify-between">
             <div>
               <p className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                Total Appointments
+                {t("dashboard.totalAppointments")}
               </p>
               <p className="mt-3 text-3xl font-semibold text-slate-900 dark:text-slate-100">
                 {stats.totalAppointments}
@@ -137,7 +139,7 @@ export default function DashboardHome() {
           <div className="flex items-start justify-between">
             <div>
               <p className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                Today&apos;s Appointments
+                {t("dashboard.todayAppointments")}
               </p>
               <p className="mt-3 text-3xl font-semibold text-slate-900 dark:text-slate-100">
                 {stats.todayAppointments}
@@ -151,7 +153,7 @@ export default function DashboardHome() {
           <div className="flex items-start justify-between">
             <div>
               <p className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                Total Visits
+                {t("dashboard.totalVisits")}
               </p>
               <p className="mt-3 text-3xl font-semibold text-slate-900 dark:text-slate-100">
                 {stats.totalVisits}
@@ -167,7 +169,7 @@ export default function DashboardHome() {
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <div className="card">
-          <h2 className="card-title mb-4">Upcoming Appointments</h2>
+          <h2 className="card-title mb-4">{t("dashboard.upcomingAppointments")}</h2>
 
           <div className="space-y-3">
             {stats?.upcomingAppointments?.map((appt: any) => {
@@ -200,12 +202,12 @@ export default function DashboardHome() {
                         {isToday && (
                           <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700 shrink-0 dark:bg-emerald-950/50 dark:text-emerald-400">
                             <AlertCircle className="h-3 w-3" />
-                            Today
+                            {t("common.today")}
                           </span>
                         )}
                         {isTomorrow && !isToday && (
                           <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700 shrink-0 dark:bg-blue-950/50 dark:text-blue-400">
-                            Tomorrow
+                            {t("common.tomorrow")}
                           </span>
                         )}
                       </div>
@@ -216,7 +218,7 @@ export default function DashboardHome() {
                           <div className="flex items-start gap-2">
                             <FileText className="h-3.5 w-3.5 text-slate-400 mt-0.5 shrink-0" />
                             <p className="text-sm text-slate-700 dark:text-slate-300 line-clamp-2">
-                              <span className="font-medium text-slate-600 dark:text-slate-400">Reason:</span>{" "}
+                              <span className="font-medium text-slate-600 dark:text-slate-400">{t("common.reason")}:</span>{" "}
                               {appt.reason}
                             </p>
                           </div>
@@ -227,7 +229,7 @@ export default function DashboardHome() {
                       {appt.doctor && (
                         <div className="mb-2">
                           <p className="text-xs text-slate-600 dark:text-slate-400">
-                            <span className="font-medium">Dr.</span> {appt.doctor?.name || "Not assigned"}
+                            <span className="font-medium">{t("common.dr")}</span> {appt.doctor?.name || t("common.unassigned")}
                           </p>
                         </div>
                       )}
@@ -258,14 +260,14 @@ export default function DashboardHome() {
             {(!stats?.upcomingAppointments || stats.upcomingAppointments.length === 0) && (
               <div className="py-8 text-center text-sm text-slate-500 dark:text-slate-400">
                 <CalendarCheck className="h-8 w-8 mx-auto mb-2 text-slate-300 dark:text-slate-600" />
-                <p>No upcoming appointments</p>
+                <p>{t("dashboard.noUpcomingAppointments")}</p>
               </div>
             )}
           </div>
         </div>
 
         <div className="card">
-          <h2 className="card-title mb-4">Recent Visits</h2>
+          <h2 className="card-title mb-4">{t("dashboard.recentVisits")}</h2>
 
           <div className="space-y-3">
             {stats?.recentVisits?.map((visit: any) => (
@@ -295,8 +297,8 @@ export default function DashboardHome() {
                       <div className="flex items-start gap-2">
                         <FileText className="h-3.5 w-3.5 text-slate-400 mt-0.5 shrink-0" />
                         <p className="text-sm text-slate-700 dark:text-slate-300 line-clamp-2">
-                          <span className="font-medium text-slate-600 dark:text-slate-400">Diagnosis:</span>{" "}
-                          {visit.diagnosis || "No diagnosis recorded"}
+                          <span className="font-medium text-slate-600 dark:text-slate-400">{t("visits.diagnosis")}:</span>{" "}
+                          {visit.diagnosis || t("dashboard.noDiagnosis")}
                         </p>
                       </div>
                     </div>
@@ -306,7 +308,7 @@ export default function DashboardHome() {
                       <div className="mb-2">
                         <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400">
                           <Clipboard className="h-3 w-3" />
-                          Prescription issued
+                          {t("dashboard.prescriptionIssued")}
                         </span>
                       </div>
                     )}
@@ -335,7 +337,7 @@ export default function DashboardHome() {
             {(!stats?.recentVisits || stats.recentVisits.length === 0) && (
               <div className="py-8 text-center text-sm text-slate-500 dark:text-slate-400">
                 <Stethoscope className="h-8 w-8 mx-auto mb-2 text-slate-300 dark:text-slate-600" />
-                <p>No recent visits recorded</p>
+                <p>{t("dashboard.noRecentVisits")}</p>
               </div>
             )}
           </div>
@@ -344,9 +346,9 @@ export default function DashboardHome() {
         <div className="card">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-              Appointments
+              {t("dashboard.appointments")}
             </h2>
-            <span className="pill">Trend</span>
+            <span className="pill">{t("dashboard.trend")}</span>
           </div>
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
@@ -373,9 +375,9 @@ export default function DashboardHome() {
       <div className="card card-muted">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-            Monthly appointments & visits
+            {t("dashboard.monthlyAppointmentsVisits")}
           </h2>
-          <span className="pill">Trend</span>
+          <span className="pill">{t("dashboard.trend")}</span>
         </div>
 
         <ResponsiveContainer width="100%" height={300}>

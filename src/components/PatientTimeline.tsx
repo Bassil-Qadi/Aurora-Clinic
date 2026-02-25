@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useI18n } from "@/lib/i18n";
 
 type TimelineItem = {
   id: string;
@@ -13,6 +14,7 @@ type TimelineItem = {
 };
 
 export default function PatientTimeline({ patientId }: { patientId: string }) {
+  const { t } = useI18n();
   const [timeline, setTimeline] = useState<TimelineItem[]>([]);
 
   useEffect(() => {
@@ -25,9 +27,9 @@ export default function PatientTimeline({ patientId }: { patientId: string }) {
     return (
       <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/60 px-6 py-8 text-center text-slate-500 dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-400">
         <div className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">
-          Patient timeline
+          {t("patients.patientTimeline")}
         </div>
-        <p className="text-sm">No visits recorded for this patient yet.</p>
+        <p className="text-sm">{t("patients.noVisitsRecorded")}</p>
       </div>
     );
   }
@@ -65,10 +67,10 @@ export default function PatientTimeline({ patientId }: { patientId: string }) {
                   </div>
                   <div>
                     <div className="text-xs font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500">
-                      Visit
+                      {t("patients.visit")}
                     </div>
                     <div className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-                      {item.doctor ? `Dr. ${item.doctor}` : "Doctor not assigned"}
+                      {item.doctor ? `${t("common.dr")} ${item.doctor}` : t("patients.doctorNotAssigned")}
                     </div>
                   </div>
                 </div>
@@ -91,7 +93,7 @@ export default function PatientTimeline({ patientId }: { patientId: string }) {
                 {item.diagnosis && (
                   <div>
                     <div className="text-xs font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500">
-                      Diagnosis
+                      {t("visits.diagnosis")}
                     </div>
                     <div className="text-slate-800 dark:text-slate-200">{item.diagnosis}</div>
                   </div>
@@ -100,7 +102,7 @@ export default function PatientTimeline({ patientId }: { patientId: string }) {
                 {item.prescription && (
                   <div>
                     <div className="text-xs font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500">
-                      Prescription
+                      {t("visits.prescription")}
                     </div>
                     <div className="text-slate-800 dark:text-slate-200">{item.prescription}</div>
                   </div>
@@ -109,7 +111,7 @@ export default function PatientTimeline({ patientId }: { patientId: string }) {
                 {item.notes && (
                   <div>
                     <div className="text-xs font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500">
-                      Notes
+                      {t("visits.notes")}
                     </div>
                     <div className="text-slate-600 dark:text-slate-400">{item.notes}</div>
                   </div>
@@ -118,7 +120,7 @@ export default function PatientTimeline({ patientId }: { patientId: string }) {
                 {followUp && (
                   <div className="inline-flex items-center gap-2 rounded-full bg-orange-50 px-3 py-1 text-xs font-medium text-orange-700 ring-1 ring-orange-200 dark:bg-orange-950/30 dark:text-orange-400 dark:ring-orange-700">
                     <span className="h-1.5 w-1.5 rounded-full bg-orange-500" />
-                    Follow-up on{" "}
+                    {t("patients.followUpOn")}{" "}
                     {followUp.toLocaleDateString(undefined, {
                       year: "numeric",
                       month: "short",
@@ -130,7 +132,7 @@ export default function PatientTimeline({ patientId }: { patientId: string }) {
 
               {/* index chip */}
               <div className="mt-3 text-xs text-slate-400 dark:text-slate-500">
-                Visit #{timeline.length - index}
+                {t("patients.visitNumber")}{timeline.length - index}
               </div>
             </div>
           </div>

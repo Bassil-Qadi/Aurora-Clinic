@@ -3,8 +3,10 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Mail, ArrowLeft, KeyRound } from "lucide-react";
+import { useI18n } from "@/lib/i18n";
 
 export default function ForgotPasswordPage() {
+  const { t } = useI18n();
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
@@ -43,22 +45,20 @@ export default function ForgotPasswordPage() {
     <div className="flex min-h-screen items-center justify-center px-4 py-10">
       <div className="card w-full max-w-md space-y-5">
         <div className="space-y-2">
-          <span className="pill">Password Recovery</span>
+          <span className="pill">{t("auth.resetPassword")}</span>
           <h2 className="page-title text-2xl">
             <KeyRound className="h-6 w-6 text-amber-500" />
-            <span>Forgot your password?</span>
+            <span>{t("auth.forgotPassword")}</span>
           </h2>
           <p className="page-subtitle">
-            Enter your email address and we&apos;ll help you reset your
-            password.
+            {t("auth.enterEmailForReset")}
           </p>
         </div>
 
         {sent ? (
           <div className="space-y-4">
             <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700 dark:border-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400">
-              If an account with that email exists, a password reset link has
-              been generated. Check your email or contact your administrator.
+              {t("auth.resetSuccessDesc")}
             </div>
 
             {resetUrl && (
@@ -80,7 +80,7 @@ export default function ForgotPasswordPage() {
               className="btn-secondary w-full justify-center"
             >
               <ArrowLeft className="h-4 w-4" />
-              Back to Login
+              {t("auth.backToLogin")}
             </Link>
           </div>
         ) : (
@@ -94,7 +94,7 @@ export default function ForgotPasswordPage() {
             <div>
               <label className="mb-1 flex items-center gap-2 text-xs font-medium text-slate-600 dark:text-slate-400">
                 <Mail className="h-3 w-3 text-sky-500" />
-                Email Address
+                {t("common.email")}
               </label>
               <input
                 className="input"
@@ -111,7 +111,7 @@ export default function ForgotPasswordPage() {
               disabled={loading || !email}
               className="btn-primary w-full justify-center"
             >
-              {loading ? "Sending…" : "Send Reset Link"}
+              {loading ? t("auth.requestingLink") : t("auth.requestResetLink")}
             </button>
 
             <Link
@@ -119,7 +119,7 @@ export default function ForgotPasswordPage() {
               className="flex items-center justify-center gap-2 text-sm text-slate-500 hover:text-sky-600 dark:text-slate-400 dark:hover:text-sky-400"
             >
               <ArrowLeft className="h-3.5 w-3.5" />
-              Back to Login
+              {t("auth.backToLogin")}
             </Link>
           </form>
         )}

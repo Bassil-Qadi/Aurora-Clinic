@@ -12,18 +12,10 @@ import {
   Eye,
   EyeOff,
 } from "lucide-react";
-
-const DAYS = [
-  { label: "Mon", value: 1 },
-  { label: "Tue", value: 2 },
-  { label: "Wed", value: 3 },
-  { label: "Thu", value: 4 },
-  { label: "Fri", value: 5 },
-  { label: "Sat", value: 6 },
-  { label: "Sun", value: 0 },
-];
+import { useI18n } from "@/lib/i18n";
 
 export default function ClinicSettingsPage() {
+  const { t } = useI18n();
   const { data: session } = useSession();
   const router = useRouter();
 
@@ -52,6 +44,16 @@ export default function ClinicSettingsPage() {
   const [newPassword, setNewPassword] = useState("");
   const [showPasswords, setShowPasswords] = useState(false);
   const [changingPassword, setChangingPassword] = useState(false);
+
+  const DAYS = [
+    { label: t("settings.mon"), value: 1 },
+    { label: t("settings.tue"), value: 2 },
+    { label: t("settings.wed"), value: 3 },
+    { label: t("settings.thu"), value: 4 },
+    { label: t("settings.fri"), value: 5 },
+    { label: t("settings.sat"), value: 6 },
+    { label: t("settings.sun"), value: 0 },
+  ];
 
   useEffect(() => {
     if (session && session.user?.role !== "admin") {
@@ -82,7 +84,7 @@ export default function ClinicSettingsPage() {
         setTimezone(data.settings?.timezone || "UTC");
       }
     } catch {
-      showMsg("error", "Failed to load clinic settings.");
+      showMsg("error", t("settings.loadFailed"));
     } finally {
       setLoading(false);
     }
@@ -115,13 +117,13 @@ export default function ClinicSettingsPage() {
         }),
       });
       if (res.ok) {
-        showMsg("success", "Clinic settings saved successfully.");
+        showMsg("success", t("settings.savedSuccess"));
       } else {
         const data = await res.json();
-        showMsg("error", data.error || "Failed to save settings.");
+        showMsg("error", data.error || t("settings.saveFailed"));
       }
     } catch {
-      showMsg("error", "Failed to save settings.");
+      showMsg("error", t("settings.saveFailed"));
     } finally {
       setSaving(false);
     }
@@ -140,14 +142,14 @@ export default function ClinicSettingsPage() {
       });
       const data = await res.json();
       if (res.ok) {
-        showMsg("success", "Password changed successfully.");
+        showMsg("success", t("settings.passwordChanged"));
         setCurrentPassword("");
         setNewPassword("");
       } else {
-        showMsg("error", data.error || "Failed to change password.");
+        showMsg("error", data.error || t("settings.passwordChangeFailed"));
       }
     } catch {
-      showMsg("error", "Failed to change password.");
+      showMsg("error", t("settings.passwordChangeFailed"));
     } finally {
       setChangingPassword(false);
     }
@@ -166,10 +168,10 @@ export default function ClinicSettingsPage() {
       <div>
         <h1 className="page-title">
           <Settings className="h-6 w-6 text-sky-500" />
-          <span>Clinic Settings</span>
+          <span>{t("settings.title")}</span>
         </h1>
         <p className="page-subtitle mt-1">
-          Configure your clinic details, working hours, and preferences.
+          {t("settings.subtitle")}
         </p>
       </div>
 
@@ -187,7 +189,7 @@ export default function ClinicSettingsPage() {
 
       {loading ? (
         <div className="card text-center py-10 text-slate-500 dark:text-slate-400 text-sm">
-          Loading settings…
+          {t("settings.loadingSettings")}
         </div>
       ) : (
         <div className="grid gap-6 lg:grid-cols-2">
@@ -195,12 +197,12 @@ export default function ClinicSettingsPage() {
           <div className="card space-y-4">
             <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900 dark:text-slate-100">
               <Building2 className="h-5 w-5 text-sky-500" />
-              Clinic Information
+              {t("settings.clinicInfo")}
             </h2>
 
             <div>
               <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
-                Clinic Name
+                {t("settings.clinicName")}
               </label>
               <input
                 className="input"
@@ -211,7 +213,7 @@ export default function ClinicSettingsPage() {
 
             <div>
               <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
-                Address
+                {t("common.address")}
               </label>
               <input
                 className="input"
@@ -223,7 +225,7 @@ export default function ClinicSettingsPage() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
-                  Phone
+                  {t("common.phone")}
                 </label>
                 <input
                   className="input"
@@ -233,7 +235,7 @@ export default function ClinicSettingsPage() {
               </div>
               <div>
                 <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
-                  Email
+                  {t("common.email")}
                 </label>
                 <input
                   className="input"
@@ -246,7 +248,7 @@ export default function ClinicSettingsPage() {
 
             <div>
               <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
-                Logo URL
+                {t("settings.logoUrl")}
               </label>
               <input
                 className="input"
@@ -261,13 +263,13 @@ export default function ClinicSettingsPage() {
           <div className="card space-y-4">
             <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900 dark:text-slate-100">
               <Clock className="h-5 w-5 text-sky-500" />
-              Schedule & Preferences
+              {t("settings.schedulePreferences")}
             </h2>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
-                  Work Start
+                  {t("settings.workStart")}
                 </label>
                 <input
                   className="input"
@@ -278,7 +280,7 @@ export default function ClinicSettingsPage() {
               </div>
               <div>
                 <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
-                  Work End
+                  {t("settings.workEnd")}
                 </label>
                 <input
                   className="input"
@@ -291,7 +293,7 @@ export default function ClinicSettingsPage() {
 
             <div>
               <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
-                Working Days
+                {t("settings.workingDays")}
               </label>
               <div className="flex flex-wrap gap-2">
                 {DAYS.map((day) => (
@@ -313,7 +315,7 @@ export default function ClinicSettingsPage() {
             <div className="grid grid-cols-3 gap-4">
               <div>
                 <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
-                  Apt. Duration (min)
+                  {t("settings.appointmentDuration")}
                 </label>
                 <input
                   className="input"
@@ -328,7 +330,7 @@ export default function ClinicSettingsPage() {
               </div>
               <div>
                 <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
-                  Currency
+                  {t("settings.currency")}
                 </label>
                 <select
                   className="input"
@@ -344,7 +346,7 @@ export default function ClinicSettingsPage() {
               </div>
               <div>
                 <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
-                  Timezone
+                  {t("settings.timezone")}
                 </label>
                 <select
                   className="input"
@@ -368,12 +370,12 @@ export default function ClinicSettingsPage() {
           <div className="card space-y-4">
             <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900 dark:text-slate-100">
               <KeyRound className="h-5 w-5 text-amber-500" />
-              Change Your Password
+              {t("settings.changePassword")}
             </h2>
 
             <div className="relative">
               <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
-                Current Password
+                {t("settings.currentPassword")}
               </label>
               <input
                 className="input pr-10"
@@ -396,12 +398,12 @@ export default function ClinicSettingsPage() {
 
             <div>
               <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
-                New Password
+                {t("settings.newPassword")}
               </label>
               <input
                 className="input"
                 type={showPasswords ? "text" : "password"}
-                placeholder="Min 6 characters"
+                placeholder={t("settings.minSixCharacters")}
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
               />
@@ -414,7 +416,7 @@ export default function ClinicSettingsPage() {
               }
               className="btn-primary"
             >
-              {changingPassword ? "Changing…" : "Change Password"}
+              {changingPassword ? t("settings.changing") : t("settings.changePasswordBtn")}
             </button>
           </div>
         </div>
@@ -429,7 +431,7 @@ export default function ClinicSettingsPage() {
             className="btn-primary"
           >
             <Save className="h-4 w-4" />
-            {saving ? "Saving…" : "Save Settings"}
+            {saving ? t("settings.saving") : t("settings.saveSettings")}
           </button>
         </div>
       )}

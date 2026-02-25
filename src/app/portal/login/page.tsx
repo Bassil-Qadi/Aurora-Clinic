@@ -4,8 +4,10 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Heart, Mail, Lock, LogIn, ArrowLeft } from "lucide-react";
+import { useI18n } from "@/lib/i18n";
 
 export default function PortalLoginPage() {
+  const { t } = useI18n();
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -29,10 +31,10 @@ export default function PortalLoginPage() {
       if (res.ok) {
         router.push("/portal/dashboard");
       } else {
-        setError(data.error || "Login failed.");
+        setError(data.error || t("portal.loginFailed"));
       }
     } catch {
-      setError("An unexpected error occurred.");
+      setError(t("portal.unexpectedError"));
     } finally {
       setLoading(false);
     }
@@ -43,21 +45,20 @@ export default function PortalLoginPage() {
       <div className="card grid w-full max-w-3xl grid-cols-1 gap-8 md:grid-cols-[1.1fr,0.9fr]">
         <div className="space-y-4">
           <span className="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400">
-            Patient Access
+            {t("portal.patientAccess")}
           </span>
           <h2 className="page-title text-2xl">
             <Heart className="h-6 w-6 text-emerald-500" />
-            <span>Patient Portal</span>
+            <span>{t("portal.title")}</span>
           </h2>
           <p className="page-subtitle">
-            Access your medical records, view appointments, and book new visits
-            from the comfort of your home.
+            {t("portal.portalDesc")}
           </p>
 
           <ul className="mt-4 space-y-2 text-xs text-slate-500 dark:text-slate-400">
-            <li>• View your upcoming and past appointments.</li>
-            <li>• Book new appointments online.</li>
-            <li>• Access visit summaries and records.</li>
+            <li>• {t("portal.portalFeature1")}</li>
+            <li>• {t("portal.portalFeature2")}</li>
+            <li>• {t("portal.portalFeature3")}</li>
           </ul>
         </div>
 
@@ -71,7 +72,7 @@ export default function PortalLoginPage() {
           <div>
             <label className="mb-1 flex items-center gap-2 text-xs font-medium text-slate-600 dark:text-slate-400">
               <Mail className="h-3 w-3 text-emerald-500" />
-              Email
+              {t("common.email")}
             </label>
             <input
               className="input"
@@ -86,7 +87,7 @@ export default function PortalLoginPage() {
           <div>
             <label className="mb-1 flex items-center gap-2 text-xs font-medium text-slate-600 dark:text-slate-400">
               <Lock className="h-3 w-3 text-emerald-500" />
-              Password
+              {t("common.password")}
             </label>
             <input
               className="input"
@@ -104,7 +105,7 @@ export default function PortalLoginPage() {
             className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 px-5 py-2.5 text-sm font-semibold text-white shadow-md transition-all hover:shadow-lg hover:from-emerald-600 hover:to-teal-600 disabled:opacity-60"
           >
             <LogIn className="h-4 w-4" />
-            {loading ? "Signing in…" : "Sign In"}
+            {loading ? t("common.signingIn") : t("common.signIn")}
           </button>
 
           <Link
@@ -112,7 +113,7 @@ export default function PortalLoginPage() {
             className="flex items-center justify-center gap-2 text-sm text-slate-500 hover:text-emerald-600 transition-colors dark:text-slate-400 dark:hover:text-emerald-400"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
-            Staff Login
+            {t("portal.staffLoginLink")}
           </Link>
         </form>
       </div>

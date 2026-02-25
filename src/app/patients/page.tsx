@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Users, UserPlus, Search, Pencil, Trash2 } from "lucide-react";
+import { useI18n } from "@/lib/i18n";
 
 const patientSchema = z.object({
   firstName: z.string().min(2),
@@ -24,6 +25,7 @@ interface Patient extends PatientFormData {
 }
 
 export default function PatientsPage() {
+  const { t } = useI18n();
   const [patients, setPatients] = useState<Patient[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [page, setPage] = useState(1);
@@ -78,7 +80,7 @@ export default function PatientsPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure?")) return;
+    if (!confirm(t("common.areYouSure"))) return;
 
     await fetch(`/api/patients/${id}`, {
       method: "DELETE",
@@ -93,22 +95,22 @@ export default function PatientsPage() {
         <div>
           <h1 className="page-title">
             <Users className="h-6 w-6 text-sky-500" />
-            <span>Patients</span>
+            <span>{t("patients.title")}</span>
           </h1>
           <p className="page-subtitle">
-            Create and manage patient demographics and contact details.
+            {t("patients.subtitle")}
           </p>
         </div>
         <span className="pill">
           <UserPlus className="mr-1 h-3.5 w-3.5" />
-          Total: {patients.length}
+          {t("common.total")}: {patients.length}
         </span>
       </div>
 
       {/* Form */}
       <div className="card card-muted">
         <h2 className="mb-4 text-sm font-semibold text-slate-900 dark:text-slate-100">
-          {editingId ? "Edit patient" : "Add new patient"}
+          {editingId ? t("patients.editPatient") : t("patients.addNewPatient")}
         </h2>
 
         <form
@@ -117,31 +119,31 @@ export default function PatientsPage() {
         >
           <input
             {...register("firstName")}
-            placeholder="First name"
+            placeholder={t("patients.firstNamePlaceholder")}
             className="input"
           />
           <input
             {...register("lastName")}
-            placeholder="Last name"
+            placeholder={t("patients.lastNamePlaceholder")}
             className="input"
           />
           <input type="date" {...register("dateOfBirth")} className="input" />
 
           <select {...register("gender")} className="input">
-            <option value="">Select gender</option>
-            <option value="male">Male</option>
-            <option value="female">Female</option>
+            <option value="">{t("common.selectGender")}</option>
+            <option value="male">{t("common.male")}</option>
+            <option value="female">{t("common.female")}</option>
           </select>
 
-          <input {...register("phone")} placeholder="Phone" className="input" />
+          <input {...register("phone")} placeholder={t("patients.phonePlaceholder")} className="input" />
           <input
             {...register("email")}
-            placeholder="Email (optional)"
+            placeholder={t("patients.emailPlaceholder")}
             className="input"
           />
           <input
             {...register("address")}
-            placeholder="Address (optional)"
+            placeholder={t("patients.addressPlaceholder")}
             className="input md:col-span-2"
           />
 
@@ -149,7 +151,7 @@ export default function PatientsPage() {
             type="submit"
             className="btn-primary md:col-span-2 justify-center"
           >
-            {editingId ? "Update patient" : "Add patient"}
+            {editingId ? t("patients.updatePatient") : t("patients.addPatient")}
           </button>
         </form>
 
@@ -166,7 +168,7 @@ export default function PatientsPage() {
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
           <input
             type="text"
-            placeholder="Search patients…"
+            placeholder={t("patients.searchPlaceholder")}
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
@@ -182,9 +184,9 @@ export default function PatientsPage() {
         <table className="table">
           <thead>
             <tr>
-              <th>Name</th>
-              <th>Phone</th>
-              <th className="text-right">Actions</th>
+              <th>{t("common.name")}</th>
+              <th>{t("common.phone")}</th>
+              <th className="text-right">{t("common.actions")}</th>
             </tr>
           </thead>
           <tbody>
@@ -205,14 +207,14 @@ export default function PatientsPage() {
                     className="btn-ghost"
                   >
                     <Pencil className="h-3.5 w-3.5" />
-                    <span>Edit</span>
+                    <span>{t("common.edit")}</span>
                   </button>
                   <button
                     onClick={() => handleDelete(p._id)}
                     className="btn-danger"
                   >
                     <Trash2 className="h-3.5 w-3.5" />
-                    <span>Delete</span>
+                    <span>{t("common.delete")}</span>
                   </button>
                 </td>
               </tr>
@@ -222,7 +224,7 @@ export default function PatientsPage() {
 
         {patients.length === 0 && (
           <p className="px-4 pb-4 pt-2 text-sm text-slate-500 dark:text-slate-400">
-            No patients yet. Add your first patient using the form above.
+            {t("patients.noPatients")}
           </p>
         )}
       </div>
@@ -233,11 +235,11 @@ export default function PatientsPage() {
           onClick={() => setPage(page - 1)}
           className="btn-ghost disabled:opacity-50"
         >
-          Prev
+          {t("common.prev")}
         </button>
 
         <span>
-          Page {page} of {totalPages}
+          {t("common.page")} {page} {t("common.of")} {totalPages}
         </span>
 
         <button
@@ -245,7 +247,7 @@ export default function PatientsPage() {
           onClick={() => setPage(page + 1)}
           className="btn-ghost disabled:opacity-50"
         >
-          Next
+          {t("common.next")}
         </button>
       </div>
     </div>

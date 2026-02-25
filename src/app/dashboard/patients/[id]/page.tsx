@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useParams } from "next/navigation";
 import PatientTimeline from "@/components/PatientTimeline";
+import { useI18n } from "@/lib/i18n";
 import {
   User,
   Phone,
@@ -40,15 +41,7 @@ type MedicalDoc = {
   uploadedBy?: { name: string };
 };
 
-const DOC_CATEGORIES = [
-  { value: "lab_result", label: "Lab Result" },
-  { value: "imaging", label: "Imaging" },
-  { value: "prescription", label: "Prescription" },
-  { value: "referral", label: "Referral" },
-  { value: "consent", label: "Consent Form" },
-  { value: "insurance", label: "Insurance" },
-  { value: "other", label: "Other" },
-];
+const BLOOD_TYPES = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 
 const CATEGORY_COLORS: Record<string, string> = {
   lab_result: "bg-violet-50 text-violet-700 border-violet-200 dark:bg-violet-900/30 dark:text-violet-400 dark:border-violet-700",
@@ -60,12 +53,21 @@ const CATEGORY_COLORS: Record<string, string> = {
   other: "bg-gray-50 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600",
 };
 
-const BLOOD_TYPES = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
-
 export default function PatientDetailsPage() {
+  const { t } = useI18n();
   const params = useParams();
   const { data: session } = useSession();
   const id = params.id as string;
+
+  const DOC_CATEGORIES = [
+    { value: "lab_result", label: t("patients.labResult") },
+    { value: "imaging", label: t("patients.imaging") },
+    { value: "prescription", label: t("patients.prescriptionDoc") },
+    { value: "referral", label: t("patients.referral") },
+    { value: "consent", label: t("patients.consentForm") },
+    { value: "insurance", label: t("patients.insurance") },
+    { value: "other", label: t("patients.other") },
+  ];
 
   const [data, setData] = useState<any>(null);
   const [patientPrescriptions, setPatientPrescriptions] = useState([]);
@@ -177,7 +179,7 @@ export default function PatientDetailsPage() {
   };
 
   const deletePatient = async () => {
-    if (!confirm("Are you sure you want to delete this patient?")) return;
+    if (!confirm(t("patients.deletePatientConfirm"))) return;
     await fetch(`/api/patients/${id}`, { method: "DELETE" });
     window.location.href = "/patients";
   };
@@ -196,12 +198,12 @@ export default function PatientDetailsPage() {
         body: JSON.stringify({ medicalHistory, emergencyContact, insuranceInfo }),
       });
       if (res.ok) {
-        showMedMsg("success", "Medical information saved successfully.");
+        showMedMsg("success", t("patients.medicalSaveSuccess"));
       } else {
-        showMedMsg("error", "Failed to save medical information.");
+        showMedMsg("error", t("patients.medicalSaveFailed"));
       }
     } catch {
-      showMedMsg("error", "Failed to save medical information.");
+      showMedMsg("error", t("patients.medicalSaveFailed"));
     } finally {
       setSavingMedical(false);
     }
@@ -233,19 +235,19 @@ export default function PatientDetailsPage() {
           fetchDocuments();
         } else {
           const data = await res.json();
-          alert(data.error || "Failed to upload document.");
+          alert(data.error || t("patients.medicalSaveFailed"));
         }
         setUploading(false);
       };
       reader.readAsDataURL(uploadFile);
     } catch {
-      alert("Failed to upload document.");
+      alert(t("patients.medicalSaveFailed"));
       setUploading(false);
     }
   };
 
   const deleteDocument = async (docId: string) => {
-    if (!confirm("Delete this document?")) return;
+    if (!confirm(t("patients.deleteDocumentConfirm"))) return;
     await fetch(`/api/documents/${docId}`, { method: "DELETE" });
     fetchDocuments();
   };
@@ -270,18 +272,18 @@ export default function PatientDetailsPage() {
   if (!data)
     return (
       <div className="space-y-4 p-8">
-        <p className="page-title text-xl">Loading patient…</p>
-        <p className="page-subtitle">Fetching patient details and history.</p>
+        <p className="page-title text-xl">{t("patients.loadingPatient")}</p>
+        <p className="page-subtitle">{t("patients.fetchingPatient")}</p>
       </div>
     );
 
   const { patient, appointments, visits } = data;
 
   const TABS = [
-    { key: "overview", label: "Overview", icon: User },
-    { key: "medical", label: "Medical History", icon: Heart },
-    { key: "documents", label: "Documents", icon: FileText },
-    { key: "timeline", label: "Timeline", icon: LayoutDashboard },
+    { key: "overview", label: t("patients.overview"), icon: User },
+    { key: "medical", label: t("patients.medicalHistory"), icon: Heart },
+    { key: "documents", label: t("patients.documents"), icon: FileText },
+    { key: "timeline", label: t("patients.timeline"), icon: LayoutDashboard },
   ] as const;
 
   return (
@@ -295,7 +297,7 @@ export default function PatientDetailsPage() {
               {patient.firstName} {patient.lastName}
             </span>
           </h1>
-          <p className="page-subtitle mt-1">Patient profile, history, and documents.</p>
+          <p className="page-subtitle mt-1">{t("patients.patientProfile")}</p>
         </div>
         <div className="flex items-center gap-2">
           <button
@@ -310,12 +312,12 @@ export default function PatientDetailsPage() {
             className="btn-ghost"
           >
             <Pencil className="h-3.5 w-3.5" />
-            <span>Edit</span>
+            <span>{t("common.edit")}</span>
           </button>
           {session?.user?.role === "admin" && (
             <button onClick={deletePatient} className="btn-danger">
               <Trash2 className="h-3.5 w-3.5" />
-              <span>Delete</span>
+              <span>{t("common.delete")}</span>
             </button>
           )}
         </div>
@@ -327,21 +329,21 @@ export default function PatientDetailsPage() {
           <div className="flex items-center gap-2">
             <Mail className="h-4 w-4 text-sky-500" />
             <div>
-              <p className="text-[10px] font-medium uppercase text-slate-400">Email</p>
+              <p className="text-[10px] font-medium uppercase text-slate-400">{t("common.email")}</p>
               <p className="font-medium">{patient.email || "—"}</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <Phone className="h-4 w-4 text-sky-500" />
             <div>
-              <p className="text-[10px] font-medium uppercase text-slate-400">Phone</p>
+              <p className="text-[10px] font-medium uppercase text-slate-400">{t("common.phone")}</p>
               <p className="font-medium">{patient.phone}</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <Calendar className="h-4 w-4 text-sky-500" />
             <div>
-              <p className="text-[10px] font-medium uppercase text-slate-400">Date of Birth</p>
+              <p className="text-[10px] font-medium uppercase text-slate-400">{t("patients.dateOfBirth")}</p>
               <p className="font-medium">
                 {patient.dateOfBirth
                   ? new Date(patient.dateOfBirth).toLocaleDateString()
@@ -352,7 +354,7 @@ export default function PatientDetailsPage() {
           <div className="flex items-center gap-2">
             <User className="h-4 w-4 text-sky-500" />
             <div>
-              <p className="text-[10px] font-medium uppercase text-slate-400">Gender</p>
+              <p className="text-[10px] font-medium uppercase text-slate-400">{t("patients.gender")}</p>
               <p className="font-medium capitalize">{patient.gender}</p>
             </div>
           </div>
@@ -387,10 +389,10 @@ export default function PatientDetailsPage() {
           <div className="card">
             <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">
               <Pill className="h-5 w-5 text-emerald-500" />
-              Prescription History
+              {t("patients.prescriptionHistory")}
             </h2>
             {patientPrescriptions.length === 0 ? (
-              <p className="text-sm text-slate-500 dark:text-slate-400">No prescriptions found.</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400">{t("patients.noPrescriptions")}</p>
             ) : (
               <div className="space-y-3">
                 {patientPrescriptions.map((p: any) => (
@@ -419,18 +421,18 @@ export default function PatientDetailsPage() {
           <div className="card">
             <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">
               <Calendar className="h-5 w-5 text-sky-500" />
-              Appointment History
+              {t("patients.appointmentHistory")}
             </h2>
             {appointments.length === 0 ? (
-              <p className="text-sm text-slate-500 dark:text-slate-400">No appointments found.</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400">{t("patients.noAppointmentsFound")}</p>
             ) : (
               <div className="table-container">
                 <table className="table">
                   <thead>
                     <tr>
-                      <th>Date</th>
-                      <th>Reason</th>
-                      <th>Status</th>
+                      <th>{t("common.date")}</th>
+                      <th>{t("common.reason")}</th>
+                      <th>{t("common.status")}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -454,23 +456,23 @@ export default function PatientDetailsPage() {
             <div className="flex items-center justify-between mb-4">
               <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900 dark:text-slate-100">
                 <Clipboard className="h-5 w-5 text-sky-500" />
-                Visit History
+                {t("patients.visitHistory")}
               </h2>
               <button onClick={() => setShowVisitModal(true)} className="btn-primary">
                 <Plus className="h-4 w-4" />
-                <span>Add Visit</span>
+                <span>{t("patients.addVisit")}</span>
               </button>
             </div>
             {visits.length === 0 ? (
-              <p className="text-sm text-slate-500 dark:text-slate-400">No visits yet.</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400">{t("patients.noVisitsYet")}</p>
             ) : (
               <div className="table-container">
                 <table className="table">
                   <thead>
                     <tr>
-                      <th>Date</th>
-                      <th>Diagnosis</th>
-                      <th>Status</th>
+                      <th>{t("common.date")}</th>
+                      <th>{t("visits.diagnosis")}</th>
+                      <th>{t("common.status")}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -486,7 +488,7 @@ export default function PatientDetailsPage() {
                                 : "bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
                             }`}
                           >
-                            {visit.completed ? "Completed" : "In Progress"}
+                            {visit.completed ? t("visits.completed") : t("visits.inProgress")}
                           </span>
                         </td>
                       </tr>
@@ -518,13 +520,13 @@ export default function PatientDetailsPage() {
             <div className="card space-y-4">
               <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900 dark:text-slate-100">
                 <Heart className="h-5 w-5 text-rose-500" />
-                Medical History
+                {t("patients.medicalHistory")}
               </h2>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
-                    Blood Type
+                    {t("patients.bloodType")}
                   </label>
                   <select
                     className="input"
@@ -533,7 +535,7 @@ export default function PatientDetailsPage() {
                       setMedicalHistory({ ...medicalHistory, bloodType: e.target.value })
                     }
                   >
-                    <option value="">Select…</option>
+                    <option value="">{t("patients.select")}</option>
                     {BLOOD_TYPES.map((bt) => (
                       <option key={bt} value={bt}>
                         {bt}
@@ -543,7 +545,7 @@ export default function PatientDetailsPage() {
                 </div>
                 <div>
                   <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
-                    Smoking Status
+                    {t("patients.smokingStatus")}
                   </label>
                   <select
                     className="input"
@@ -552,17 +554,17 @@ export default function PatientDetailsPage() {
                       setMedicalHistory({ ...medicalHistory, smokingStatus: e.target.value })
                     }
                   >
-                    <option value="">Select…</option>
-                    <option value="never">Never</option>
-                    <option value="former">Former</option>
-                    <option value="current">Current</option>
+                    <option value="">{t("patients.select")}</option>
+                    <option value="never">{t("patients.never")}</option>
+                    <option value="former">{t("patients.former")}</option>
+                    <option value="current">{t("patients.current")}</option>
                   </select>
                 </div>
               </div>
 
               <div>
                 <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
-                  Alcohol Use
+                  {t("patients.alcoholUse")}
                 </label>
                 <select
                   className="input"
@@ -571,11 +573,11 @@ export default function PatientDetailsPage() {
                     setMedicalHistory({ ...medicalHistory, alcoholUse: e.target.value })
                   }
                 >
-                  <option value="">Select…</option>
-                  <option value="none">None</option>
-                  <option value="occasional">Occasional</option>
-                  <option value="moderate">Moderate</option>
-                  <option value="heavy">Heavy</option>
+                  <option value="">{t("patients.select")}</option>
+                  <option value="none">{t("patients.none")}</option>
+                  <option value="occasional">{t("patients.occasional")}</option>
+                  <option value="moderate">{t("patients.moderate")}</option>
+                  <option value="heavy">{t("patients.heavy")}</option>
                 </select>
               </div>
 
@@ -583,7 +585,7 @@ export default function PatientDetailsPage() {
               <div>
                 <label className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600 dark:text-slate-400">
                   <AlertTriangle className="h-3 w-3 text-amber-500" />
-                  Allergies
+                  {t("patients.allergies")}
                 </label>
                 <div className="flex flex-wrap gap-1.5 mb-2">
                   {(medicalHistory.allergies || []).map((a: string, i: number) => (
@@ -642,7 +644,7 @@ export default function PatientDetailsPage() {
               <div>
                 <label className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600 dark:text-slate-400">
                   <ShieldAlert className="h-3 w-3 text-rose-500" />
-                  Chronic Conditions
+                  {t("patients.chronicConditions")}
                 </label>
                 <div className="flex flex-wrap gap-1.5 mb-2">
                   {(medicalHistory.chronicConditions || []).map((c: string, i: number) => (
@@ -701,7 +703,7 @@ export default function PatientDetailsPage() {
               <div>
                 <label className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600 dark:text-slate-400">
                   <Pill className="h-3 w-3 text-emerald-500" />
-                  Current Medications
+                  {t("patients.currentMedications")}
                 </label>
                 <div className="flex flex-wrap gap-1.5 mb-2">
                   {(medicalHistory.currentMedications || []).map((m: string, i: number) => (
@@ -760,7 +762,7 @@ export default function PatientDetailsPage() {
               <div>
                 <label className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600 dark:text-slate-400">
                   <Syringe className="h-3 w-3 text-violet-500" />
-                  Family History
+                  {t("patients.familyHistory")}
                 </label>
                 <div className="flex flex-wrap gap-1.5 mb-2">
                   {(medicalHistory.familyHistory || []).map((f: string, i: number) => (
@@ -817,11 +819,11 @@ export default function PatientDetailsPage() {
 
               <div>
                 <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
-                  Additional Notes
+                  {t("patients.additionalNotes")}
                 </label>
                 <textarea
                   className="input min-h-[80px] resize-y"
-                  placeholder="Any additional medical notes…"
+                  placeholder={t("patients.additionalMedicalNotes")}
                   value={medicalHistory.notes || ""}
                   onChange={(e) =>
                     setMedicalHistory({ ...medicalHistory, notes: e.target.value })
@@ -835,15 +837,15 @@ export default function PatientDetailsPage() {
               <div className="card space-y-4">
                 <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900 dark:text-slate-100">
                   <UserPlus className="h-5 w-5 text-amber-500" />
-                  Emergency Contact
+                  {t("patients.emergencyContact")}
                 </h2>
                 <div>
                   <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
-                    Contact Name
+                    {t("patients.contactName")}
                   </label>
                   <input
                     className="input"
-                    placeholder="Full name"
+                    placeholder={t("common.name")}
                     value={emergencyContact.name || ""}
                     onChange={(e) =>
                       setEmergencyContact({ ...emergencyContact, name: e.target.value })
@@ -852,7 +854,7 @@ export default function PatientDetailsPage() {
                 </div>
                 <div>
                   <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
-                    Relationship
+                    {t("patients.relationship")}
                   </label>
                   <input
                     className="input"
@@ -865,7 +867,7 @@ export default function PatientDetailsPage() {
                 </div>
                 <div>
                   <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
-                    Phone Number
+                    {t("patients.phoneNumber")}
                   </label>
                   <input
                     className="input"
@@ -882,15 +884,15 @@ export default function PatientDetailsPage() {
               <div className="card space-y-4">
                 <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900 dark:text-slate-100">
                   <CreditCard className="h-5 w-5 text-cyan-500" />
-                  Insurance Information
+                  {t("patients.insuranceInfo")}
                 </h2>
                 <div>
                   <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
-                    Provider
+                    {t("patients.provider")}
                   </label>
                   <input
                     className="input"
-                    placeholder="Insurance company"
+                    placeholder={t("patients.insuranceProvider")}
                     value={insuranceInfo.provider || ""}
                     onChange={(e) =>
                       setInsuranceInfo({ ...insuranceInfo, provider: e.target.value })
@@ -899,11 +901,11 @@ export default function PatientDetailsPage() {
                 </div>
                 <div>
                   <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
-                    Policy Number
+                    {t("patients.policyNumber")}
                   </label>
                   <input
                     className="input"
-                    placeholder="Policy #"
+                    placeholder={t("patients.policyNumber")}
                     value={insuranceInfo.policyNumber || ""}
                     onChange={(e) =>
                       setInsuranceInfo({ ...insuranceInfo, policyNumber: e.target.value })
@@ -912,11 +914,11 @@ export default function PatientDetailsPage() {
                 </div>
                 <div>
                   <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
-                    Group Number
+                    {t("patients.groupNumber")}
                   </label>
                   <input
                     className="input"
-                    placeholder="Group # (optional)"
+                    placeholder={t("patients.groupNumber")}
                     value={insuranceInfo.groupNumber || ""}
                     onChange={(e) =>
                       setInsuranceInfo({ ...insuranceInfo, groupNumber: e.target.value })
@@ -934,7 +936,7 @@ export default function PatientDetailsPage() {
               className="btn-primary"
             >
               <Save className="h-4 w-4" />
-              {savingMedical ? "Saving…" : "Save Medical Information"}
+              {savingMedical ? t("common.saving") : t("patients.saveMedicalInfo")}
             </button>
           </div>
         </div>
@@ -945,20 +947,20 @@ export default function PatientDetailsPage() {
           <div className="flex items-center justify-between">
             <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900 dark:text-slate-100">
               <FileText className="h-5 w-5 text-sky-500" />
-              Medical Documents
+              {t("patients.documents")}
             </h2>
             <button onClick={() => setShowUploadModal(true)} className="btn-primary">
               <Upload className="h-4 w-4" />
-              <span>Upload Document</span>
+              <span>{t("patients.uploadDocument")}</span>
             </button>
           </div>
 
           {documents.length === 0 ? (
             <div className="card text-center py-12">
               <FileText className="h-10 w-10 mx-auto mb-3 text-slate-300 dark:text-slate-600" />
-              <p className="text-sm text-slate-500 dark:text-slate-400">No documents uploaded yet.</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400">{t("patients.noDocuments")}</p>
               <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
-                Upload lab results, imaging, or other medical documents.
+                {t("patients.uploadDocDesc")}
               </p>
             </div>
           ) : (
@@ -994,7 +996,7 @@ export default function PatientDetailsPage() {
 
                   <div className="flex items-center justify-between mt-auto pt-2 border-t border-slate-100 dark:border-slate-700">
                     <span className="text-[10px] text-slate-400">
-                      by {doc.uploadedBy?.name || "Unknown"}
+                      {t("patients.by")} {doc.uploadedBy?.name || t("common.unknown")}
                     </span>
                     <div className="flex gap-1">
                       <a
@@ -1002,7 +1004,7 @@ export default function PatientDetailsPage() {
                         target="_blank"
                         rel="noopener noreferrer"
                         className="btn-ghost"
-                        title="View"
+                        title={t("common.view")}
                       >
                         <Eye className="h-3.5 w-3.5" />
                       </a>
@@ -1010,14 +1012,14 @@ export default function PatientDetailsPage() {
                         href={`/api/documents/${doc._id}`}
                         download={doc.originalName}
                         className="btn-ghost"
-                        title="Download"
+                        title={t("common.download")}
                       >
                         <Download className="h-3.5 w-3.5" />
                       </a>
                       <button
                         onClick={() => deleteDocument(doc._id)}
                         className="btn-ghost text-rose-500 hover:text-rose-700"
-                        title="Delete"
+                        title={t("common.delete")}
                       >
                         <Trash2 className="h-3.5 w-3.5" />
                       </button>
@@ -1034,7 +1036,7 @@ export default function PatientDetailsPage() {
         <div className="card">
           <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-slate-900 dark:text-slate-100">
             <LayoutDashboard className="h-5 w-5 text-sky-500" />
-            Patient Overview
+            {t("patients.patientOverview")}
           </h2>
           <PatientTimeline patientId={String(params.id)} />
         </div>
@@ -1047,7 +1049,7 @@ export default function PatientDetailsPage() {
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
                 <Clipboard className="h-5 w-5 text-sky-500" />
-                New Visit
+                {t("patients.newVisit")}
               </h2>
               <button onClick={() => setShowVisitModal(false)} className="btn-ghost">
                 <X className="h-4 w-4" />
@@ -1055,20 +1057,20 @@ export default function PatientDetailsPage() {
             </div>
 
             <div>
-              <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">Diagnosis</label>
+              <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">{t("visits.diagnosis")}</label>
               <textarea
                 className="input min-h-[80px]"
-                placeholder="Enter diagnosis…"
+                placeholder={t("patients.enterDiagnosis")}
                 value={diagnosis}
                 onChange={(e) => setDiagnosis(e.target.value)}
               />
             </div>
 
             <div>
-              <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">Treatment</label>
+              <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">{t("patients.treatment")}</label>
               <textarea
                 className="input min-h-[80px]"
-                placeholder="Enter treatment…"
+                placeholder={t("patients.enterTreatment")}
                 value={treatment}
                 onChange={(e) => setTreatment(e.target.value)}
               />
@@ -1076,11 +1078,11 @@ export default function PatientDetailsPage() {
 
             <div className="flex justify-end gap-2 pt-2">
               <button onClick={() => setShowVisitModal(false)} className="btn-secondary">
-                Cancel
+                {t("common.cancel")}
               </button>
               <button onClick={createVisit} className="btn-primary">
                 <Plus className="h-4 w-4" />
-                Save Visit
+                {t("patients.saveVisit")}
               </button>
             </div>
           </div>
@@ -1094,7 +1096,7 @@ export default function PatientDetailsPage() {
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
                 <Pencil className="h-5 w-5 text-sky-500" />
-                Edit Patient
+                {t("patients.editPatient")}
               </h2>
               <button onClick={() => setShowEditModal(false)} className="btn-ghost">
                 <X className="h-4 w-4" />
@@ -1103,7 +1105,7 @@ export default function PatientDetailsPage() {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">First Name</label>
+                <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">{t("patients.firstName")}</label>
                 <input
                   className="input"
                   value={editFirstName}
@@ -1111,7 +1113,7 @@ export default function PatientDetailsPage() {
                 />
               </div>
               <div>
-                <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">Last Name</label>
+                <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">{t("patients.lastName")}</label>
                 <input
                   className="input"
                   value={editLastName}
@@ -1121,7 +1123,7 @@ export default function PatientDetailsPage() {
             </div>
 
             <div>
-              <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">Email</label>
+              <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">{t("common.email")}</label>
               <input
                 className="input"
                 type="email"
@@ -1131,7 +1133,7 @@ export default function PatientDetailsPage() {
             </div>
 
             <div>
-              <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">Phone</label>
+              <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">{t("common.phone")}</label>
               <input
                 className="input"
                 value={editPhone}
@@ -1140,24 +1142,24 @@ export default function PatientDetailsPage() {
             </div>
 
             <div>
-              <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">Gender</label>
+              <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">{t("patients.gender")}</label>
               <select
                 className="input"
                 value={editGender}
                 onChange={(e) => setEditGender(e.target.value)}
               >
-                <option value="male">Male</option>
-                <option value="female">Female</option>
+                <option value="male">{t("common.male")}</option>
+                <option value="female">{t("common.female")}</option>
               </select>
             </div>
 
             <div className="flex justify-end gap-2 pt-2">
               <button onClick={() => setShowEditModal(false)} className="btn-secondary">
-                Cancel
+                {t("common.cancel")}
               </button>
               <button onClick={updatePatient} className="btn-primary">
                 <Save className="h-4 w-4" />
-                Save Changes
+                {t("common.saveChanges")}
               </button>
             </div>
           </div>
@@ -1171,7 +1173,7 @@ export default function PatientDetailsPage() {
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
                 <Upload className="h-5 w-5 text-sky-500" />
-                Upload Document
+                {t("patients.uploadDocument")}
               </h2>
               <button onClick={() => setShowUploadModal(false)} className="btn-ghost">
                 <X className="h-4 w-4" />
@@ -1179,7 +1181,7 @@ export default function PatientDetailsPage() {
             </div>
 
             <div>
-              <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">File</label>
+              <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">{t("patients.file")}</label>
               <input
                 type="file"
                 accept=".pdf,.jpg,.jpeg,.png,.webp,.gif,.doc,.docx"
@@ -1187,12 +1189,12 @@ export default function PatientDetailsPage() {
                 className="input"
               />
               <p className="text-[10px] text-slate-400 mt-1">
-                Max 10 MB. PDF, images, or Word documents.
+                {t("patients.maxFileSize")}
               </p>
             </div>
 
             <div>
-              <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">Category</label>
+              <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">{t("patients.category")}</label>
               <select
                 className="input"
                 value={uploadCategory}
@@ -1208,11 +1210,11 @@ export default function PatientDetailsPage() {
 
             <div>
               <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
-                Description (optional)
+                {t("patients.descriptionOptional")}
               </label>
               <textarea
                 className="input min-h-[60px]"
-                placeholder="Brief description of the document…"
+                placeholder={t("common.description")}
                 value={uploadDescription}
                 onChange={(e) => setUploadDescription(e.target.value)}
               />
@@ -1220,7 +1222,7 @@ export default function PatientDetailsPage() {
 
             <div className="flex justify-end gap-2 pt-2">
               <button onClick={() => setShowUploadModal(false)} className="btn-secondary">
-                Cancel
+                {t("common.cancel")}
               </button>
               <button
                 onClick={handleFileUpload}
@@ -1228,7 +1230,7 @@ export default function PatientDetailsPage() {
                 className="btn-primary"
               >
                 <Upload className="h-4 w-4" />
-                {uploading ? "Uploading…" : "Upload"}
+                {uploading ? t("common.uploading") : t("common.upload")}
               </button>
             </div>
           </div>

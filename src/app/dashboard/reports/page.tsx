@@ -16,37 +16,7 @@ import {
 } from "lucide-react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-
-const REPORT_TYPES = [
-  {
-    value: "appointmentList",
-    label: "Appointment List",
-    icon: Calendar,
-    description: "All appointments within the selected date range.",
-  },
-  {
-    value: "visitList",
-    label: "Visit List",
-    icon: Stethoscope,
-    description: "All completed and in-progress visits.",
-  },
-  {
-    value: "patientList",
-    label: "New Patients",
-    icon: Users,
-    description: "Patients registered during the selected period.",
-  },
-];
-
-const STATUS_OPTIONS = [
-  { value: "", label: "All Statuses" },
-  { value: "scheduled", label: "Scheduled" },
-  { value: "waiting", label: "Waiting" },
-  { value: "in_progress", label: "In Progress" },
-  { value: "completed", label: "Completed" },
-  { value: "cancelled", label: "Cancelled" },
-  { value: "no_show", label: "No Show" },
-];
+import { useI18n } from "@/lib/i18n";
 
 function formatDate(d: string | Date) {
   return new Date(d).toLocaleDateString("en-US", {
@@ -67,8 +37,40 @@ function formatDateTime(d: string | Date) {
 }
 
 export default function ReportsPage() {
+  const { t } = useI18n();
   const { data: session } = useSession();
   const router = useRouter();
+
+  const REPORT_TYPES = [
+    {
+      value: "appointmentList",
+      label: t("reports.appointmentList"),
+      icon: Calendar,
+      description: t("reports.appointmentListDesc"),
+    },
+    {
+      value: "visitList",
+      label: t("reports.visitList"),
+      icon: Stethoscope,
+      description: t("reports.visitListDesc"),
+    },
+    {
+      value: "patientList",
+      label: t("reports.patientList"),
+      icon: Users,
+      description: t("reports.patientListDesc"),
+    },
+  ];
+
+  const STATUS_OPTIONS = [
+    { value: "", label: t("appointments.allStatuses") },
+    { value: "scheduled", label: t("appointments.scheduled") },
+    { value: "waiting", label: t("appointments.waiting") },
+    { value: "in_progress", label: t("appointments.inProgress") },
+    { value: "completed", label: t("appointments.completed") },
+    { value: "cancelled", label: t("appointments.cancelled") },
+    { value: "no_show", label: t("appointments.noShow") },
+  ];
 
   // Filters
   const [reportType, setReportType] = useState("appointmentList");
@@ -135,29 +137,29 @@ export default function ReportsPage() {
 
     // Title
     doc.setFontSize(18);
-    doc.text(currentReport?.label || "Report", 14, 18);
+    doc.text(currentReport?.label || t("reports.title"), 14, 18);
 
     doc.setFontSize(9);
     doc.setTextColor(120, 120, 120);
     doc.text(
-      `${formatDate(startDate)} – ${formatDate(endDate)}  |  Generated ${formatDateTime(new Date())}`,
+      `${formatDate(startDate)} – ${formatDate(endDate)}  |  ${formatDateTime(new Date())}`,
       14,
       25
     );
-    doc.text(`Total records: ${rows.length}`, 14, 30);
+    doc.text(`${t("reports.records")}: ${rows.length}`, 14, 30);
     doc.setTextColor(0, 0, 0);
 
     if (reportType === "appointmentList") {
       autoTable(doc, {
         startY: 36,
-        head: [["Date", "Patient", "Phone", "Doctor", "Reason", "Status"]],
+        head: [[t("reports.date"), t("reports.patient"), t("reports.phone"), t("reports.doctor"), t("reports.reason"), t("reports.status")]],
         body: rows.map((r: any) => [
           formatDateTime(r.date),
           r.patient
             ? `${r.patient.firstName} ${r.patient.lastName}`
-            : "Unknown",
+            : t("reports.unknown"),
           r.patient?.phone || "-",
-          r.doctor?.name || "Unassigned",
+          r.doctor?.name || t("reports.unassigned"),
           r.reason || "-",
           r.status,
         ]),
@@ -167,15 +169,15 @@ export default function ReportsPage() {
     } else if (reportType === "visitList") {
       autoTable(doc, {
         startY: 36,
-        head: [["Date", "Patient", "Doctor", "Diagnosis", "Status"]],
+        head: [[t("reports.date"), t("reports.patient"), t("reports.doctor"), t("reports.diagnosis"), t("reports.status")]],
         body: rows.map((r: any) => [
           formatDate(r.createdAt),
           r.patient
             ? `${r.patient.firstName} ${r.patient.lastName}`
-            : "Unknown",
-          r.doctor?.name || "Unassigned",
+            : t("reports.unknown"),
+          r.doctor?.name || t("reports.unassigned"),
           r.diagnosis || "-",
-          r.completed ? "Completed" : "In Progress",
+          r.completed ? t("visits.completed") : t("visits.inProgress"),
         ]),
         styles: { fontSize: 8 },
         headStyles: { fillColor: [16, 185, 129] },
@@ -183,7 +185,7 @@ export default function ReportsPage() {
     } else if (reportType === "patientList") {
       autoTable(doc, {
         startY: 36,
-        head: [["Name", "Gender", "Date of Birth", "Phone", "Email", "Registered"]],
+        head: [[t("reports.name"), t("reports.gender"), t("reports.dateOfBirth"), t("reports.phone"), t("reports.email"), t("reports.registered")]],
         body: rows.map((r: any) => [
           `${r.firstName} ${r.lastName}`,
           r.gender,
@@ -198,7 +200,7 @@ export default function ReportsPage() {
     }
 
     doc.save(
-      `${currentReport?.label?.replace(/\s+/g, "_") || "report"}_${startDate}_${endDate}.pdf`
+      `${(currentReport?.label || "report").replace(/\s+/g, "_")}_${startDate}_${endDate}.pdf`
     );
   };
 
@@ -213,10 +215,10 @@ export default function ReportsPage() {
         <div>
           <h1 className="page-title">
             <ClipboardList className="h-6 w-6 text-sky-500" />
-            <span>Custom Reports</span>
+            <span>{t("reports.title")}</span>
           </h1>
           <p className="page-subtitle mt-1">
-            Generate and export detailed reports for your clinic.
+            {t("reports.subtitle")}
           </p>
         </div>
       </div>
@@ -266,13 +268,13 @@ export default function ReportsPage() {
       <div className="card">
         <div className="flex items-center gap-2 mb-4">
           <Filter className="h-4 w-4 text-slate-400" />
-          <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Filters</h3>
+          <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">{t("reports.filters")}</h3>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <div>
             <label className="mb-1 text-xs font-medium text-slate-600 dark:text-slate-400 block">
-              From Date
+              {t("reports.fromDate")}
             </label>
             <input
               type="date"
@@ -283,7 +285,7 @@ export default function ReportsPage() {
           </div>
           <div>
             <label className="mb-1 text-xs font-medium text-slate-600 dark:text-slate-400 block">
-              To Date
+              {t("reports.toDate")}
             </label>
             <input
               type="date"
@@ -295,17 +297,17 @@ export default function ReportsPage() {
           {reportType !== "patientList" && (
             <div>
               <label className="mb-1 text-xs font-medium text-slate-600 dark:text-slate-400 block">
-                Doctor
+                {t("reports.doctor")}
               </label>
               <select
                 className="input"
                 value={doctorId}
                 onChange={(e) => setDoctorId(e.target.value)}
               >
-                <option value="">All Doctors</option>
+                <option value="">{t("reports.allDoctors")}</option>
                 {doctors.map((d: any) => (
                   <option key={d._id} value={d._id}>
-                    Dr. {d.name}
+                    {t("common.dr")} {d.name}
                   </option>
                 ))}
               </select>
@@ -314,7 +316,7 @@ export default function ReportsPage() {
           {reportType === "appointmentList" && (
             <div>
               <label className="mb-1 text-xs font-medium text-slate-600 dark:text-slate-400 block">
-                Status
+                {t("reports.status")}
               </label>
               <select
                 className="input"
@@ -334,12 +336,12 @@ export default function ReportsPage() {
         <div className="mt-4 flex items-center gap-3">
           <button onClick={runReport} className="btn-primary">
             <Search className="h-4 w-4" />
-            <span>Generate Report</span>
+            <span>{t("reports.generateReport")}</span>
           </button>
           {rows.length > 0 && (
             <button onClick={exportPDF} className="btn-secondary">
               <Download className="h-4 w-4" />
-              <span>Export PDF</span>
+              <span>{t("reports.exportPDF")}</span>
             </button>
           )}
         </div>
@@ -348,27 +350,27 @@ export default function ReportsPage() {
       {/* Results */}
       {loading ? (
         <div className="card py-10 text-center text-sm text-slate-500 dark:text-slate-400">
-          Generating report…
+          {t("reports.generatingReport")}
         </div>
       ) : searched ? (
         rows.length === 0 ? (
           <div className="card py-10 text-center text-sm text-slate-500 dark:text-slate-400">
             <FileText className="h-8 w-8 mx-auto mb-2 text-slate-300 dark:text-slate-600" />
-            <p>No records found for the selected criteria.</p>
+            <p>{t("reports.noRecords")}</p>
           </div>
         ) : (
           <div className="card overflow-hidden">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-                {currentReport?.label} — {rows.length} record
-                {rows.length !== 1 ? "s" : ""}
+                {currentReport?.label} — {rows.length}{" "}
+                {rows.length !== 1 ? t("reports.records") : t("reports.record")}
               </h3>
               <button
                 onClick={() => window.print()}
                 className="btn-ghost text-xs"
               >
                 <Printer className="h-3.5 w-3.5" />
-                <span>Print</span>
+                <span>{t("reports.printReport")}</span>
               </button>
             </div>
 
@@ -377,12 +379,12 @@ export default function ReportsPage() {
                 <table className="table">
                   <thead>
                     <tr>
-                      <th>Date</th>
-                      <th>Patient</th>
-                      <th>Phone</th>
-                      <th>Doctor</th>
-                      <th>Reason</th>
-                      <th>Status</th>
+                      <th>{t("reports.date")}</th>
+                      <th>{t("reports.patient")}</th>
+                      <th>{t("reports.phone")}</th>
+                      <th>{t("reports.doctor")}</th>
+                      <th>{t("reports.reason")}</th>
+                      <th>{t("reports.status")}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -394,10 +396,10 @@ export default function ReportsPage() {
                         <td className="font-medium">
                           {r.patient
                             ? `${r.patient.firstName} ${r.patient.lastName}`
-                            : "Unknown"}
+                            : t("reports.unknown")}
                         </td>
                         <td>{r.patient?.phone || "-"}</td>
-                        <td>{r.doctor?.name || "Unassigned"}</td>
+                        <td>{r.doctor?.name || t("reports.unassigned")}</td>
                         <td className="max-w-[200px] truncate">
                           {r.reason || "-"}
                         </td>
@@ -430,11 +432,11 @@ export default function ReportsPage() {
                 <table className="table">
                   <thead>
                     <tr>
-                      <th>Date</th>
-                      <th>Patient</th>
-                      <th>Doctor</th>
-                      <th>Diagnosis</th>
-                      <th>Status</th>
+                      <th>{t("reports.date")}</th>
+                      <th>{t("reports.patient")}</th>
+                      <th>{t("reports.doctor")}</th>
+                      <th>{t("reports.diagnosis")}</th>
+                      <th>{t("reports.status")}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -446,9 +448,9 @@ export default function ReportsPage() {
                         <td className="font-medium">
                           {r.patient
                             ? `${r.patient.firstName} ${r.patient.lastName}`
-                            : "Unknown"}
+                            : t("reports.unknown")}
                         </td>
-                        <td>{r.doctor?.name || "Unassigned"}</td>
+                        <td>{r.doctor?.name || t("reports.unassigned")}</td>
                         <td className="max-w-[300px] truncate">
                           {r.diagnosis || "-"}
                         </td>
@@ -460,7 +462,7 @@ export default function ReportsPage() {
                                 : "bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
                             }`}
                           >
-                            {r.completed ? "Completed" : "In Progress"}
+                            {r.completed ? t("visits.completed") : t("visits.inProgress")}
                           </span>
                         </td>
                       </tr>
@@ -473,12 +475,12 @@ export default function ReportsPage() {
                 <table className="table">
                   <thead>
                     <tr>
-                      <th>Name</th>
-                      <th>Gender</th>
-                      <th>Date of Birth</th>
-                      <th>Phone</th>
-                      <th>Email</th>
-                      <th>Registered</th>
+                      <th>{t("reports.name")}</th>
+                      <th>{t("reports.gender")}</th>
+                      <th>{t("reports.dateOfBirth")}</th>
+                      <th>{t("reports.phone")}</th>
+                      <th>{t("reports.email")}</th>
+                      <th>{t("reports.registered")}</th>
                     </tr>
                   </thead>
                   <tbody>

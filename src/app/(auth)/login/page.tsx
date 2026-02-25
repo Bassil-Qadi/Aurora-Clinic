@@ -5,8 +5,10 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Lock, Mail, LogIn, KeyRound, Heart } from "lucide-react";
+import { useI18n } from "@/lib/i18n";
 
 export default function LoginPage() {
+  const { t } = useI18n();
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -41,14 +43,13 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center px-4 py-10">
       <div className="card grid w-full max-w-3xl grid-cols-1 gap-8 md:grid-cols-[1.1fr,0.9fr]">
         <div className="space-y-4">
-          <span className="pill">Staff Access</span>
+          <span className="pill">{t("auth.staffAccess")}</span>
           <h2 className="page-title text-2xl">
             <Lock className="h-6 w-6 text-sky-500" />
-            <span>Sign in to your clinic workspace</span>
+            <span>{t("auth.signInSubtitle")}</span>
           </h2>
           <p className="page-subtitle">
-            Use your staff account to manage patients, appointments, and medical
-            records securely.
+            {t("auth.staffCredentials")}
           </p>
 
           <ul className="mt-4 space-y-2 text-xs text-slate-500 dark:text-slate-400">
@@ -68,7 +69,7 @@ export default function LoginPage() {
           <div>
             <label className="mb-1 flex items-center gap-2 text-xs font-medium text-slate-600 dark:text-slate-400">
               <Mail className="h-3 w-3 text-sky-500" />
-              <span>Email</span>
+              <span>{t("common.email")}</span>
             </label>
             <input
               className="input"
@@ -82,7 +83,7 @@ export default function LoginPage() {
           <div>
             <label className="mb-1 flex items-center gap-2 text-xs font-medium text-slate-600 dark:text-slate-400">
               <Lock className="h-3 w-3 text-sky-500" />
-              <span>Password</span>
+              <span>{t("common.password")}</span>
             </label>
             <input
               type="password"
@@ -100,7 +101,7 @@ export default function LoginPage() {
               className="inline-flex items-center gap-1.5 text-xs font-medium text-sky-600 hover:text-sky-700 dark:text-sky-400 dark:hover:text-sky-300 transition-colors"
             >
               <KeyRound className="h-3 w-3" />
-              Forgot your password?
+              {t("auth.forgotPassword")}
             </Link>
           </div>
 
@@ -110,7 +111,7 @@ export default function LoginPage() {
             className="btn-primary w-full justify-center"
           >
             <LogIn className="h-4 w-4" />
-            <span>{loading ? "Signing in…" : "Login"}</span>
+            <span>{loading ? t("common.signingIn") : t("common.login")}</span>
           </button>
 
           <div className="border-t border-slate-100 pt-3 dark:border-slate-700">
@@ -119,7 +120,7 @@ export default function LoginPage() {
               className="flex items-center justify-center gap-2 text-sm text-slate-500 hover:text-emerald-600 dark:text-slate-400 dark:hover:text-emerald-400 transition-colors"
             >
               <Heart className="h-3.5 w-3.5" />
-              Patient Portal
+              {t("portal.title")}
             </Link>
           </div>
         </form>

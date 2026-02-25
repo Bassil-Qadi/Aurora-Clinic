@@ -12,8 +12,10 @@ import {
   AlertCircle,
 } from "lucide-react";
 import Link from "next/link";
+import { useI18n } from "@/lib/i18n";
 
 export default function PortalDashboard() {
+  const { t } = useI18n();
   const [appointments, setAppointments] = useState<any[]>([]);
   const [visits, setVisits] = useState<any[]>([]);
   const [profile, setProfile] = useState<any>(null);
@@ -36,8 +38,8 @@ export default function PortalDashboard() {
   if (loading) {
     return (
       <div className="space-y-4 p-8">
-        <p className="page-title text-xl">Loading your dashboard…</p>
-        <p className="page-subtitle">Fetching your health information.</p>
+        <p className="page-title text-xl">{t("portal.loadingDashboard")}</p>
+        <p className="page-subtitle">{t("portal.fetchingHealth")}</p>
       </div>
     );
   }
@@ -57,11 +59,11 @@ export default function PortalDashboard() {
           <h1 className="page-title">
             <Heart className="h-6 w-6 text-emerald-500" />
             <span>
-              Welcome back, {profile?.firstName || "Patient"}
+              {t("portal.welcomeBack", { name: profile?.firstName || t("common.patient") })}
             </span>
           </h1>
           <p className="page-subtitle mt-1">
-            View your health records and manage your appointments.
+            {t("portal.viewHealthRecords")}
           </p>
         </div>
         <Link
@@ -69,7 +71,7 @@ export default function PortalDashboard() {
           className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 px-5 py-2.5 text-sm font-semibold text-white shadow-md transition-all hover:shadow-lg hover:from-emerald-600 hover:to-teal-600"
         >
           <Calendar className="h-4 w-4" />
-          Book Appointment
+          {t("portal.bookAppointment")}
         </Link>
       </div>
 
@@ -79,7 +81,7 @@ export default function PortalDashboard() {
           <div className="flex items-start justify-between">
             <div>
               <p className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                Upcoming Appointments
+                {t("portal.upcomingAppointments")}
               </p>
               <p className="mt-3 text-3xl font-semibold text-slate-900 dark:text-slate-100">
                 {upcomingAppointments.length}
@@ -92,7 +94,7 @@ export default function PortalDashboard() {
           <div className="flex items-start justify-between">
             <div>
               <p className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                Total Appointments
+                {t("portal.totalAppointments")}
               </p>
               <p className="mt-3 text-3xl font-semibold text-slate-900 dark:text-slate-100">
                 {appointments.length}
@@ -105,7 +107,7 @@ export default function PortalDashboard() {
           <div className="flex items-start justify-between">
             <div>
               <p className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                Completed Visits
+                {t("portal.completedVisits")}
               </p>
               <p className="mt-3 text-3xl font-semibold text-slate-900 dark:text-slate-100">
                 {visits.length}
@@ -121,17 +123,17 @@ export default function PortalDashboard() {
         <div className="card">
           <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900 mb-4 dark:text-slate-100">
             <CalendarCheck className="h-5 w-5 text-emerald-500" />
-            Upcoming Appointments
+            {t("portal.upcomingAppointments")}
           </h2>
           {upcomingAppointments.length === 0 ? (
             <div className="py-8 text-center">
               <CalendarCheck className="h-8 w-8 mx-auto mb-2 text-slate-300 dark:text-slate-600" />
-              <p className="text-sm text-slate-500 dark:text-slate-400">No upcoming appointments.</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400">{t("portal.noUpcomingAppointments")}</p>
               <Link
                 href="/portal/book"
                 className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300"
               >
-                Book one now →
+                {t("portal.bookOneNow")}
               </Link>
             </div>
           ) : (
@@ -170,14 +172,14 @@ export default function PortalDashboard() {
                         )}
                         {appt.doctor && (
                           <p className="text-xs text-slate-500 mt-0.5 dark:text-slate-400">
-                            Dr. {appt.doctor.name}
+                            {t("common.dr")} {appt.doctor.name}
                           </p>
                         )}
                       </div>
                       {isToday && (
                         <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400">
                           <AlertCircle className="h-3 w-3" />
-                          Today
+                          {t("common.today")}
                         </span>
                       )}
                     </div>
@@ -192,13 +194,13 @@ export default function PortalDashboard() {
         <div className="card">
           <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900 mb-4 dark:text-slate-100">
             <Stethoscope className="h-5 w-5 text-violet-500" />
-            Recent Visit Summaries
+            {t("portal.recentVisitSummaries")}
           </h2>
           {visits.length === 0 ? (
             <div className="py-8 text-center">
               <Stethoscope className="h-8 w-8 mx-auto mb-2 text-slate-300 dark:text-slate-600" />
               <p className="text-sm text-slate-500 dark:text-slate-400">
-                No completed visits yet.
+                {t("portal.noCompletedVisits")}
               </p>
             </div>
           ) : (
@@ -221,18 +223,18 @@ export default function PortalDashboard() {
                     </div>
                     <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-medium text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400">
                       <CheckCircle2 className="h-3 w-3" />
-                      Completed
+                      {t("portal.completed")}
                     </span>
                   </div>
                   {visit.diagnosis && (
                     <p className="text-sm text-slate-700 dark:text-slate-300">
-                      <span className="font-medium">Diagnosis:</span>{" "}
+                      <span className="font-medium">{t("portal.diagnosis")}</span>{" "}
                       {visit.diagnosis}
                     </p>
                   )}
                   {visit.doctor && (
                     <p className="text-xs text-slate-500 mt-1 dark:text-slate-400">
-                      Dr. {visit.doctor.name}
+                      {t("common.dr")} {visit.doctor.name}
                     </p>
                   )}
                 </div>
@@ -247,16 +249,16 @@ export default function PortalDashboard() {
         <div className="card">
           <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900 mb-4 dark:text-slate-100">
             <Calendar className="h-5 w-5 text-sky-500" />
-            Past Appointments
+            {t("portal.pastAppointments")}
           </h2>
           <div className="table-container">
             <table className="table">
               <thead>
                 <tr>
-                  <th>Date</th>
-                  <th>Reason</th>
-                  <th>Doctor</th>
-                  <th>Status</th>
+                  <th>{t("common.date")}</th>
+                  <th>{t("common.reason")}</th>
+                  <th>{t("common.doctor")}</th>
+                  <th>{t("common.status")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -264,7 +266,7 @@ export default function PortalDashboard() {
                   <tr key={appt._id}>
                     <td>{new Date(appt.date).toLocaleDateString()}</td>
                     <td>{appt.reason || "—"}</td>
-                    <td>{appt.doctor?.name ? `Dr. ${appt.doctor.name}` : "—"}</td>
+                    <td>{appt.doctor?.name ? `${t("common.dr")} ${appt.doctor.name}` : "—"}</td>
                     <td>
                       <span className="capitalize text-xs">{appt.status}</span>
                     </td>

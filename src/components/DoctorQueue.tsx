@@ -8,6 +8,7 @@ import {
   ListOrdered,
 } from "lucide-react";
 import { AppointmentStatusBadge } from "@/components/AppointmentStatusBadge";
+import { useI18n } from "@/lib/i18n";
 
 interface QueueAppointment {
   _id: string;
@@ -48,6 +49,7 @@ function getWaitDuration(dateStr: string): string {
 }
 
 export function DoctorQueue({ appointments }: DoctorQueueProps) {
+  const { t } = useI18n();
   const queueCount = appointments?.length ?? 0;
 
   return (
@@ -60,10 +62,10 @@ export function DoctorQueue({ appointments }: DoctorQueueProps) {
           </div>
           <div>
             <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-              Doctor Queue
+              {t("queue.title")}
             </h2>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              Patients waiting to be seen
+              {t("queue.subtitle")}
             </p>
           </div>
         </div>
@@ -76,12 +78,12 @@ export function DoctorQueue({ appointments }: DoctorQueueProps) {
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-75" />
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-500" />
               </span>
-              Live
+              {t("queue.live")}
             </span>
           )}
 
           <span className="pill">
-            {queueCount} {queueCount === 1 ? "patient" : "patients"}
+            {queueCount} {queueCount === 1 ? t("queue.patient") : t("queue.patients")}
           </span>
         </div>
       </div>
@@ -146,13 +148,13 @@ export function DoctorQueue({ appointments }: DoctorQueueProps) {
                     {appt.doctor && (
                       <span className="inline-flex items-center gap-1">
                         <Stethoscope className="h-3.5 w-3.5 text-sky-500" />
-                        Dr. {appt.doctor.name}
+                        {t("common.dr")} {appt.doctor.name}
                       </span>
                     )}
 
                     <span className="inline-flex items-center gap-1">
                       <Clock className="h-3.5 w-3.5 text-amber-500" />
-                      Waiting {waitDuration}
+                      {t("queue.waiting")} {waitDuration}
                     </span>
                   </div>
                 </div>
@@ -171,9 +173,9 @@ export function DoctorQueue({ appointments }: DoctorQueueProps) {
           <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-700">
             <ListOrdered className="h-6 w-6 text-slate-300 dark:text-slate-600" />
           </div>
-          <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Queue is empty</p>
+          <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{t("queue.empty")}</p>
           <p className="mt-0.5 text-xs text-slate-400 dark:text-slate-500">
-            No patients are currently waiting
+            {t("queue.noWaiting")}
           </p>
         </div>
       )}
