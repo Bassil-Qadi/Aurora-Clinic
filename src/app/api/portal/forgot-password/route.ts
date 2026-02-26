@@ -1,12 +1,14 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
-import { User } from "@/models/User";
-import PasswordResetToken from "@/models/PasswordResetToken";
+import PatientAccount from "@/models/PatientAccount";
+import Patient from "@/models/Patient";
 import Clinic from "@/models/Clinic";
+import PasswordResetToken from "@/models/PasswordResetToken";
 import { forgotPasswordSchema } from "@/lib/validations";
 import { sendPasswordResetEmail } from "@/lib/email";
 import crypto from "crypto";
 
+// POST /api/portal/forgot-password — public endpoint
 export async function POST(req: Request) {
   await connectDB();
 
@@ -19,23 +21,24 @@ export async function POST(req: Request) {
     );
   }
 
-  const user = await User.findOne({
-    email: validation.data.email,
+  // Find active patient account by email
+  const account = await PatientAccount.findOne({
+    email: validation.data.email.toLowerCase(),
     isActive: true,
   });
 
   // Always return success to prevent email enumeration
-  if (!user) {
+  if (!account) {
     return NextResponse.json({
       success: true,
       message:
-        "If an account with that email exists, a password reset link has been generated.",
+        "If an account with that email exists, a password reset link has been sent.",
     });
   }
 
-  // Invalidate any existing tokens for this user
+  // Invalidate any existing tokens for this patient account
   await PasswordResetToken.updateMany(
-    { userId: user._id, used: false },
+    { patientAccountId: account._id, used: false },
     { used: true }
   );
 
@@ -43,28 +46,40 @@ export async function POST(req: Request) {
   const token = crypto.randomBytes(32).toString("hex");
 
   await PasswordResetToken.create({
-    userId: user._id,
+    patientAccountId: account._id,
     token,
     expiresAt: new Date(Date.now() + 60 * 60 * 1000), // 1 hour
   });
 
   const resetUrl = `${
     process.env.NEXTAUTH_URL || "http://localhost:3000"
-  }/reset-password?token=${token}`;
+  }/portal/reset-password?token=${token}`;
 
-  // Fetch clinic name for email branding
+  // Get patient name and clinic name for the email
+  let recipientName = "Patient";
   let clinicName: string | undefined;
-  if (user.clinicId) {
-    const clinic = await Clinic.findById(user.clinicId).select("name").lean();
+
+  try {
+    const patient = await Patient.findById(account.patient)
+      .select("firstName lastName")
+      .lean();
+    if (patient && typeof patient === "object" && "firstName" in patient) {
+      const p = patient as { firstName: string; lastName: string };
+      recipientName = `${p.firstName} ${p.lastName}`;
+    }
+
+    const clinic = await Clinic.findById(account.clinicId)
+      .select("name")
+      .lean();
     if (clinic && typeof clinic === "object" && "name" in clinic) {
       clinicName = (clinic as { name: string }).name;
     }
-  }
+  } catch {}
 
   // Send password reset email
   await sendPasswordResetEmail({
-    recipientName: user.name,
-    recipientEmail: user.email,
+    recipientName,
+    recipientEmail: account.email,
     resetUrl,
     clinicName,
   });

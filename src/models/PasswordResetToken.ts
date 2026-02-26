@@ -2,10 +2,15 @@ import mongoose from "mongoose";
 
 const PasswordResetTokenSchema = new mongoose.Schema(
   {
+    // For staff (User model) resets
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
+    },
+    // For patient portal (PatientAccount model) resets
+    patientAccountId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "PatientAccount",
     },
     token: { type: String, required: true, unique: true },
     expiresAt: { type: Date, required: true },

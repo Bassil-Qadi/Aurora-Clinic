@@ -563,7 +563,17 @@
     "registerSuccessTitle": "Account Created!",
     "registerSuccessDesc": "Your patient account has been created. You can now sign in to manage your health.",
     "goToSignIn": "Go to Sign In",
-    "registerError": "Registration failed. Please try again."
+    "registerError": "Registration failed. Please try again.",
+    "forgotPassword": "Forgot Password",
+    "forgotPasswordDesc": "Enter the email address associated with your patient account and we'll send you a reset link.",
+    "forgotPasswordLink": "Forgot your password?",
+    "resetLinkSent": "If an account with that email exists, a password reset link has been sent. Check your inbox.",
+    "requestResetLink": "Request Reset Link",
+    "backToLogin": "Back to Login",
+    "setNewPassword": "Set New Password",
+    "enterNewPasswordDesc": "Enter your new password below.",
+    "passwordResetSuccess": "Password Reset!",
+    "passwordResetSuccessDesc": "Your password has been updated. You can now sign in with your new credentials."
   },
   "queue": {
     "title": "Doctor Queue",
