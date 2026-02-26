@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Heart, Mail, Lock, LogIn, ArrowLeft, UserPlus, KeyRound } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
+import { Logo } from "@/components/Logo";
 
 export default function PortalLoginPage() {
   const { t } = useI18n();
@@ -48,7 +49,7 @@ export default function PortalLoginPage() {
             {t("portal.patientAccess")}
           </span>
           <h2 className="page-title text-2xl">
-            <Heart className="h-6 w-6 text-emerald-500" />
+            <Logo className="h-7 w-7" />
             <span>{t("portal.title")}</span>
           </h2>
           <p className="page-subtitle">

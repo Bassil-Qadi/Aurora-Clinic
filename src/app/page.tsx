@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { Activity, LogIn, Users, Calendar, Clipboard, Building2 } from "lucide-react";
+import { LogIn, Users, Calendar, Clipboard, Building2 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
+import { Logo } from "@/components/Logo";
 
 export default function HomePage() {
   const { t } = useI18n();
@@ -12,7 +13,7 @@ export default function HomePage() {
         <div className="space-y-4">
           <span className="pill">{t("common.appName")}</span>
           <h1 className="page-title">
-            <Activity className="h-7 w-7 text-sky-500" />
+            <Logo className="h-7 w-7" />
             <span>{t("home.heroTitle")} {t("home.heroTitleHighlight")} {t("home.heroTitleEnd")}</span>
           </h1>
           <p className="page-subtitle max-w-xl">
@@ -48,9 +49,7 @@ export default function HomePage() {
                 {t("dashboard.patientsAppointmentsVisits")}
               </p>
             </div>
-            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-sky-600 text-white text-sm font-semibold">
-              <Activity className="h-5 w-5" />
-            </div>
+            <Logo className="h-10 w-10" />
           </div>
 
           <div className="grid grid-cols-3 gap-3 text-xs">

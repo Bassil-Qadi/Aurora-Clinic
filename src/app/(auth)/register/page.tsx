@@ -15,6 +15,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
+import { Logo } from "@/components/Logo";
 
 export default function RegisterClinicPage() {
   const { t } = useI18n();
@@ -111,7 +112,7 @@ export default function RegisterClinicPage() {
             {t("register.new")}
           </span>
           <h2 className="page-title text-2xl">
-            <Building2 className="h-6 w-6 text-sky-500" />
+            <Logo className="h-7 w-7" />
             <span>{t("register.title")}</span>
           </h2>
           <p className="page-subtitle">{t("register.subtitle")}</p>

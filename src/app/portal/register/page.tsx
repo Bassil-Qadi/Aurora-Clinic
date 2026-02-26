@@ -17,6 +17,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
+import { Logo } from "@/components/Logo";
 
 type Clinic = { _id: string; name: string; slug: string };
 
@@ -133,7 +134,7 @@ export default function PatientRegisterPage() {
             {t("portal.patientAccess")}
           </span>
           <h2 className="page-title text-2xl">
-            <Heart className="h-6 w-6 text-emerald-500" />
+            <Logo className="h-7 w-7" />
             <span>{t("portal.registerTitle")}</span>
           </h2>
           <p className="page-subtitle">{t("portal.registerSubtitle")}</p>

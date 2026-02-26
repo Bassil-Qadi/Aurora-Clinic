@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Lock, Mail, LogIn, KeyRound, Heart, Building2 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
+import { Logo } from "@/components/Logo";
 
 export default function LoginPage() {
   const { t } = useI18n();
@@ -45,7 +46,7 @@ export default function LoginPage() {
         <div className="space-y-4">
           <span className="pill">{t("auth.staffAccess")}</span>
           <h2 className="page-title text-2xl">
-            <Lock className="h-6 w-6 text-sky-500" />
+            <Logo className="h-7 w-7" />
             <span>{t("auth.signInSubtitle")}</span>
           </h2>
           <p className="page-subtitle">

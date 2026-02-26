@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { LanguageToggle } from "@/components/LanguageToggle";
+import { Logo, LogoMark } from "@/components/Logo";
 import { useI18n } from "@/lib/i18n";
 
 type PatientCtx = {
@@ -115,9 +116,7 @@ export default function PortalLayout({ children }: { children: ReactNode }) {
   const sidebarContent = (
     <>
       <div className="mb-8 flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-600 font-semibold dark:bg-emerald-950 dark:text-emerald-400">
-          <Activity className="h-5 w-5" />
-        </div>
+        <Logo className="h-10 w-10 shrink-0" />
         <div className="min-w-0 flex-1">
           <h2 className="truncate text-sm font-semibold tracking-tight text-slate-900 dark:text-slate-100">
             {t("portal.title")}
@@ -181,9 +180,7 @@ export default function PortalLayout({ children }: { children: ReactNode }) {
             <Menu className="h-6 w-6" />
           </button>
           <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600 dark:bg-emerald-950 dark:text-emerald-400">
-              <Activity className="h-4 w-4" />
-            </div>
+            <LogoMark className="h-8 w-8 shrink-0" />
             <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">
               {t("portal.title")}
             </span>
