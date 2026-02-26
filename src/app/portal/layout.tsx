@@ -46,10 +46,11 @@ export default function PortalLayout({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const isLoginPage = pathname === "/portal/login";
+  const isPublicPage =
+    pathname === "/portal/login" || pathname === "/portal/register";
 
   useEffect(() => {
-    if (isLoginPage) {
+    if (isPublicPage) {
       setLoading(false);
       return;
     }
@@ -70,7 +71,7 @@ export default function PortalLayout({ children }: { children: ReactNode }) {
         router.push("/portal/login");
         setLoading(false);
       });
-  }, [isLoginPage, router]);
+  }, [isPublicPage, router]);
 
   // Close sidebar on route change
   useEffect(() => {
@@ -83,7 +84,7 @@ export default function PortalLayout({ children }: { children: ReactNode }) {
     router.push("/portal/login");
   };
 
-  if (isLoginPage) {
+  if (isPublicPage) {
     return (
       <PatientContext.Provider value={{ patient, setPatient, logout }}>
         {children}

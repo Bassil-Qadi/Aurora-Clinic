@@ -204,6 +204,19 @@ export const insuranceInfoSchema = z.object({
   groupNumber: z.string().optional(),
 });
 
+// ─── Patient Self-Registration (Portal) ──────────────────
+
+export const patientSelfRegisterSchema = z.object({
+  clinicId: z.string().min(1, "Please select your clinic"),
+  firstName: z.string().min(2, "First name must be at least 2 characters"),
+  lastName: z.string().min(2, "Last name must be at least 2 characters"),
+  dateOfBirth: z.string().min(1, "Date of birth is required"),
+  gender: z.enum(["male", "female"], { message: "Please select a gender" }),
+  phone: z.string().min(6, "Phone must be at least 6 characters"),
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+});
+
 // ─── Clinic Self-Registration ────────────────────────────
 
 export const registerClinicSchema = z.object({

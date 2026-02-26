@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Heart, Mail, Lock, LogIn, ArrowLeft } from "lucide-react";
+import { Heart, Mail, Lock, LogIn, ArrowLeft, UserPlus } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 
 export default function PortalLoginPage() {
@@ -108,13 +108,22 @@ export default function PortalLoginPage() {
             {loading ? t("common.signingIn") : t("common.signIn")}
           </button>
 
-          <Link
-            href="/login"
-            className="flex items-center justify-center gap-2 text-sm text-slate-500 hover:text-emerald-600 transition-colors dark:text-slate-400 dark:hover:text-emerald-400"
-          >
-            <ArrowLeft className="h-3.5 w-3.5" />
-            {t("portal.staffLoginLink")}
-          </Link>
+          <div className="border-t border-slate-100 pt-3 dark:border-slate-700 space-y-2">
+            <Link
+              href="/portal/register"
+              className="flex items-center justify-center gap-2 text-sm text-slate-500 hover:text-emerald-600 transition-colors dark:text-slate-400 dark:hover:text-emerald-400"
+            >
+              <UserPlus className="h-3.5 w-3.5" />
+              {t("portal.registerLink")}
+            </Link>
+            <Link
+              href="/login"
+              className="flex items-center justify-center gap-2 text-sm text-slate-500 hover:text-emerald-600 transition-colors dark:text-slate-400 dark:hover:text-emerald-400"
+            >
+              <ArrowLeft className="h-3.5 w-3.5" />
+              {t("portal.staffLoginLink")}
+            </Link>
+          </div>
         </form>
       </div>
     </div>
