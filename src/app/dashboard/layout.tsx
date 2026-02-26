@@ -17,11 +17,14 @@ import {
   ClipboardList,
   Menu,
   X,
-  ShieldCheck
+  ShieldCheck,
+  Stethoscope,
+  UserRound
 } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { useI18n } from "@/lib/i18n";
+import { User } from "@/models/User";
 
 type Props = {
   children: ReactNode;
@@ -162,7 +165,13 @@ export default function DashboardLayout({ children }: Props) {
         <div className="mb-3 flex items-start justify-center flex-col gap-2">
           {session?.user && (
             <div className="min-w-0 flex items-center gap-2">
-              <ShieldCheck className="h-8 w-8 text-sky-500" />
+              {session?.user?.role === "admin" ? (
+                <ShieldCheck className="h-8 w-8 text-indigo-700" />
+              ) : session?.user?.role === "doctor" ? (
+                <Stethoscope className="h-8 w-8 text-sky-700" />
+              ) : session?.user?.role === "receptionist" ? (
+                <UserRound className="h-8 w-8 text-green-700" />
+              ) : null}
               <div>
               <p className="truncate text-sm font-medium text-slate-800 dark:text-slate-200 capitalize">
                 {session.user.name}
