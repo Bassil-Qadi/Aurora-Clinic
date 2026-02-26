@@ -47,7 +47,10 @@ export default function PortalLayout({ children }: { children: ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const isPublicPage =
-    pathname === "/portal/login" || pathname === "/portal/register";
+    pathname === "/portal/login" ||
+    pathname === "/portal/register" ||
+    pathname === "/portal/forgot-password" ||
+    pathname === "/portal/reset-password";
 
   useEffect(() => {
     if (isPublicPage) {
