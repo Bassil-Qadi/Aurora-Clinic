@@ -4,6 +4,7 @@ import { connectDB } from "@/lib/db";
 import Clinic from "@/models/Clinic";
 import { User } from "@/models/User";
 import { registerClinicSchema } from "@/lib/validations";
+import { sendWelcomeEmail } from "@/lib/email";
 
 // POST /api/auth/register-clinic — public endpoint
 // Creates a new Clinic and an admin User in a single atomic operation.
@@ -65,6 +66,15 @@ export async function POST(req: Request) {
     isActive: true,
     clinicId: clinic._id,
   });
+
+  // Send welcome email (fire-and-forget)
+  const loginUrl = `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/login`;
+  sendWelcomeEmail({
+    recipientName: adminName,
+    recipientEmail: adminEmail.toLowerCase(),
+    loginUrl,
+    clinicName,
+  }).catch((err) => console.error("Welcome email failed:", err));
 
   return NextResponse.json(
     {

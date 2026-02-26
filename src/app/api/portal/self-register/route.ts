@@ -5,6 +5,7 @@ import Clinic from "@/models/Clinic";
 import Patient from "@/models/Patient";
 import PatientAccount from "@/models/PatientAccount";
 import { patientSelfRegisterSchema } from "@/lib/validations";
+import { sendWelcomeEmail } from "@/lib/email";
 
 // POST /api/portal/self-register — public endpoint
 // Creates a Patient record + PatientAccount in a single operation.
@@ -66,6 +67,15 @@ export async function POST(req: Request) {
     passwordHash,
     isActive: true,
   });
+
+  // Send welcome email (fire-and-forget)
+  const loginUrl = `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/portal/login`;
+  sendWelcomeEmail({
+    recipientName: `${firstName} ${lastName}`,
+    recipientEmail: email.toLowerCase(),
+    loginUrl,
+    clinicName: clinic.name,
+  }).catch((err) => console.error("Welcome email failed:", err));
 
   return NextResponse.json(
     {

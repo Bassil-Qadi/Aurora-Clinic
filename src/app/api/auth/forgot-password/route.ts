@@ -2,7 +2,9 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import { User } from "@/models/User";
 import PasswordResetToken from "@/models/PasswordResetToken";
+import Clinic from "@/models/Clinic";
 import { forgotPasswordSchema } from "@/lib/validations";
+import { sendPasswordResetEmail } from "@/lib/email";
 import crypto from "crypto";
 
 export async function POST(req: Request) {
@@ -46,18 +48,31 @@ export async function POST(req: Request) {
     expiresAt: new Date(Date.now() + 60 * 60 * 1000), // 1 hour
   });
 
-  // In production, send an email with this link.
-  // Since email (Phase 5) is not implemented, log the link.
   const resetUrl = `${
     process.env.NEXTAUTH_URL || "http://localhost:3000"
   }/reset-password?token=${token}`;
 
-  console.log(`\n🔑 Password reset link for ${user.email}:\n${resetUrl}\n`);
+  // Fetch clinic name for email branding
+  let clinicName: string | undefined;
+  if (user.clinicId) {
+    const clinic = await Clinic.findById(user.clinicId).select("name").lean();
+    if (clinic && typeof clinic === "object" && "name" in clinic) {
+      clinicName = (clinic as { name: string }).name;
+    }
+  }
+
+  // Send password reset email
+  await sendPasswordResetEmail({
+    recipientName: user.name,
+    recipientEmail: user.email,
+    resetUrl,
+    clinicName,
+  });
 
   return NextResponse.json({
     success: true,
     message:
-      "If an account with that email exists, a password reset link has been generated.",
+      "If an account with that email exists, a password reset link has been sent.",
     // Include reset URL in development only
     ...(process.env.NODE_ENV !== "production" && { resetUrl }),
   });
