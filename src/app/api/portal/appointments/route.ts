@@ -3,9 +3,6 @@ import { connectDB } from "@/lib/db";
 import Appointment from "@/models/Appointment";
 import { requirePortalAuth } from "@/lib/portalAuth";
 import { User } from "@/models/User";
-import Patient from "@/models/Patient";
-import Clinic from "@/models/Clinic";
-import { sendAppointmentConfirmationEmail } from "@/lib/email";
 
 // GET /api/portal/appointments - List patient's appointments
 export async function GET() {
@@ -51,7 +48,6 @@ export async function POST(req: Request) {
   }
 
   // Validate doctor if provided
-  let doctorName: string | undefined;
   if (doctor) {
     const doc = await User.findOne({
       _id: doctor,
@@ -65,7 +61,6 @@ export async function POST(req: Request) {
         { status: 400 }
       );
     }
-    doctorName = doc.name;
   }
 
   const appointment = await Appointment.create({
@@ -76,43 +71,6 @@ export async function POST(req: Request) {
     doctor: doctor || undefined,
     status: "scheduled",
   });
-
-  // Send confirmation email (fire-and-forget — don't block the response)
-  try {
-    const patient = await Patient.findById(auth.patient!.patientId)
-      .select("firstName lastName email")
-      .lean();
-
-    if (patient && typeof patient === "object" && "email" in patient && (patient as any).email) {
-      const clinic = await Clinic.findById(auth.patient!.clinicId)
-        .select("name")
-        .lean();
-
-      const p = patient as { firstName: string; lastName: string; email: string };
-      sendAppointmentConfirmationEmail({
-        patientName: `${p.firstName} ${p.lastName}`,
-        patientEmail: p.email,
-        appointmentDate: appointmentDate.toLocaleDateString("en-US", {
-          weekday: "long",
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-        }),
-        appointmentTime: appointmentDate.toLocaleTimeString("en-US", {
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
-        doctorName,
-        reason: reason || undefined,
-        clinicName:
-          clinic && typeof clinic === "object" && "name" in clinic
-            ? (clinic as { name: string }).name
-            : undefined,
-      }).catch((err) => console.error("Email send failed:", err));
-    }
-  } catch (err) {
-    console.error("Failed to queue confirmation email:", err);
-  }
 
   return NextResponse.json(appointment, { status: 201 });
 }

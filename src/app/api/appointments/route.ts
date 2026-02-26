@@ -3,10 +3,6 @@ import { connectDB } from "@/lib/db";
 import Appointment from "@/models/Appointment";
 import { requireAuth } from "@/lib/apiAuth";
 import { createAppointmentSchema } from "@/lib/validations";
-import Patient from "@/models/Patient";
-import Clinic from "@/models/Clinic";
-import { User } from "@/models/User";
-import { sendAppointmentConfirmationEmail } from "@/lib/email";
 
 export async function GET(req: Request) {
   const auth = await requireAuth();
@@ -32,6 +28,7 @@ export async function GET(req: Request) {
 
   // If search is provided, match on reason/status and patient fields
   if (search) {
+    const Patient = (await import("@/models/Patient")).default;
     const matchingPatients = await Patient.find({
       clinicId: user.clinicId,
       $or: [
@@ -98,54 +95,6 @@ export async function POST(req: Request) {
     status: validation.data.status || "scheduled",
     clinicId: user.clinicId,
   });
-
-  // Send confirmation email (fire-and-forget)
-  try {
-    const patientDoc = await Patient.findById(validation.data.patient)
-      .select("firstName lastName email")
-      .lean();
-
-    if (patientDoc && typeof patientDoc === "object" && "email" in patientDoc && (patientDoc as any).email) {
-      const p = patientDoc as { firstName: string; lastName: string; email: string };
-      const appointmentDate = new Date(validation.data.date);
-
-      // Get doctor name
-      let doctorName: string | undefined;
-      if (doctorId) {
-        const doc = await User.findById(doctorId).select("name").lean();
-        if (doc && typeof doc === "object" && "name" in doc) {
-          doctorName = (doc as { name: string }).name;
-        }
-      }
-
-      // Get clinic name
-      const clinic = await Clinic.findById(user.clinicId).select("name").lean();
-      const clinicName =
-        clinic && typeof clinic === "object" && "name" in clinic
-          ? (clinic as { name: string }).name
-          : undefined;
-
-      sendAppointmentConfirmationEmail({
-        patientName: `${p.firstName} ${p.lastName}`,
-        patientEmail: p.email,
-        appointmentDate: appointmentDate.toLocaleDateString("en-US", {
-          weekday: "long",
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-        }),
-        appointmentTime: appointmentDate.toLocaleTimeString("en-US", {
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
-        doctorName,
-        reason: validation.data.reason || undefined,
-        clinicName,
-      }).catch((err) => console.error("Email send failed:", err));
-    }
-  } catch (err) {
-    console.error("Failed to queue confirmation email:", err);
-  }
 
   return NextResponse.json(appointment, { status: 201 });
 }
