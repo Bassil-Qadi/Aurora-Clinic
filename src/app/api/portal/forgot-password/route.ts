@@ -77,12 +77,20 @@ export async function POST(req: Request) {
   } catch {}
 
   // Send password reset email
-  await sendPasswordResetEmail({
-    recipientName,
-    recipientEmail: account.email,
-    resetUrl,
-    clinicName,
-  });
+  try {
+    await sendPasswordResetEmail({
+      recipientName,
+      recipientEmail: account.email,
+      resetUrl,
+      clinicName,
+    });
+  } catch (emailErr) {
+    console.error("Portal password reset email failed:", emailErr);
+    return NextResponse.json(
+      { error: "Failed to send reset email. Please try again later." },
+      { status: 502 }
+    );
+  }
 
   return NextResponse.json({
     success: true,

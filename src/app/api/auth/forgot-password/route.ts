@@ -62,12 +62,20 @@ export async function POST(req: Request) {
   }
 
   // Send password reset email
-  await sendPasswordResetEmail({
-    recipientName: user.name,
-    recipientEmail: user.email,
-    resetUrl,
-    clinicName,
-  });
+  try {
+    await sendPasswordResetEmail({
+      recipientName: user.name,
+      recipientEmail: user.email,
+      resetUrl,
+      clinicName,
+    });
+  } catch (emailErr) {
+    console.error("Staff password reset email failed:", emailErr);
+    return NextResponse.json(
+      { error: "Failed to send reset email. Please try again later." },
+      { status: 502 }
+    );
+  }
 
   return NextResponse.json({
     success: true,

@@ -54,17 +54,18 @@ export async function sendMail(opts: SendMailOptions): Promise<boolean> {
   }
 
   try {
-    await transporter.sendMail({
+    const info = await transporter.sendMail({
       from: FROM_ADDRESS,
       to: opts.to,
       subject: opts.subject,
       html: opts.html,
       text: opts.text,
     });
+    console.log(`✅ Email sent to ${opts.to} — messageId: ${info.messageId}`);
     return true;
   } catch (err) {
-    console.error("Failed to send email:", err);
-    return false;
+    console.error(`❌ Failed to send email to ${opts.to}:`, err);
+    throw err; // Re-throw so callers can handle/log the real error
   }
 }
 
