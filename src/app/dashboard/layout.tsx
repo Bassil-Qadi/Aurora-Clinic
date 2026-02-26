@@ -17,6 +17,7 @@ import {
   ClipboardList,
   Menu,
   X,
+  ShieldCheck
 } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { LanguageToggle } from "@/components/LanguageToggle";
@@ -158,15 +159,18 @@ export default function DashboardLayout({ children }: Props) {
       </nav>
 
       <div className="mt-6 border-t border-slate-100 pt-4 dark:border-slate-800">
-        <div className="mb-3 flex items-center justify-between gap-2">
+        <div className="mb-3 flex items-start justify-center flex-col gap-2">
           {session?.user && (
-            <div className="min-w-0">
-              <p className="truncate text-sm font-medium text-slate-800 dark:text-slate-200">
+            <div className="min-w-0 flex items-center gap-2">
+              <ShieldCheck className="h-8 w-8 text-sky-500" />
+              <div>
+              <p className="truncate text-sm font-medium text-slate-800 dark:text-slate-200 capitalize">
                 {session.user.name}
               </p>
-              <p className="text-xs capitalize text-slate-500 dark:text-slate-400">
+              <p className="text-xs capitalize text-slate-500 dark:text-slate-400 capitalize">
                 {session.user.role}
               </p>
+              </div>
             </div>
           )}
           <div className="flex shrink-0 items-center gap-1.5">
