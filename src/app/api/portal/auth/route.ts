@@ -2,23 +2,7 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import PatientAccount from "@/models/PatientAccount";
 import bcrypt from "bcrypt";
-import crypto from "crypto";
-
-// Simple JWT-like token for patient portal (stored in cookies)
-function generateToken(payload: object): string {
-  const data = JSON.stringify({ ...payload, exp: Date.now() + 24 * 60 * 60 * 1000 });
-  return Buffer.from(data).toString("base64url");
-}
-
-export function verifyPortalToken(token: string): { patientAccountId: string; clinicId: string; patientId: string } | null {
-  try {
-    const data = JSON.parse(Buffer.from(token, "base64url").toString());
-    if (data.exp < Date.now()) return null;
-    return { patientAccountId: data.patientAccountId, clinicId: data.clinicId, patientId: data.patientId };
-  } catch {
-    return null;
-  }
-}
+import { generatePortalToken } from "@/lib/portalAuth";
 
 // POST /api/portal/auth - Login
 export async function POST(req: Request) {
@@ -56,7 +40,7 @@ export async function POST(req: Request) {
   account.lastLogin = new Date();
   await account.save();
 
-  const token = generateToken({
+  const token = generatePortalToken({
     patientAccountId: account._id.toString(),
     clinicId: account.clinicId.toString(),
     patientId: account.patient._id.toString(),
