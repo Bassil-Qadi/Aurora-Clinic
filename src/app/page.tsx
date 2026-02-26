@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Activity, LogIn, Users, Calendar, Clipboard } from "lucide-react";
+import { Activity, LogIn, Users, Calendar, Clipboard, Building2 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 
 export default function HomePage() {
@@ -24,11 +24,18 @@ export default function HomePage() {
               <LogIn className="h-4 w-4" />
               <span>{t("home.getStarted")}</span>
             </Link>
-            <span className="inline-flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
-              <span className="h-2 w-2 rounded-full bg-emerald-500" />
-              {t("common.systemOnline")}
-            </span>
+            <Link
+              href="/register"
+              className="inline-flex items-center gap-2 rounded-full border border-sky-200 bg-sky-50 px-4 py-2 text-sm font-medium text-sky-700 transition-colors hover:bg-sky-100 dark:border-sky-700 dark:bg-sky-950/30 dark:text-sky-400 dark:hover:bg-sky-900/50"
+            >
+              <Building2 className="h-4 w-4" />
+              <span>{t("register.title")}</span>
+            </Link>
           </div>
+          <p className="text-xs text-slate-400 dark:text-slate-500 flex items-center gap-1.5">
+            <span className="h-2 w-2 rounded-full bg-emerald-500" />
+            {t("common.systemOnline")}
+          </p>
         </div>
 
         <div className="card card-muted">

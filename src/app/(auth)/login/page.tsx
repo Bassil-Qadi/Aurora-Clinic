@@ -4,7 +4,7 @@ import { signIn } from "next-auth/react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Lock, Mail, LogIn, KeyRound, Heart } from "lucide-react";
+import { Lock, Mail, LogIn, KeyRound, Heart, Building2 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 
 export default function LoginPage() {
@@ -114,13 +114,20 @@ export default function LoginPage() {
             <span>{loading ? t("common.signingIn") : t("common.login")}</span>
           </button>
 
-          <div className="border-t border-slate-100 pt-3 dark:border-slate-700">
+          <div className="border-t border-slate-100 pt-3 dark:border-slate-700 space-y-2">
             <Link
               href="/portal/login"
               className="flex items-center justify-center gap-2 text-sm text-slate-500 hover:text-emerald-600 dark:text-slate-400 dark:hover:text-emerald-400 transition-colors"
             >
               <Heart className="h-3.5 w-3.5" />
               {t("portal.title")}
+            </Link>
+            <Link
+              href="/register"
+              className="flex items-center justify-center gap-2 text-sm text-slate-500 hover:text-sky-600 dark:text-slate-400 dark:hover:text-sky-400 transition-colors"
+            >
+              <Building2 className="h-3.5 w-3.5" />
+              {t("auth.registerClinic")}
             </Link>
           </div>
         </form>

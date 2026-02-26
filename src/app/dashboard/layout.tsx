@@ -45,6 +45,17 @@ export default function DashboardLayout({ children }: Props) {
   const pathname = usePathname();
   const { t, dir } = useI18n();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [clinicName, setClinicName] = useState<string | null>(null);
+
+  // Fetch clinic name once the session is available
+  useEffect(() => {
+    if (session?.user?.clinicId) {
+      fetch("/api/clinic")
+        .then((r) => r.ok ? r.json() : null)
+        .then((data) => { if (data?.name) setClinicName(data.name); })
+        .catch(() => {/* silently ignore */});
+    }
+  }, [session?.user?.clinicId]);
 
   // Close sidebar on route change (mobile)
   useEffect(() => {
@@ -72,7 +83,7 @@ export default function DashboardLayout({ children }: Props) {
         </div>
         <div className="min-w-0 flex-1">
           <h2 className="truncate text-sm font-semibold tracking-tight text-slate-900 dark:text-slate-100">
-            {t("common.appName")}
+            {clinicName ?? t("common.appName")}
           </h2>
           <p className="text-xs text-slate-500 dark:text-slate-400">
             {t("common.medicalDashboard")}
@@ -189,7 +200,7 @@ export default function DashboardLayout({ children }: Props) {
             <Activity className="h-4 w-4" />
           </div>
           <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-            {t("common.appName")}
+            {clinicName ?? t("common.appName")}
           </span>
         </div>
         <div className="w-10" /> {/* Spacer */}

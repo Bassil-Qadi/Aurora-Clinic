@@ -204,6 +204,17 @@ export const insuranceInfoSchema = z.object({
   groupNumber: z.string().optional(),
 });
 
+// ─── Clinic Self-Registration ────────────────────────────
+
+export const registerClinicSchema = z.object({
+  clinicName: z.string().min(2, "Clinic name must be at least 2 characters"),
+  clinicPhone: z.string().optional(),
+  clinicAddress: z.string().optional(),
+  adminName: z.string().min(2, "Admin name must be at least 2 characters"),
+  adminEmail: z.string().email("Invalid email address"),
+  adminPassword: z.string().min(6, "Password must be at least 6 characters"),
+});
+
 // ─── Clinic ───────────────────────────────────────────────
 
 export const updateClinicSchema = z.object({
