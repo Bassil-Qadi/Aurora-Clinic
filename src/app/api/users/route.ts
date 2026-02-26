@@ -3,7 +3,7 @@ import { connectDB } from "@/lib/db";
 import { User } from "@/models/User";
 import { requireAuth } from "@/lib/apiAuth";
 import { createUserSchema } from "@/lib/validations";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 
 export async function GET(req: Request) {
   const auth = await requireAuth();

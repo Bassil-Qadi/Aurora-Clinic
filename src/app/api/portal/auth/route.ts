@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import PatientAccount from "@/models/PatientAccount";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { generatePortalToken } from "@/lib/portalAuth";
 
 // POST /api/portal/auth - Login

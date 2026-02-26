@@ -3,7 +3,7 @@ import { connectDB } from "@/lib/db";
 import { User } from "@/models/User";
 import PasswordResetToken from "@/models/PasswordResetToken";
 import { resetPasswordSchema } from "@/lib/validations";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 
 export async function POST(req: Request) {
   await connectDB();

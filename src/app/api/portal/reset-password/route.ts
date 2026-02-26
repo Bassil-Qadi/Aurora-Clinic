@@ -3,7 +3,7 @@ import { connectDB } from "@/lib/db";
 import PatientAccount from "@/models/PatientAccount";
 import PasswordResetToken from "@/models/PasswordResetToken";
 import { resetPasswordSchema } from "@/lib/validations";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 
 // POST /api/portal/reset-password — public endpoint
 export async function POST(req: Request) {

@@ -3,7 +3,7 @@ import { connectDB } from "@/lib/db";
 import Patient from "@/models/Patient";
 import PatientAccount from "@/models/PatientAccount";
 import { requireAuth } from "@/lib/apiAuth";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 
 // POST /api/portal/register - Staff creates a portal account for a patient
 export async function POST(req: Request) {
