@@ -21,6 +21,7 @@ export async function POST(req: Request) {
     token: validation.data.token,
     used: false,
     expiresAt: { $gt: new Date() },
+    userId: { $exists: true, $ne: null }, // Staff tokens only
   });
 
   if (!resetToken) {
