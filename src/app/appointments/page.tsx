@@ -147,6 +147,7 @@ export default function AppointmentsPage() {
         description: editingId
           ? t("appointments.appointmentUpdated")
           : t("appointments.appointmentScheduled"),
+        variant: "success",
       });
     } catch (error: any) {
       toast({
@@ -201,6 +202,7 @@ export default function AppointmentsPage() {
       await fetchAppointments();
       toast({
         title: t("appointments.statusUpdated"),
+        variant: "success",
       });
     } catch (error: any) {
       toast({
