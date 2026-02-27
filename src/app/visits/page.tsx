@@ -290,9 +290,12 @@ export default function VisitsPage() {
             className="input md:max-w-xs"
           />
 
-          <button className="btn-primary md:col-span-2 justify-center">
-            {editingId ? t("common.update") : t("common.add")}
-          </button>
+          <div className="md:col-span-2 mt-4">
+            <button className="btn-primary justify-center w-24">
+              {editingId ? t("common.update") : t("common.add")}
+            </button>
+          </div>
+
         </form>
       </div>
 
