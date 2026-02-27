@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import AuthProvider from "../components/AuthProvider";
 import { ThemeProvider } from "../components/ThemeProvider";
 import { I18nProvider } from "../lib/i18n";
+import { Toaster } from "../components/ui/toaster";
 import "../styles/globals.css";
 
 export const metadata: Metadata = {
@@ -29,7 +30,10 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <I18nProvider>
-            <AuthProvider>{children}</AuthProvider>
+            <AuthProvider>
+              {children}
+              <Toaster />
+            </AuthProvider>
           </I18nProvider>
         </ThemeProvider>
       </body>

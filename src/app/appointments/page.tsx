@@ -113,11 +113,20 @@ export default function AppointmentsPage() {
         body: JSON.stringify(payload),
       });
 
-      const data = await res.json();
-
+      let errorMessage = t("appointments.statusUpdateFailed");
+      
       if (!res.ok) {
-        throw new Error(data.error || t("appointments.statusUpdateFailed"));
+        try {
+          const data = await res.json();
+          errorMessage = data.error || errorMessage;
+        } catch {
+          // If JSON parsing fails, use the status text or default message
+          errorMessage = res.statusText || errorMessage;
+        }
+        throw new Error(errorMessage);
       }
+
+      const data = await res.json();
 
       // Success
       setForm({
