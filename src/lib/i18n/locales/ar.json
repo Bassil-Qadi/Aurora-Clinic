@@ -243,7 +243,11 @@
     "deleteAppointment": "هل تريد حذف هذا الموعد؟",
     "statusUpdated": "تم تحديث الحالة",
     "statusUpdateFailed": "فشل تحديث الحالة",
-    "cannotStartVisit": "لا يمكن بدء الزيارة"
+    "cannotStartVisit": "لا يمكن بدء الزيارة",
+    "conflictOutsideHours": "وقت الموعد خارج ساعات عمل العيادة",
+    "conflictNonWorkingDay": "العيادة مغلقة في هذا اليوم. يرجى اختيار يوم عمل.",
+    "conflictDoctorOverlap": "الطبيب لديه موعد بالفعل في هذا الوقت. يرجى اختيار وقت آخر.",
+    "conflictInvalidTime": "وقت الموعد غير صالح"
   },
   "visits": {
     "title": "الزيارات",

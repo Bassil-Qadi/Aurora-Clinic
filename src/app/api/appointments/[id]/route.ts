@@ -3,6 +3,7 @@ import { connectDB } from "@/lib/db";
 import Appointment from "@/models/Appointment";
 import { requireAuth } from "@/lib/apiAuth";
 import { updateAppointmentSchema } from "@/lib/validations";
+import { checkAppointmentConflicts } from "@/lib/appointmentConflicts";
 
 export async function PUT(
   req: Request,
@@ -25,18 +26,45 @@ export async function PUT(
     );
   }
 
-  const updated = await Appointment.findOneAndUpdate(
-    { _id: id, clinicId: user.clinicId },
-    validation.data,
-    { returnDocument: "after" }
-  );
+  // Get existing appointment to check what's being updated
+  const existing = await Appointment.findOne({
+    _id: id,
+    clinicId: user.clinicId,
+  });
 
-  if (!updated) {
+  if (!existing) {
     return NextResponse.json(
       { error: "Appointment not found" },
       { status: 404 }
     );
   }
+
+  // If date or doctor is being updated, check for conflicts
+  const newDate = validation.data.date ? new Date(validation.data.date) : existing.date;
+  const newDoctorId = validation.data.doctor || existing.doctor;
+
+  // Only check conflicts if date or doctor changed
+  if (validation.data.date || validation.data.doctor) {
+    const conflictCheck = await checkAppointmentConflicts(
+      user.clinicId,
+      newDate,
+      newDoctorId,
+      id // Exclude current appointment from conflict check
+    );
+
+    if (conflictCheck.hasConflict) {
+      return NextResponse.json(
+        { error: conflictCheck.error },
+        { status: 400 }
+      );
+    }
+  }
+
+  const updated = await Appointment.findOneAndUpdate(
+    { _id: id, clinicId: user.clinicId },
+    validation.data,
+    { returnDocument: "after" }
+  );
 
   return NextResponse.json(updated);
 }

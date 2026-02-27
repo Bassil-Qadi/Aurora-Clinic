@@ -3,6 +3,7 @@ import { connectDB } from "@/lib/db";
 import Appointment from "@/models/Appointment";
 import { requirePortalAuth } from "@/lib/portalAuth";
 import { User } from "@/models/User";
+import { checkAppointmentConflicts } from "@/lib/appointmentConflicts";
 
 // GET /api/portal/appointments - List patient's appointments
 export async function GET() {
@@ -61,6 +62,20 @@ export async function POST(req: Request) {
         { status: 400 }
       );
     }
+  }
+
+  // Check for conflicts before creating the appointment
+  const conflictCheck = await checkAppointmentConflicts(
+    auth.patient!.clinicId,
+    appointmentDate,
+    doctor || undefined
+  );
+
+  if (conflictCheck.hasConflict) {
+    return NextResponse.json(
+      { error: conflictCheck.error },
+      { status: 400 }
+    );
   }
 
   const appointment = await Appointment.create({

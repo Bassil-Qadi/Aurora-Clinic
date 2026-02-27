@@ -243,7 +243,11 @@
     "deleteAppointment": "Delete this appointment?",
     "statusUpdated": "Status updated",
     "statusUpdateFailed": "Status update failed",
-    "cannotStartVisit": "Cannot start visit"
+    "cannotStartVisit": "Cannot start visit",
+    "conflictOutsideHours": "Appointment time is outside clinic working hours",
+    "conflictNonWorkingDay": "Clinic is closed on this day. Please select a working day.",
+    "conflictDoctorOverlap": "Doctor already has an appointment at this time. Please choose a different time.",
+    "conflictInvalidTime": "Invalid appointment time"
   },
   "visits": {
     "title": "Visits",

@@ -3,6 +3,7 @@ import { connectDB } from "@/lib/db";
 import Appointment from "@/models/Appointment";
 import { requireAuth } from "@/lib/apiAuth";
 import { createAppointmentSchema } from "@/lib/validations";
+import { checkAppointmentConflicts } from "@/lib/appointmentConflicts";
 
 export async function GET(req: Request) {
   const auth = await requireAuth();
@@ -88,6 +89,23 @@ export async function POST(req: Request) {
     user.role === "doctor"
       ? user.id
       : validation.data.doctor || undefined;
+
+  // Parse appointment date
+  const appointmentDate = new Date(validation.data.date);
+
+  // Check for conflicts before creating the appointment
+  const conflictCheck = await checkAppointmentConflicts(
+    user.clinicId,
+    appointmentDate,
+    doctorId
+  );
+
+  if (conflictCheck.hasConflict) {
+    return NextResponse.json(
+      { error: conflictCheck.error },
+      { status: 400 }
+    );
+  }
 
   const appointment = await Appointment.create({
     ...validation.data,
