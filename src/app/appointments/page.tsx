@@ -114,7 +114,7 @@ export default function AppointmentsPage() {
       });
 
       let errorMessage = t("appointments.statusUpdateFailed");
-      
+
       if (!res.ok) {
         try {
           const data = await res.json();
@@ -327,7 +327,7 @@ export default function AppointmentsPage() {
             onChange={(e) =>
               setForm({ ...form, reason: e.target.value })
             }
-            className="input md:col-span-2"
+            className="input md:col-span-1"
             required
           />
 
@@ -336,16 +336,19 @@ export default function AppointmentsPage() {
             onChange={(e) =>
               setForm({ ...form, status: e.target.value })
             }
-            className="input md:max-w-xs"
+            className="input md:col-span-1"
           >
             <option value="scheduled">{t("appointments.scheduled")}</option>
             <option value="completed">{t("appointments.completed")}</option>
             <option value="cancelled">{t("appointments.cancelled")}</option>
           </select>
 
-          <button className="btn-primary md:col-span-2 justify-center">
-            {editingId ? t("common.saveChanges") : t("appointments.scheduleAppointment")}
-          </button>
+          <div className="md:col-span-2 mt-4">
+            <button className="btn-primary justify-center">
+              {editingId ? t("common.saveChanges") : t("appointments.scheduleAppointment")}
+            </button>
+          </div>
+
         </form>
       </div>
 
