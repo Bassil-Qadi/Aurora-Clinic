@@ -9,6 +9,7 @@ import {
   FileText,
   CheckCircle2,
   ArrowLeft,
+  AlertCircle,
 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 
@@ -136,8 +137,12 @@ export default function BookAppointmentPage() {
       <div className="card max-w-2xl">
         <form onSubmit={handleSubmit} className="space-y-5">
           {error && (
-            <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-700 dark:bg-rose-950/30 dark:text-rose-400">
-              {error}
+            <div className="flex items-start gap-3 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-700 dark:bg-rose-950/30 dark:text-rose-400">
+              <AlertCircle className="h-5 w-5 shrink-0 mt-0.5 text-rose-600 dark:text-rose-400" />
+              <div className="flex-1">
+                <p className="font-medium mb-1">{t("portal.bookingError") || "Booking Error"}</p>
+                <p className="text-rose-600 dark:text-rose-300">{error}</p>
+              </div>
             </div>
           )}
 

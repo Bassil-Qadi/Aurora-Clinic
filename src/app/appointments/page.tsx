@@ -90,39 +90,64 @@ export default function AppointmentsPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Build payload — only include doctor if admin/receptionist selected one
-    const payload: Record<string, any> = {
-      patient: form.patient,
-      date: form.date,
-      reason: form.reason,
-      status: form.status,
-    };
-    if (userRole !== "doctor" && form.doctor) {
-      payload.doctor = form.doctor;
-    }
+    try {
+      // Build payload — only include doctor if admin/receptionist selected one
+      const payload: Record<string, any> = {
+        patient: form.patient,
+        date: form.date,
+        reason: form.reason,
+        status: form.status,
+      };
+      if (userRole !== "doctor" && form.doctor) {
+        payload.doctor = form.doctor;
+      }
 
-    if (editingId) {
-      await fetch(`/api/appointments/${editingId}`, {
-        method: "PUT",
+      const url = editingId
+        ? `/api/appointments/${editingId}`
+        : "/api/appointments";
+      const method = editingId ? "PUT" : "POST";
+
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-    } else {
-      await fetch("/api/appointments", {
-        method: "POST",
-        body: JSON.stringify(payload),
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || t("appointments.statusUpdateFailed"));
+      }
+
+      // Success
+      setForm({
+        patient: "",
+        date: "",
+        reason: "",
+        status: "scheduled",
+        doctor: "",
+      });
+
+      setEditingId(null);
+      fetchAppointments();
+
+      toast({
+        title: editingId
+          ? t("appointments.updateAppointment")
+          : t("appointments.appointmentBooked"),
+        description: editingId
+          ? t("appointments.appointmentUpdated")
+          : t("appointments.appointmentScheduled"),
+      });
+    } catch (error: any) {
+      toast({
+        title: editingId
+          ? t("appointments.statusUpdateFailed")
+          : t("appointments.failedToBook"),
+        description: error.message || t("appointments.unexpectedError"),
+        variant: "destructive",
       });
     }
-
-    setForm({
-      patient: "",
-      date: "",
-      reason: "",
-      status: "scheduled",
-      doctor: "",
-    });
-
-    setEditingId(null);
-    fetchAppointments();
   };
 
   const handleEdit = (appointment: Appointment) => {
