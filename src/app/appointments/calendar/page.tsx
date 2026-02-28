@@ -30,6 +30,7 @@ import {
   normalizeAppointmentStatus,
 } from "@/lib/appointmentStatus";
 import { useI18n } from "@/lib/i18n";
+import { Breadcrumb } from "@/components/Breadcrumb";
 
 function getStatusColor(status: string | null | undefined): string {
   const normalized = normalizeAppointmentStatus(status) ?? "scheduled";
@@ -142,8 +143,15 @@ export default function AppointmentCalendar() {
 
 
   return (
-    <div className="bg-white p-6 rounded-2xl shadow-sm dark:bg-slate-900">
-      <div className="flex items-center justify-between mb-4">
+    <div className="space-y-6 p-8">
+      <Breadcrumb
+        items={[
+          { label: t("nav.appointments"), href: "/appointments" },
+          { label: t("nav.calendar") },
+        ]}
+      />
+      <div className="bg-white p-6 rounded-2xl shadow-sm dark:bg-slate-900">
+        <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold dark:text-slate-100">{t("calendar.title")}</h2>
 
         <select
@@ -262,6 +270,7 @@ export default function AppointmentCalendar() {
           </Button>
         </DialogContent>
       </Dialog>
+      </div>
     </div>
   );
 }
