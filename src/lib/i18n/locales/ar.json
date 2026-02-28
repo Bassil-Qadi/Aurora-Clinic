@@ -111,7 +111,12 @@
     "loadingDashboard": "جاري تحميل لوحة التحكم…",
     "fetchingOverview": "جاري جلب نظرة عامة على العيادة.",
     "loginToStart": "سجّل دخولك لبدء تسجيل البيانات السريرية…",
-    "patientsAppointmentsVisits": "المرضى، المواعيد، الزيارات"
+    "patientsAppointmentsVisits": "المرضى، المواعيد، الزيارات",
+    "doctorSlots": "مواعيد الأطباء",
+    "doctorSlotsSubtitle": "حالة التوفر الحالية",
+    "inAppointment": "في موعد",
+    "available": "متاح",
+    "noDoctors": "لم يتم العثور على أطباء"
   },
   "patients": {
     "title": "المرضى",

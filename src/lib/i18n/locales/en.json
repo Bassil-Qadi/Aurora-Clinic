@@ -111,7 +111,12 @@
     "loadingDashboard": "Loading dashboard…",
     "fetchingOverview": "Fetching your clinic overview and activity.",
     "loginToStart": "Log in to start capturing clinical data…",
-    "patientsAppointmentsVisits": "Patients, Appointments, Visits"
+    "patientsAppointmentsVisits": "Patients, Appointments, Visits",
+    "doctorSlots": "Doctor Slots",
+    "doctorSlotsSubtitle": "Current availability status",
+    "inAppointment": "In Appointment",
+    "available": "Available",
+    "noDoctors": "No doctors found"
   },
   "patients": {
     "title": "Patients",
