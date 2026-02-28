@@ -7,6 +7,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Users, UserPlus, Search, Pencil, Trash2 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
+import { Breadcrumb } from "@/components/Breadcrumb";
 
 const patientSchema = z.object({
   firstName: z.string().min(2),
@@ -91,6 +92,7 @@ export default function PatientsPage() {
 
   return (
     <div className="space-y-6 p-8">
+      <Breadcrumb items={[{ label: t("nav.patients") }]} />
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="page-title">

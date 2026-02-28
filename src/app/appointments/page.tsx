@@ -8,6 +8,7 @@ import { AppointmentStatus, normalizeAppointmentStatus } from "@/lib/appointment
 import { AppointmentStatusBadge } from "@/components/AppointmentStatusBadge";
 import { useToast } from "@/hooks/use-toast";
 import { useI18n } from "@/lib/i18n";
+import { Breadcrumb } from "@/components/Breadcrumb";
 
 interface Patient {
   _id: string;
@@ -250,6 +251,7 @@ export default function AppointmentsPage() {
 
   return (
     <div className="space-y-6 p-8">
+      <Breadcrumb items={[{ label: t("appointments.title") }]} />
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="page-title">
