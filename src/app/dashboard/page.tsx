@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Activity, Users, Calendar, Clipboard, Stethoscope, Clock, FileText, User, CalendarCheck, AlertCircle } from "lucide-react";
 import { DoctorQueue } from "@/components/DoctorQueue";
+import { DoctorSlots } from "@/components/DoctorSlots";
 import { useI18n } from "@/lib/i18n";
 import {
   LineChart,
@@ -166,6 +167,9 @@ export default function DashboardHome() {
 
       {/* Doctor Queue – Waiting List */}
       <DoctorQueue appointments={stats.waitingQueue ?? []} />
+
+      {/* Doctor Slots – Availability Status */}
+      <DoctorSlots />
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <div className="card">
