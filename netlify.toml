@@ -4,6 +4,13 @@
 
 [build.environment]
   NODE_VERSION = "20"
+  NPM_FLAGS = "--include=dev"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
+
+# Edge function to fix MIME types for Next.js static assets
+# (the @netlify/plugin-nextjs serves CSS as text/plain — this overrides it)
+[[edge_functions]]
+  path = "/_next/static/*"
+  function = "fix-static-mime"
