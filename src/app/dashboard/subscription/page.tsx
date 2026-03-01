@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import {
   CreditCard,
@@ -63,6 +63,20 @@ interface CurrentSubscription {
 }
 
 export default function SubscriptionPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-[60vh] items-center justify-center p-8">
+          <Loader2 className="h-10 w-10 animate-spin text-sky-500" />
+        </div>
+      }
+    >
+      <SubscriptionPageContent />
+    </Suspense>
+  );
+}
+
+function SubscriptionPageContent() {
   const { t } = useI18n();
   const { data: session } = useSession();
   const searchParams = useSearchParams();
