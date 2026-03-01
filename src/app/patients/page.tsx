@@ -149,12 +149,14 @@ export default function PatientsPage() {
             className="input md:col-span-2"
           />
 
+         <div className="w-full flex justify-start mt-4">
           <button
             type="submit"
-            className="btn-primary md:col-span-2 justify-center"
+            className="btn-primary justify-center"
           >
             {editingId ? t("patients.updatePatient") : t("patients.addPatient")}
           </button>
+         </div>
         </form>
 
         {/* Validation Errors */}
