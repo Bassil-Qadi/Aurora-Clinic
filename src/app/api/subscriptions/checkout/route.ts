@@ -96,6 +96,17 @@ export async function POST(req: Request) {
     currentPeriodStart: new Date(),
   });
 
+  // Update clinic status so the UI reflects the trialing state immediately
+  await Clinic.updateOne(
+    { _id: auth.user.clinicId },
+    {
+      $set: {
+        subscriptionStatus: "trialing",
+        subscriptionPlanId: plan._id,
+      },
+    }
+  );
+
   return NextResponse.json({
     subscriptionId: paypalSub.id,
     approvalUrl: approveLink.href,

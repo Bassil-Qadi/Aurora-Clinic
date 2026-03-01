@@ -305,7 +305,7 @@ function SubscriptionPageContent() {
       )}
 
       {/* Current Plan + Usage */}
-      {currentPlan && clinicStatus === "active" && (
+      {currentPlan && (clinicStatus === "active" || clinicStatus === "trialing") && (
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           {/* Current Plan Card */}
           <div className="card">
@@ -319,13 +319,21 @@ function SubscriptionPageContent() {
                     {currentPlan.name} Plan
                   </h3>
                   <p className="text-sm text-slate-500 dark:text-slate-400">
-                    Active subscription
+                    {clinicStatus === "trialing"
+                      ? "Trial subscription"
+                      : "Active subscription"}
                   </p>
                 </div>
               </div>
-              <span className="inline-flex items-center rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400">
+              <span
+                className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${
+                  clinicStatus === "trialing"
+                    ? "bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-400"
+                    : "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400"
+                }`}
+              >
                 <Shield className="mr-1 h-3 w-3" />
-                Active
+                {clinicStatus === "trialing" ? "Trialing" : "Active"}
               </span>
             </div>
             <div className="mt-4 border-t border-slate-100 pt-4 dark:border-slate-800">

@@ -55,6 +55,27 @@ export async function GET() {
     }),
   ]);
 
+  // Derive effective clinic status: if there's a live subscription but clinic
+  // status is stale (e.g. "none"), prefer the subscription's status.
+  let effectiveClinicStatus = clinic.subscriptionStatus || "none";
+  if (
+    subscription &&
+    ["active", "trialing", "past_due"].includes(subscription.status) &&
+    !["active", "trialing", "past_due"].includes(effectiveClinicStatus)
+  ) {
+    effectiveClinicStatus = subscription.status;
+    // Heal the stale clinic record in the background
+    Clinic.updateOne(
+      { _id: auth.user.clinicId },
+      {
+        $set: {
+          subscriptionStatus: subscription.status,
+          subscriptionPlanId: subscription.planId,
+        },
+      }
+    ).catch(() => {});
+  }
+
   return NextResponse.json({
     subscription: subscription
       ? {
@@ -69,7 +90,7 @@ export async function GET() {
       : null,
     plan,
     clinic: {
-      subscriptionStatus: clinic.subscriptionStatus || "none",
+      subscriptionStatus: effectiveClinicStatus,
       trialEndsAt: clinic.trialEndsAt,
     },
     usage: {
