@@ -217,6 +217,30 @@ export const patientSelfRegisterSchema = z.object({
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
+// ─── Subscription Plan (admin) ───────────────────────────
+
+export const createSubscriptionPlanSchema = z.object({
+  name: z.string().min(1, "Plan name is required"),
+  slug: z.string().min(1, "Slug is required"),
+  description: z.string().optional(),
+  price: z.number().min(0, "Price must be ≥ 0"),
+  currency: z.string().default("USD"),
+  interval: z.enum(["MONTH", "YEAR"]).default("MONTH"),
+  features: z.object({
+    maxDoctors: z.number().default(1),
+    maxPatients: z.number().default(50),
+    maxAppointmentsPerMonth: z.number().default(100),
+    patientPortal: z.boolean().default(false),
+    aiSummary: z.boolean().default(false),
+    customBranding: z.boolean().default(false),
+  }),
+  sortOrder: z.number().optional(),
+});
+
+export const checkoutSubscriptionSchema = z.object({
+  planId: z.string().min(1, "Plan ID is required"),
+});
+
 // ─── Clinic Self-Registration ────────────────────────────
 
 export const registerClinicSchema = z.object({

@@ -19,7 +19,8 @@ import {
   X,
   ShieldCheck,
   Stethoscope,
-  UserRound
+  UserRound,
+  CreditCard,
 } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { LanguageToggle } from "@/components/LanguageToggle";
@@ -43,6 +44,7 @@ const ADMIN_NAV_ITEMS = [
   { href: "/dashboard/analytics", tKey: "nav.analytics", icon: BarChart3 },
   { href: "/dashboard/staff", tKey: "nav.staffManagement", icon: UserCog },
   { href: "/dashboard/settings", tKey: "nav.clinicSettings", icon: Settings },
+  { href: "/dashboard/subscription", tKey: "nav.subscription", icon: CreditCard },
 ];
 
 export default function DashboardLayout({ children }: Props) {

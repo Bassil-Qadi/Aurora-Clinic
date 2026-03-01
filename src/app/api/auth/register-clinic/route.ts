@@ -4,6 +4,7 @@ import { connectDB } from "@/lib/db";
 import Clinic from "@/models/Clinic";
 import { User } from "@/models/User";
 import { registerClinicSchema } from "@/lib/validations";
+import { startFreeTrial } from "@/lib/subscription";
 
 // POST /api/auth/register-clinic — public endpoint
 // Creates a new Clinic and an admin User in a single atomic operation.
@@ -66,12 +67,16 @@ export async function POST(req: Request) {
     clinicId: clinic._id,
   });
 
+  // Start a 14-day free trial for the new clinic
+  const trial = await startFreeTrial(clinic._id.toString());
+
   return NextResponse.json(
     {
       success: true,
       clinicId: clinic._id,
       adminId: adminUser._id,
-      message: "Clinic registered successfully. You can now sign in.",
+      trialEndsAt: trial.trialEndsAt,
+      message: `Clinic registered successfully with a ${trial.trialDays}-day free trial. You can now sign in.`,
     },
     { status: 201 }
   );

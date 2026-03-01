@@ -22,6 +22,18 @@ const ClinicSchema = new mongoose.Schema(
       currency: { type: String, default: "USD" },
       timezone: { type: String, default: "UTC" },
     },
+
+    // ─── Subscription ─────────────────────────────────────────
+    subscriptionStatus: {
+      type: String,
+      enum: ["trialing", "active", "past_due", "suspended", "cancelled", "expired", "none"],
+      default: "none",
+    },
+    subscriptionPlanId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "SubscriptionPlan",
+    },
+    trialEndsAt: { type: Date },
   },
   { timestamps: true }
 );
