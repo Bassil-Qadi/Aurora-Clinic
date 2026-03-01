@@ -8,3 +8,15 @@
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
+
+# Never cache HTML/pages so browsers always get the latest chunk references
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+# Cache static assets forever — safe because filenames are content-hashed
+[[headers]]
+  for = "/_next/static/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
