@@ -108,8 +108,8 @@
     "appointments": "المواعيد",
     "trend": "الاتجاه",
     "monthlyAppointmentsVisits": "المواعيد والزيارات الشهرية",
-    "loadingDashboard": "جاري تحميل لوحة التحكم…",
-    "fetchingOverview": "جاري جلب نظرة عامة على العيادة.",
+    "loadingDashboard": "جاري تحضير لوحة التحكم",
+    "fetchingOverview": "نقوم بجمع أحدث المعلومات والتحديثات للعيادة.",
     "loginToStart": "سجّل دخولك لبدء تسجيل البيانات السريرية…",
     "patientsAppointmentsVisits": "المرضى، المواعيد، الزيارات",
     "doctorSlots": "مواعيد الأطباء",
@@ -318,7 +318,8 @@
     "visitsByDoctor": "الزيارات حسب الطبيب",
     "new": "جديد",
     "completion": "إكمال",
-    "loadingAnalytics": "جاري تحميل التحليلات…"
+    "loadingAnalytics": "جاري تحضير التحليلات",
+    "fetchingAnalytics": "نقوم بتجميع التقارير وإنشاء الرؤى لك."
   },
   "reports": {
     "title": "التقارير المخصصة",
