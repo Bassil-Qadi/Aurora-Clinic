@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Activity, Users, Calendar, Clipboard, Stethoscope, Clock, FileText, User, CalendarCheck, AlertCircle } from "lucide-react";
+import { Activity, Users, Calendar, Clipboard, Stethoscope, Clock, FileText, User, CalendarCheck, AlertCircle, Loader2 } from "lucide-react";
 import { DoctorQueue } from "@/components/DoctorQueue";
 import { DoctorSlots } from "@/components/DoctorSlots";
 import { useI18n } from "@/lib/i18n";
@@ -84,11 +84,35 @@ export default function DashboardHome() {
 
   if (!stats)
     return (
-      <div className="space-y-4">
-        <p className="page-title text-xl">{t("dashboard.loadingDashboard")}</p>
-        <p className="page-subtitle">
-          {t("dashboard.fetchingOverview")}
-        </p>
+      <div className="flex min-h-[60vh] items-center justify-center p-8">
+        <div className="flex flex-col items-center justify-center space-y-6 text-center">
+          {/* Animated Loader */}
+          <div className="relative">
+            <div className="flex h-16 w-16 items-center justify-center">
+              <Loader2 className="h-12 w-12 animate-spin text-sky-500" />
+            </div>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="h-16 w-16 rounded-full border-4 border-sky-200 border-t-sky-500 animate-spin dark:border-sky-800 dark:border-t-sky-400" />
+            </div>
+          </div>
+
+          {/* Loading Text */}
+          <div className="space-y-2">
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">
+              {t("dashboard.loadingDashboard")}
+            </h2>
+            <p className="text-sm text-slate-500 dark:text-slate-400 max-w-md">
+              {t("dashboard.fetchingOverview")}
+            </p>
+          </div>
+
+          {/* Loading Dots Animation */}
+          <div className="flex items-center gap-1.5">
+            <div className="h-2 w-2 rounded-full bg-sky-400 animate-pulse [animation-delay:0ms]" />
+            <div className="h-2 w-2 rounded-full bg-sky-400 animate-pulse [animation-delay:150ms]" />
+            <div className="h-2 w-2 rounded-full bg-sky-400 animate-pulse [animation-delay:300ms]" />
+          </div>
+        </div>
       </div>
     );
 

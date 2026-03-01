@@ -108,8 +108,8 @@
     "appointments": "Appointments",
     "trend": "Trend",
     "monthlyAppointmentsVisits": "Monthly appointments & visits",
-    "loadingDashboard": "Loading dashboard…",
-    "fetchingOverview": "Fetching your clinic overview and activity.",
+    "loadingDashboard": "Preparing your dashboard",
+    "fetchingOverview": "Gathering the latest clinic insights and updates for you.",
     "loginToStart": "Log in to start capturing clinical data…",
     "patientsAppointmentsVisits": "Patients, Appointments, Visits",
     "doctorSlots": "Doctor Slots",
@@ -318,7 +318,8 @@
     "visitsByDoctor": "Visits by Doctor",
     "new": "new",
     "completion": "completion",
-    "loadingAnalytics": "Loading analytics…"
+    "loadingAnalytics": "Preparing analytics",
+    "fetchingAnalytics": "Compiling reports and generating insights for you."
   },
   "reports": {
     "title": "Custom Reports",
