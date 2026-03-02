@@ -39,6 +39,17 @@ export const authOptions: NextAuthOptions = {
 
         if (!isValid) return null;
 
+        // Super admins don't need a clinicId
+        if (user.role === "super_admin") {
+          return {
+            id: user._id.toString(),
+            email: user.email,
+            name: user.name,
+            role: user.role,
+            clinicId: "",
+          };
+        }
+
         // Auto-assign a clinic if old account doesn't have one
         let clinicId = user.clinicId?.toString() || "";
         if (!clinicId) {
@@ -70,8 +81,9 @@ export const authOptions: NextAuthOptions = {
       }
 
       // If clinicId is missing from an existing session token,
-      // do a one-time DB lookup to recover it (fixes old sessions)
-      if (token.id && !token.clinicId) {
+      // do a one-time DB lookup to recover it (fixes old sessions).
+      // Super admins don't need a clinicId — skip the recovery for them.
+      if (token.id && !token.clinicId && token.role !== "super_admin") {
         try {
           await connectDB();
           const dbUser = await User.findById(token.id).select("clinicId").lean();

@@ -1,7 +1,7 @@
 "use client";
 
-import { signIn } from "next-auth/react";
-import { useState } from "react";
+import { signIn, useSession } from "next-auth/react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Lock, Mail, LogIn, KeyRound, Heart, Building2 } from "lucide-react";
@@ -11,10 +11,20 @@ import { Logo } from "@/components/Logo";
 export default function LoginPage() {
   const { t } = useI18n();
   const router = useRouter();
+  const { data: session, status } = useSession();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // If already logged in, redirect to the appropriate dashboard
+  useEffect(() => {
+    if (status === "authenticated" && session?.user) {
+      router.replace(
+        session.user.role === "super_admin" ? "/super-admin" : "/dashboard"
+      );
+    }
+  }, [status, session, router]);
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -29,7 +39,11 @@ export default function LoginPage() {
       });
 
       if (res?.ok) {
-        router.push("/dashboard");
+        // Fetch the session to check the role before redirecting
+        const sessionRes = await fetch("/api/auth/session");
+        const sessionData = await sessionRes.json();
+        const role = sessionData?.user?.role;
+        router.push(role === "super_admin" ? "/super-admin" : "/dashboard");
       } else {
         setError("Invalid email or password. Please try again.");
       }
