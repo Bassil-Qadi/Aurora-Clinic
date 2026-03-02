@@ -2,7 +2,7 @@
 
 import { ReactNode, useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import {
   Activity,
@@ -26,8 +26,6 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { Logo, LogoMark } from "@/components/Logo";
 import { useI18n } from "@/lib/i18n";
-import { User } from "@/models/User";
-
 type Props = {
   children: ReactNode;
 };
@@ -50,9 +48,17 @@ const ADMIN_NAV_ITEMS = [
 export default function DashboardLayout({ children }: Props) {
   const { data: session } = useSession();
   const pathname = usePathname();
+  const router = useRouter();
   const { t, dir } = useI18n();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [clinicName, setClinicName] = useState<string | null>(null);
+
+  // Redirect super_admin to their own dashboard
+  useEffect(() => {
+    if (session?.user?.role === "super_admin") {
+      router.replace("/super-admin");
+    }
+  }, [session?.user?.role, router]);
 
   // Fetch clinic name once the session is available
   useEffect(() => {

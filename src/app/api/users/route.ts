@@ -18,6 +18,7 @@ export async function GET(req: Request) {
   const query: Record<string, any> = {
     clinicId: user.clinicId,
     isActive: true,
+    role: { $ne: "super_admin" }, // never expose super_admin in clinic lists
   };
 
   if (roleParam) {
