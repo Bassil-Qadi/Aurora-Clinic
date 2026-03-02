@@ -24,7 +24,7 @@ export async function GET() {
 // Admin-only: create a new plan (also syncs to PayPal)
 export async function POST(req: Request) {
   const auth = await requireAuth(["admin"]);
-//   if (!auth.success) return auth.response;
+  if (!auth.success) return auth.response;
 
   await connectDB();
 
