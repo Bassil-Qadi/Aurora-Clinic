@@ -14,6 +14,7 @@ import {
   Shield,
   X,
 } from "lucide-react";
+import { useI18n } from "@/lib/i18n";
 
 interface UserItem {
   _id: string;
@@ -40,6 +41,7 @@ const ROLE_BADGES: Record<string, string> = {
 };
 
 export default function UsersPage() {
+  const { t } = useI18n();
   const [users, setUsers] = useState<UserItem[]>([]);
   const [pagination, setPagination] = useState<Pagination>({ page: 1, limit: 20, total: 0, totalPages: 0 });
   const [search, setSearch] = useState("");
@@ -59,11 +61,11 @@ export default function UsersPage() {
       setUsers(data.users || []);
       setPagination(data.pagination || { page: 1, limit: 20, total: 0, totalPages: 0 });
     } catch {
-      setMsg({ type: "error", text: "Failed to load users." });
+      setMsg({ type: "error", text: t("superAdmin.users.loadFailed") });
     } finally {
       setLoading(false);
     }
-  }, [search, roleFilter]);
+  }, [search, roleFilter, t]);
 
   useEffect(() => {
     fetchUsers(1);
@@ -77,7 +79,7 @@ export default function UsersPage() {
         body: JSON.stringify({ isActive: !user.isActive }),
       });
       if (res.ok) {
-        setMsg({ type: "success", text: `User ${user.isActive ? "deactivated" : "activated"}.` });
+        setMsg({ type: "success", text: user.isActive ? t("superAdmin.users.deactivated") : t("superAdmin.users.activated") });
         fetchUsers(pagination.page);
       }
     } catch {}
@@ -88,10 +90,10 @@ export default function UsersPage() {
       <div>
         <h1 className="page-title">
           <Users className="h-6 w-6 text-indigo-500" />
-          <span>Users</span>
+          <span>{t("superAdmin.users.title")}</span>
         </h1>
         <p className="page-subtitle mt-1">
-          All users across every clinic ({pagination.total})
+          {t("superAdmin.users.subtitle", { count: String(pagination.total) })}
         </p>
       </div>
 
@@ -105,10 +107,10 @@ export default function UsersPage() {
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-3">
         <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+          <Search className="absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
           <input
-            className="input pl-10"
-            placeholder="Search by name or email..."
+            className="input ps-10"
+            placeholder={t("superAdmin.users.searchPlaceholder")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -118,11 +120,11 @@ export default function UsersPage() {
           value={roleFilter}
           onChange={(e) => setRoleFilter(e.target.value)}
         >
-          <option value="">All roles</option>
-          <option value="admin">Admin</option>
-          <option value="doctor">Doctor</option>
-          <option value="receptionist">Receptionist</option>
-          <option value="super_admin">Super Admin</option>
+          <option value="">{t("superAdmin.users.allRoles")}</option>
+          <option value="admin">{t("common.admin")}</option>
+          <option value="doctor">{t("common.doctor")}</option>
+          <option value="receptionist">{t("common.receptionist")}</option>
+          <option value="super_admin">{t("superAdmin.title")}</option>
         </select>
       </div>
 
@@ -130,7 +132,7 @@ export default function UsersPage() {
       {loading ? (
         <div className="card text-center py-10">
           <Loader2 className="h-6 w-6 mx-auto animate-spin text-indigo-500" />
-          <p className="mt-2 text-sm text-slate-500">Loading users...</p>
+          <p className="mt-2 text-sm text-slate-500">{t("superAdmin.users.loading")}</p>
         </div>
       ) : (
         <>
@@ -138,20 +140,20 @@ export default function UsersPage() {
             <table className="table">
               <thead>
                 <tr>
-                  <th>Name</th>
-                  <th>Email</th>
-                  <th>Role</th>
-                  <th>Clinic</th>
-                  <th>Status</th>
-                  <th>Joined</th>
-                  <th className="text-right">Actions</th>
+                  <th>{t("common.name")}</th>
+                  <th>{t("common.email")}</th>
+                  <th>{t("common.role")}</th>
+                  <th>{t("superAdmin.users.clinic")}</th>
+                  <th>{t("common.status")}</th>
+                  <th>{t("superAdmin.users.joined")}</th>
+                  <th className="text-end">{t("common.actions")}</th>
                 </tr>
               </thead>
               <tbody>
                 {users.length === 0 ? (
                   <tr>
                     <td colSpan={7} className="text-center py-8 text-slate-500">
-                      No users found.
+                      {t("superAdmin.users.noUsers")}
                     </td>
                   </tr>
                 ) : (
@@ -187,7 +189,7 @@ export default function UsersPage() {
                             : "bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400"
                         }`}>
                           <span className={`h-1.5 w-1.5 rounded-full ${user.isActive ? "bg-emerald-500" : "bg-slate-400"}`} />
-                          {user.isActive ? "Active" : "Inactive"}
+                          {user.isActive ? t("superAdmin.common.active") : t("superAdmin.common.inactive")}
                         </span>
                       </td>
                       <td className="text-slate-500 text-xs">
@@ -199,7 +201,7 @@ export default function UsersPage() {
                             <button
                               onClick={() => toggleActive(user)}
                               className="btn-ghost"
-                              title={user.isActive ? "Deactivate" : "Activate"}
+                              title={user.isActive ? t("superAdmin.clinicDetail.deactivate") : t("superAdmin.clinicDetail.activate")}
                             >
                               {user.isActive ? (
                                 <ToggleRight className="h-4 w-4 text-emerald-500" />
@@ -221,7 +223,7 @@ export default function UsersPage() {
           {pagination.totalPages > 1 && (
             <div className="flex items-center justify-between text-sm">
               <p className="text-slate-500">
-                Page {pagination.page} of {pagination.totalPages} ({pagination.total} users)
+                {t("superAdmin.users.page", { page: String(pagination.page), totalPages: String(pagination.totalPages), total: String(pagination.total) })}
               </p>
               <div className="flex gap-2">
                 <button

@@ -25,6 +25,7 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
+import { useI18n } from "@/lib/i18n";
 
 interface Stats {
   totalClinics: number;
@@ -63,6 +64,7 @@ const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Se
 export default function SuperAdminOverview() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
+  const { t } = useI18n();
 
   useEffect(() => {
     fetch("/api/super-admin/stats")
@@ -78,16 +80,16 @@ export default function SuperAdminOverview() {
         <div className="flex flex-col items-center space-y-4">
           <Loader2 className="h-10 w-10 animate-spin text-indigo-500" />
           <p className="text-sm text-slate-500 dark:text-slate-400">
-            Loading system overview...
+            {t("superAdmin.overview.loading")}
           </p>
         </div>
       </div>
     );
   }
 
-  const trendData = stats.clinicsTrend.map((t) => ({
-    month: MONTH_NAMES[t._id.month - 1],
-    clinics: t.count,
+  const trendData = stats.clinicsTrend.map((item) => ({
+    month: MONTH_NAMES[item._id.month - 1],
+    clinics: item.count,
   }));
 
   const subData = stats.subscriptionsByStatus.map((s) => ({
@@ -106,10 +108,10 @@ export default function SuperAdminOverview() {
       <div>
         <h1 className="page-title">
           <TrendingUp className="h-6 w-6 text-indigo-500" />
-          <span>System Overview</span>
+          <span>{t("superAdmin.overview.title")}</span>
         </h1>
         <p className="page-subtitle mt-1">
-          Real-time metrics across all clinics
+          {t("superAdmin.overview.subtitle")}
         </p>
       </div>
 
@@ -119,7 +121,7 @@ export default function SuperAdminOverview() {
           <div className="flex items-start justify-between">
             <div>
               <p className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                Total Clinics
+                {t("superAdmin.overview.totalClinics")}
               </p>
               <p className="mt-2 text-2xl font-semibold text-slate-900 dark:text-slate-100">
                 {stats.totalClinics}
@@ -129,10 +131,10 @@ export default function SuperAdminOverview() {
           </div>
           <div className="mt-2 flex items-center gap-1 text-xs">
             <span className="font-medium text-emerald-600 dark:text-emerald-400">
-              {stats.activeClinics} active
+              {stats.activeClinics} {t("superAdmin.overview.active")}
             </span>
             <span className="text-slate-400">
-              · +{stats.newClinicsThisMonth} this month
+              · +{stats.newClinicsThisMonth} {t("superAdmin.overview.thisMonth")}
             </span>
           </div>
         </div>
@@ -141,7 +143,7 @@ export default function SuperAdminOverview() {
           <div className="flex items-start justify-between">
             <div>
               <p className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                Total Users
+                {t("superAdmin.overview.totalUsers")}
               </p>
               <p className="mt-2 text-2xl font-semibold text-slate-900 dark:text-slate-100">
                 {stats.totalUsers}
@@ -150,7 +152,7 @@ export default function SuperAdminOverview() {
             <Users className="h-5 w-5 text-indigo-500" />
           </div>
           <div className="mt-2 flex items-center gap-1 text-xs text-slate-400">
-            Staff across all clinics
+            {t("superAdmin.overview.staffAcrossClinics")}
           </div>
         </div>
 
@@ -158,7 +160,7 @@ export default function SuperAdminOverview() {
           <div className="flex items-start justify-between">
             <div>
               <p className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                Total Patients
+                {t("superAdmin.overview.totalPatients")}
               </p>
               <p className="mt-2 text-2xl font-semibold text-slate-900 dark:text-slate-100">
                 {stats.totalPatients}
@@ -167,7 +169,7 @@ export default function SuperAdminOverview() {
             <UserCheck className="h-5 w-5 text-emerald-500" />
           </div>
           <div className="mt-2 flex items-center gap-1 text-xs text-slate-400">
-            Registered patients system-wide
+            {t("superAdmin.overview.registeredPatients")}
           </div>
         </div>
 
@@ -175,7 +177,7 @@ export default function SuperAdminOverview() {
           <div className="flex items-start justify-between">
             <div>
               <p className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                Monthly Revenue
+                {t("superAdmin.overview.monthlyRevenue")}
               </p>
               <p className="mt-2 text-2xl font-semibold text-slate-900 dark:text-slate-100">
                 ${stats.mrr.toFixed(2)}
@@ -188,7 +190,7 @@ export default function SuperAdminOverview() {
             <span className="font-medium text-indigo-600 dark:text-indigo-400">
               {stats.activeSubscriptions}
             </span>
-            <span className="text-slate-400">active subscriptions</span>
+            <span className="text-slate-400">{t("superAdmin.overview.activeSubscriptions")}</span>
           </div>
         </div>
       </div>
@@ -199,7 +201,7 @@ export default function SuperAdminOverview() {
           <div className="flex items-start justify-between">
             <div>
               <p className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                Total Appointments
+                {t("superAdmin.overview.totalAppointments")}
               </p>
               <p className="mt-2 text-2xl font-semibold text-slate-900 dark:text-slate-100">
                 {stats.totalAppointments}
@@ -209,7 +211,7 @@ export default function SuperAdminOverview() {
           </div>
           <div className="mt-2 flex items-center gap-1 text-xs">
             <span className="font-medium text-sky-600 dark:text-sky-400">
-              {stats.appointmentsToday} today
+              {stats.appointmentsToday} {t("superAdmin.overview.today")}
             </span>
           </div>
         </div>
@@ -218,7 +220,7 @@ export default function SuperAdminOverview() {
           <div className="flex items-start justify-between">
             <div>
               <p className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                Total Visits
+                {t("superAdmin.overview.totalVisits")}
               </p>
               <p className="mt-2 text-2xl font-semibold text-slate-900 dark:text-slate-100">
                 {stats.totalVisits}
@@ -232,7 +234,7 @@ export default function SuperAdminOverview() {
           <div className="flex items-start justify-between">
             <div>
               <p className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                Active Clinics
+                {t("superAdmin.overview.activeClinics")}
               </p>
               <p className="mt-2 text-2xl font-semibold text-slate-900 dark:text-slate-100">
                 {stats.activeClinics}
@@ -241,7 +243,7 @@ export default function SuperAdminOverview() {
             <Building2 className="h-5 w-5 text-emerald-500" />
           </div>
           <div className="mt-2 flex items-center gap-1 text-xs text-slate-400">
-            {stats.totalClinics - stats.activeClinics} inactive
+            {stats.totalClinics - stats.activeClinics} {t("superAdmin.overview.inactive")}
           </div>
         </div>
       </div>
@@ -250,7 +252,7 @@ export default function SuperAdminOverview() {
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Subscription status breakdown */}
         <div className="card">
-          <h3 className="card-title mb-4">Subscription Status Distribution</h3>
+          <h3 className="card-title mb-4">{t("superAdmin.overview.subscriptionStatus")}</h3>
           <ResponsiveContainer width="100%" height={280}>
             <PieChart>
               <Pie
@@ -276,7 +278,7 @@ export default function SuperAdminOverview() {
 
         {/* New clinics trend */}
         <div className="card">
-          <h3 className="card-title mb-4">New Clinics (Last 6 Months)</h3>
+          <h3 className="card-title mb-4">{t("superAdmin.overview.newClinics")}</h3>
           {trendData.length > 0 ? (
             <ResponsiveContainer width="100%" height={280}>
               <BarChart data={trendData}>
@@ -289,7 +291,7 @@ export default function SuperAdminOverview() {
             </ResponsiveContainer>
           ) : (
             <div className="flex h-[280px] items-center justify-center text-sm text-slate-400">
-              No data yet
+              {t("superAdmin.overview.noData")}
             </div>
           )}
         </div>
@@ -297,7 +299,7 @@ export default function SuperAdminOverview() {
 
       {/* Users by role */}
       <div className="card">
-        <h3 className="card-title mb-4">Users by Role</h3>
+        <h3 className="card-title mb-4">{t("superAdmin.overview.usersByRole")}</h3>
         <div className="grid grid-cols-3 gap-4">
           {roleData.map((role) => (
             <div

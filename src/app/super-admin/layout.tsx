@@ -5,7 +5,6 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import {
-  Activity,
   Building2,
   Users,
   CreditCard,
@@ -18,23 +17,25 @@ import {
   LayoutDashboard,
 } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { Logo, LogoMark } from "@/components/Logo";
+import { LanguageToggle } from "@/components/LanguageToggle";
+import { useI18n } from "@/lib/i18n";
 
 type Props = { children: ReactNode };
 
 const NAV_ITEMS = [
-  { href: "/super-admin", label: "Overview", icon: LayoutDashboard },
-  { href: "/super-admin/clinics", label: "Clinics", icon: Building2 },
-  { href: "/super-admin/users", label: "Users", icon: Users },
-  { href: "/super-admin/subscriptions", label: "Subscriptions", icon: CreditCard },
-  { href: "/super-admin/plans", label: "Plans", icon: FileText },
-  { href: "/super-admin/audit-logs", label: "Audit Logs", icon: ScrollText },
+  { href: "/super-admin", tKey: "superAdmin.nav.overview", icon: LayoutDashboard },
+  { href: "/super-admin/clinics", tKey: "superAdmin.nav.clinics", icon: Building2 },
+  { href: "/super-admin/users", tKey: "superAdmin.nav.users", icon: Users },
+  { href: "/super-admin/subscriptions", tKey: "superAdmin.nav.subscriptions", icon: CreditCard },
+  { href: "/super-admin/plans", tKey: "superAdmin.nav.plans", icon: FileText },
+  { href: "/super-admin/audit-logs", tKey: "superAdmin.nav.auditLogs", icon: ScrollText },
 ];
 
 export default function SuperAdminLayout({ children }: Props) {
   const { data: session, status } = useSession();
   const pathname = usePathname();
   const router = useRouter();
+  const { t, dir } = useI18n();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Auth guard
@@ -87,10 +88,10 @@ export default function SuperAdminLayout({ children }: Props) {
         </div>
         <div className="min-w-0 flex-1">
           <h2 className="truncate text-sm font-semibold tracking-tight text-slate-900 dark:text-slate-100">
-            Super Admin
+            {t("superAdmin.title")}
           </h2>
           <p className="text-xs text-slate-500 dark:text-slate-400">
-            System Management
+            {t("superAdmin.systemManagement")}
           </p>
         </div>
         <button
@@ -113,7 +114,7 @@ export default function SuperAdminLayout({ children }: Props) {
             >
               <span className="flex items-center gap-2">
                 <Icon className="h-4 w-4" />
-                <span>{item.label}</span>
+                <span>{t(item.tKey)}</span>
               </span>
             </Link>
           );
@@ -130,11 +131,12 @@ export default function SuperAdminLayout({ children }: Props) {
                 {session.user.name}
               </p>
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                Super Admin
+                {t("superAdmin.title")}
               </p>
             </div>
           </div>
           <div className="flex shrink-0 items-center gap-1.5">
+            <LanguageToggle />
             <ThemeToggle />
           </div>
         </div>
@@ -143,7 +145,7 @@ export default function SuperAdminLayout({ children }: Props) {
           className="btn-secondary w-full justify-center text-xs"
         >
           <LogOut className="h-4 w-4" />
-          <span>Sign Out</span>
+          <span>{t("superAdmin.signOut")}</span>
         </button>
       </div>
     </>
@@ -162,7 +164,7 @@ export default function SuperAdminLayout({ children }: Props) {
         <div className="flex items-center gap-2">
           <ShieldCheck className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
           <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-            Super Admin
+            {t("superAdmin.title")}
           </span>
         </div>
         <div className="w-10" />
@@ -179,7 +181,7 @@ export default function SuperAdminLayout({ children }: Props) {
       {/* Sidebar */}
       <aside
         className={`fixed inset-y-0 start-0 z-50 flex w-72 flex-col rounded-e-3xl bg-white/95 p-5 shadow-xl ring-1 ring-slate-100 backdrop-blur-md transition-transform duration-300 dark:bg-slate-900/95 dark:ring-slate-800 lg:static lg:z-auto lg:w-64 lg:translate-x-0 lg:rounded-3xl lg:shadow-sm ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+          sidebarOpen ? "translate-x-0" : dir === "rtl" ? "translate-x-full" : "-translate-x-full"
         }`}
       >
         {sidebarContent}

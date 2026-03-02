@@ -16,6 +16,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
+import { useI18n } from "@/lib/i18n";
 
 interface Clinic {
   _id: string;
@@ -49,6 +50,7 @@ const STATUS_BADGE: Record<string, string> = {
 };
 
 export default function ClinicsPage() {
+  const { t } = useI18n();
   const [clinics, setClinics] = useState<Clinic[]>([]);
   const [pagination, setPagination] = useState<Pagination>({ page: 1, limit: 20, total: 0, totalPages: 0 });
   const [search, setSearch] = useState("");
@@ -76,11 +78,11 @@ export default function ClinicsPage() {
       setClinics(data.clinics || []);
       setPagination(data.pagination || { page: 1, limit: 20, total: 0, totalPages: 0 });
     } catch {
-      setMsg({ type: "error", text: "Failed to load clinics." });
+      setMsg({ type: "error", text: t("superAdmin.clinics.loadFailed") });
     } finally {
       setLoading(false);
     }
-  }, [search, statusFilter]);
+  }, [search, statusFilter, t]);
 
   useEffect(() => {
     fetchClinics(1);
@@ -96,15 +98,15 @@ export default function ClinicsPage() {
       });
       const data = await res.json();
       if (!res.ok) {
-        setMsg({ type: "error", text: data.error || "Failed to create clinic." });
+        setMsg({ type: "error", text: data.error || t("superAdmin.clinics.createFailed") });
         return;
       }
-      setMsg({ type: "success", text: `Clinic "${data.name}" created.` });
+      setMsg({ type: "success", text: t("superAdmin.clinics.createSuccess", { name: data.name }) });
       setShowCreate(false);
       setFormName(""); setFormEmail(""); setFormPhone(""); setFormAddress("");
       fetchClinics(1);
     } catch {
-      setMsg({ type: "error", text: "Failed to create clinic." });
+      setMsg({ type: "error", text: t("superAdmin.clinics.createFailed") });
     } finally {
       setSaving(false);
     }
@@ -118,7 +120,7 @@ export default function ClinicsPage() {
         body: JSON.stringify({ isActive: !clinic.isActive }),
       });
       if (res.ok) {
-        setMsg({ type: "success", text: `Clinic ${clinic.isActive ? "deactivated" : "activated"}.` });
+        setMsg({ type: "success", text: clinic.isActive ? t("superAdmin.clinics.deactivated") : t("superAdmin.clinics.activated") });
         fetchClinics(pagination.page);
       }
     } catch {}
@@ -137,15 +139,15 @@ export default function ClinicsPage() {
         <div>
           <h1 className="page-title">
             <Building2 className="h-6 w-6 text-indigo-500" />
-            <span>Clinics</span>
+            <span>{t("superAdmin.clinics.title")}</span>
           </h1>
           <p className="page-subtitle mt-1">
-            Manage all registered clinics ({pagination.total})
+            {t("superAdmin.clinics.subtitle", { count: String(pagination.total) })}
           </p>
         </div>
         <button onClick={() => setShowCreate(true)} className="btn-primary">
           <Plus className="h-4 w-4" />
-          <span>Add Clinic</span>
+          <span>{t("superAdmin.clinics.addClinic")}</span>
         </button>
       </div>
 
@@ -154,10 +156,10 @@ export default function ClinicsPage() {
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-3">
         <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+          <Search className="absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
           <input
-            className="input pl-10"
-            placeholder="Search by name, email or slug..."
+            className="input ps-10"
+            placeholder={t("superAdmin.clinics.searchPlaceholder")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -167,7 +169,7 @@ export default function ClinicsPage() {
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
         >
-          <option value="">All subscriptions</option>
+          <option value="">{t("superAdmin.clinics.allSubscriptions")}</option>
           <option value="active">Active</option>
           <option value="trialing">Trialing</option>
           <option value="past_due">Past Due</option>
@@ -182,7 +184,7 @@ export default function ClinicsPage() {
       {loading ? (
         <div className="card text-center py-10">
           <Loader2 className="h-6 w-6 mx-auto animate-spin text-indigo-500" />
-          <p className="mt-2 text-sm text-slate-500">Loading clinics...</p>
+          <p className="mt-2 text-sm text-slate-500">{t("superAdmin.clinics.loading")}</p>
         </div>
       ) : (
         <>
@@ -190,20 +192,20 @@ export default function ClinicsPage() {
             <table className="table">
               <thead>
                 <tr>
-                  <th>Clinic</th>
-                  <th>Subscription</th>
-                  <th>Users</th>
-                  <th>Patients</th>
-                  <th>Status</th>
-                  <th>Created</th>
-                  <th className="text-right">Actions</th>
+                  <th>{t("superAdmin.clinics.clinicName")}</th>
+                  <th>{t("superAdmin.clinics.subscription")}</th>
+                  <th>{t("superAdmin.clinics.users")}</th>
+                  <th>{t("superAdmin.clinics.patients")}</th>
+                  <th>{t("superAdmin.clinics.status")}</th>
+                  <th>{t("superAdmin.clinics.created")}</th>
+                  <th className="text-end">{t("superAdmin.clinics.actions")}</th>
                 </tr>
               </thead>
               <tbody>
                 {clinics.length === 0 ? (
                   <tr>
                     <td colSpan={7} className="text-center py-8 text-slate-500">
-                      No clinics found.
+                      {t("superAdmin.clinics.noClinics")}
                     </td>
                   </tr>
                 ) : (
@@ -244,7 +246,7 @@ export default function ClinicsPage() {
                             : "bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400"
                         }`}>
                           <span className={`h-1.5 w-1.5 rounded-full ${clinic.isActive ? "bg-emerald-500" : "bg-slate-400"}`} />
-                          {clinic.isActive ? "Active" : "Inactive"}
+                          {clinic.isActive ? t("superAdmin.clinics.active") : t("superAdmin.clinics.inactive")}
                         </span>
                       </td>
                       <td className="text-slate-500 text-xs">
@@ -255,14 +257,14 @@ export default function ClinicsPage() {
                           <Link
                             href={`/super-admin/clinics/${clinic._id}`}
                             className="btn-ghost"
-                            title="View detail"
+                            title={t("common.view")}
                           >
                             <ExternalLink className="h-3.5 w-3.5" />
                           </Link>
                           <button
                             onClick={() => toggleActive(clinic)}
                             className="btn-ghost"
-                            title={clinic.isActive ? "Deactivate" : "Activate"}
+                            title={clinic.isActive ? t("superAdmin.clinicDetail.deactivate") : t("superAdmin.clinicDetail.activate")}
                           >
                             {clinic.isActive ? (
                               <ToggleRight className="h-4 w-4 text-emerald-500" />
@@ -283,7 +285,7 @@ export default function ClinicsPage() {
           {pagination.totalPages > 1 && (
             <div className="flex items-center justify-between text-sm">
               <p className="text-slate-500">
-                Page {pagination.page} of {pagination.totalPages} ({pagination.total} clinics)
+                {t("superAdmin.clinics.page", { page: String(pagination.page), totalPages: String(pagination.totalPages), total: String(pagination.total) })}
               </p>
               <div className="flex gap-2">
                 <button
@@ -313,32 +315,32 @@ export default function ClinicsPage() {
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
                 <Building2 className="h-5 w-5 text-indigo-500" />
-                New Clinic
+                {t("superAdmin.clinics.newClinic")}
               </h2>
               <button onClick={() => setShowCreate(false)} className="btn-ghost"><X className="h-4 w-4" /></button>
             </div>
 
             <div>
-              <label className="form-label">Clinic Name *</label>
+              <label className="form-label">{t("superAdmin.clinics.clinicName")} *</label>
               <input className="input" placeholder="Aurora Medical Center" value={formName} onChange={(e) => setFormName(e.target.value)} />
             </div>
             <div>
-              <label className="form-label">Email</label>
+              <label className="form-label">{t("common.email")}</label>
               <input className="input" type="email" placeholder="info@clinic.com" value={formEmail} onChange={(e) => setFormEmail(e.target.value)} />
             </div>
             <div>
-              <label className="form-label">Phone</label>
+              <label className="form-label">{t("common.phone")}</label>
               <input className="input" placeholder="+1 234 567 890" value={formPhone} onChange={(e) => setFormPhone(e.target.value)} />
             </div>
             <div>
-              <label className="form-label">Address</label>
+              <label className="form-label">{t("common.address")}</label>
               <input className="input" placeholder="123 Medical Drive" value={formAddress} onChange={(e) => setFormAddress(e.target.value)} />
             </div>
 
             <div className="flex justify-end gap-2 pt-2">
-              <button onClick={() => setShowCreate(false)} className="btn-secondary">Cancel</button>
+              <button onClick={() => setShowCreate(false)} className="btn-secondary">{t("common.cancel")}</button>
               <button onClick={handleCreate} disabled={saving || !formName} className="btn-primary">
-                {saving ? "Creating..." : "Create Clinic"}
+                {saving ? t("common.creating") : t("superAdmin.clinics.addClinic")}
               </button>
             </div>
           </div>

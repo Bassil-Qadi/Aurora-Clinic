@@ -18,6 +18,7 @@ import {
   Loader2,
   Save,
 } from "lucide-react";
+import { useI18n } from "@/lib/i18n";
 
 interface ClinicDetail {
   _id: string;
@@ -64,6 +65,7 @@ const SUB_BADGE: Record<string, string> = {
 export default function ClinicDetailPage() {
   const { id } = useParams();
   const router = useRouter();
+  const { t } = useI18n();
   const [clinic, setClinic] = useState<ClinicDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -85,9 +87,9 @@ export default function ClinicDetailPage() {
         setEditPhone(d.phone || "");
         setEditAddress(d.address || "");
       })
-      .catch(() => setMsg({ type: "error", text: "Failed to load clinic." }))
+      .catch(() => setMsg({ type: "error", text: t("superAdmin.clinicDetail.loadFailed") }))
       .finally(() => setLoading(false));
-  }, [id]);
+  }, [id, t]);
 
   const handleSave = async () => {
     setSaving(true);
@@ -100,13 +102,13 @@ export default function ClinicDetailPage() {
       if (res.ok) {
         const updated = await res.json();
         setClinic((prev) => prev ? { ...prev, ...updated } : prev);
-        setMsg({ type: "success", text: "Clinic updated." });
+        setMsg({ type: "success", text: t("superAdmin.clinicDetail.clinicUpdated") });
       } else {
         const err = await res.json();
-        setMsg({ type: "error", text: err.error || "Failed to update." });
+        setMsg({ type: "error", text: err.error || t("superAdmin.clinicDetail.updateFailed") });
       }
     } catch {
-      setMsg({ type: "error", text: "Failed to update." });
+      setMsg({ type: "error", text: t("superAdmin.clinicDetail.updateFailed") });
     } finally {
       setSaving(false);
     }
@@ -122,7 +124,7 @@ export default function ClinicDetailPage() {
       });
       if (res.ok) {
         setClinic((prev) => prev ? { ...prev, isActive: !prev.isActive } : prev);
-        setMsg({ type: "success", text: clinic.isActive ? "Clinic deactivated." : "Clinic activated." });
+        setMsg({ type: "success", text: clinic.isActive ? t("superAdmin.clinicDetail.clinicDeactivated") : t("superAdmin.clinicDetail.clinicActivated") });
       }
     } catch {}
   };
@@ -138,9 +140,9 @@ export default function ClinicDetailPage() {
   if (!clinic) {
     return (
       <div className="p-8 text-center">
-        <p className="text-slate-500">Clinic not found.</p>
+        <p className="text-slate-500">{t("superAdmin.clinicDetail.clinicNotFound")}</p>
         <Link href="/super-admin/clinics" className="btn-secondary mt-4">
-          <ArrowLeft className="h-4 w-4" /> Back to Clinics
+          <ArrowLeft className="h-4 w-4" /> {t("superAdmin.clinicDetail.backToClinics")}
         </Link>
       </div>
     );
@@ -152,18 +154,18 @@ export default function ClinicDetailPage() {
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <Link href="/super-admin/clinics" className="mb-2 inline-flex items-center gap-1 text-xs text-slate-500 hover:text-indigo-600">
-            <ArrowLeft className="h-3 w-3" /> Back to Clinics
+            <ArrowLeft className="h-3 w-3" /> {t("superAdmin.clinicDetail.backToClinics")}
           </Link>
           <h1 className="page-title">
             <Building2 className="h-6 w-6 text-indigo-500" />
             <span>{clinic.name}</span>
           </h1>
-          <p className="page-subtitle mt-1">{clinic.slug} · Created {new Date(clinic.createdAt).toLocaleDateString()}</p>
+          <p className="page-subtitle mt-1">{clinic.slug} · {t("superAdmin.clinics.created")} {new Date(clinic.createdAt).toLocaleDateString()}</p>
         </div>
         <div className="flex items-center gap-2">
           <button onClick={toggleActive} className={clinic.isActive ? "btn-danger" : "btn-success"}>
             {clinic.isActive ? <ToggleRight className="h-4 w-4" /> : <ToggleLeft className="h-4 w-4" />}
-            <span>{clinic.isActive ? "Deactivate" : "Activate"}</span>
+            <span>{clinic.isActive ? t("superAdmin.clinicDetail.deactivate") : t("superAdmin.clinicDetail.activate")}</span>
           </button>
         </div>
       </div>
@@ -179,7 +181,7 @@ export default function ClinicDetailPage() {
         <div className="card">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">Staff</p>
+              <p className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">{t("superAdmin.clinicDetail.staff")}</p>
               <p className="mt-2 text-2xl font-semibold text-slate-900 dark:text-slate-100">{clinic.staff.length}</p>
             </div>
             <Users className="h-5 w-5 text-indigo-500" />
@@ -188,7 +190,7 @@ export default function ClinicDetailPage() {
         <div className="card">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">Patients</p>
+              <p className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">{t("superAdmin.clinicDetail.patients")}</p>
               <p className="mt-2 text-2xl font-semibold text-slate-900 dark:text-slate-100">{clinic.patientCount}</p>
             </div>
             <UserCheck className="h-5 w-5 text-emerald-500" />
@@ -197,7 +199,7 @@ export default function ClinicDetailPage() {
         <div className="card">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">Appointments</p>
+              <p className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">{t("superAdmin.clinicDetail.appointments")}</p>
               <p className="mt-2 text-2xl font-semibold text-slate-900 dark:text-slate-100">{clinic.appointmentCount}</p>
             </div>
             <Calendar className="h-5 w-5 text-sky-500" />
@@ -206,7 +208,7 @@ export default function ClinicDetailPage() {
         <div className="card">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">Visits</p>
+              <p className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">{t("superAdmin.clinicDetail.visits")}</p>
               <p className="mt-2 text-2xl font-semibold text-slate-900 dark:text-slate-100">{clinic.visitCount}</p>
             </div>
             <Stethoscope className="h-5 w-5 text-emerald-500" />
@@ -219,27 +221,27 @@ export default function ClinicDetailPage() {
         <div className="card space-y-4">
           <h2 className="card-title flex items-center gap-2">
             <Building2 className="h-4 w-4 text-indigo-500" />
-            Clinic Information
+            {t("superAdmin.clinicDetail.clinicInfo")}
           </h2>
           <div>
-            <label className="form-label">Name</label>
+            <label className="form-label">{t("common.name")}</label>
             <input className="input" value={editName} onChange={(e) => setEditName(e.target.value)} />
           </div>
           <div>
-            <label className="form-label">Email</label>
+            <label className="form-label">{t("common.email")}</label>
             <input className="input" value={editEmail} onChange={(e) => setEditEmail(e.target.value)} />
           </div>
           <div>
-            <label className="form-label">Phone</label>
+            <label className="form-label">{t("common.phone")}</label>
             <input className="input" value={editPhone} onChange={(e) => setEditPhone(e.target.value)} />
           </div>
           <div>
-            <label className="form-label">Address</label>
+            <label className="form-label">{t("common.address")}</label>
             <input className="input" value={editAddress} onChange={(e) => setEditAddress(e.target.value)} />
           </div>
           <button onClick={handleSave} disabled={saving} className="btn-primary">
             <Save className="h-4 w-4" />
-            {saving ? "Saving..." : "Save Changes"}
+            {saving ? t("common.saving") : t("common.saveChanges")}
           </button>
         </div>
 
@@ -248,21 +250,21 @@ export default function ClinicDetailPage() {
           <div className="card space-y-3">
             <h2 className="card-title flex items-center gap-2">
               <CreditCard className="h-4 w-4 text-indigo-500" />
-              Subscription
+              {t("superAdmin.clinicDetail.subscription")}
             </h2>
             <div className="flex items-center gap-2">
               <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${SUB_BADGE[clinic.subscriptionStatus] || SUB_BADGE.none}`}>
-                {clinic.subscriptionStatus || "none"}
+                {clinic.subscriptionStatus || t("superAdmin.common.none")}
               </span>
               {clinic.subscriptionPlanId && (
                 <span className="text-sm text-slate-700 dark:text-slate-300">
-                  {clinic.subscriptionPlanId.name} — ${clinic.subscriptionPlanId.price}/{clinic.subscriptionPlanId.interval === "YEAR" ? "yr" : "mo"}
+                  {clinic.subscriptionPlanId.name} — ${clinic.subscriptionPlanId.price}/{clinic.subscriptionPlanId.interval === "YEAR" ? t("superAdmin.common.year") : t("superAdmin.common.month")}
                 </span>
               )}
             </div>
             {clinic.trialEndsAt && (
               <p className="text-xs text-slate-500">
-                Trial ends: {new Date(clinic.trialEndsAt).toLocaleDateString()}
+                {t("superAdmin.clinicDetail.trialEnds")} {new Date(clinic.trialEndsAt).toLocaleDateString()}
               </p>
             )}
           </div>
@@ -270,13 +272,13 @@ export default function ClinicDetailPage() {
           {/* Subscription History */}
           {clinic.subscriptions.length > 0 && (
             <div className="card">
-              <h2 className="card-title mb-3">Subscription History</h2>
+              <h2 className="card-title mb-3">{t("superAdmin.clinicDetail.subscriptionHistory")}</h2>
               <div className="space-y-2">
                 {clinic.subscriptions.map((sub: any) => (
                   <div key={sub._id} className="flex items-center justify-between rounded-lg border border-slate-100 p-3 dark:border-slate-800">
                     <div>
                       <p className="text-sm font-medium text-slate-900 dark:text-slate-100">
-                        {sub.planId?.name || "Unknown plan"}
+                        {sub.planId?.name || t("superAdmin.clinicDetail.unknownPlan")}
                       </p>
                       <p className="text-xs text-slate-500">
                         {sub.currentPeriodStart && new Date(sub.currentPeriodStart).toLocaleDateString()} — {sub.currentPeriodEnd && new Date(sub.currentPeriodEnd).toLocaleDateString()}
@@ -297,21 +299,21 @@ export default function ClinicDetailPage() {
       <div className="card">
         <h2 className="card-title mb-4 flex items-center gap-2">
           <Users className="h-4 w-4 text-indigo-500" />
-          Staff ({clinic.staff.length})
+          {t("superAdmin.clinicDetail.staff")} ({clinic.staff.length})
         </h2>
         <div className="table-container">
           <table className="table">
             <thead>
               <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Role</th>
-                <th>Status</th>
+                <th>{t("common.name")}</th>
+                <th>{t("common.email")}</th>
+                <th>{t("common.role")}</th>
+                <th>{t("common.status")}</th>
               </tr>
             </thead>
             <tbody>
               {clinic.staff.length === 0 ? (
-                <tr><td colSpan={4} className="text-center py-6 text-slate-500">No staff members.</td></tr>
+                <tr><td colSpan={4} className="text-center py-6 text-slate-500">{t("superAdmin.clinicDetail.noStaff")}</td></tr>
               ) : (
                 clinic.staff.map((user) => (
                   <tr key={user._id}>
@@ -329,7 +331,7 @@ export default function ClinicDetailPage() {
                           : "bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400"
                       }`}>
                         <span className={`h-1.5 w-1.5 rounded-full ${user.isActive ? "bg-emerald-500" : "bg-slate-400"}`} />
-                        {user.isActive ? "Active" : "Inactive"}
+                        {user.isActive ? t("superAdmin.common.active") : t("superAdmin.common.inactive")}
                       </span>
                     </td>
                   </tr>

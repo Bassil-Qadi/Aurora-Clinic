@@ -16,6 +16,7 @@ import {
   Sparkles,
   Globe,
 } from "lucide-react";
+import { useI18n } from "@/lib/i18n";
 
 interface PlanFeatures {
   maxDoctors: number;
@@ -62,6 +63,7 @@ const EMPTY_FORM = {
 };
 
 export default function PlansPage() {
+  const { t } = useI18n();
   const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -77,7 +79,7 @@ export default function PlansPage() {
       const data = await res.json();
       setPlans(data.plans || []);
     } catch {
-      setMsg({ type: "error", text: "Failed to load plans." });
+      setMsg({ type: "error", text: t("superAdmin.plans.loadFailed") });
     } finally {
       setLoading(false);
     }
@@ -133,21 +135,21 @@ export default function PlansPage() {
       });
 
       if (res.ok) {
-        setMsg({ type: "success", text: editId ? "Plan updated." : "Plan created." });
+        setMsg({ type: "success", text: editId ? t("superAdmin.plans.planUpdated") : t("superAdmin.plans.planCreated") });
         setShowForm(false);
         fetchPlans();
       } else {
         const err = await res.json();
-        setMsg({ type: "error", text: err.error || "Failed to save plan." });
+        setMsg({ type: "error", text: err.error || t("superAdmin.plans.saveFailed") });
       }
     } catch {
-      setMsg({ type: "error", text: "Failed to save plan." });
+      setMsg({ type: "error", text: t("superAdmin.plans.saveFailed") });
     } finally {
       setSaving(false);
     }
   };
 
-  const intervalLabel = (interval: string) => interval === "YEAR" ? "year" : "month";
+  const intervalLabel = (interval: string) => interval === "YEAR" ? t("superAdmin.plans.yearly").toLowerCase() : t("superAdmin.plans.monthly").toLowerCase();
 
   return (
     <div className="space-y-6 p-4 md:p-8">
@@ -155,15 +157,15 @@ export default function PlansPage() {
         <div>
           <h1 className="page-title">
             <FileText className="h-6 w-6 text-indigo-500" />
-            <span>Subscription Plans</span>
+            <span>{t("superAdmin.plans.title")}</span>
           </h1>
           <p className="page-subtitle mt-1">
-            Define the plans clinics can subscribe to
+            {t("superAdmin.plans.subtitle")}
           </p>
         </div>
         <button onClick={openCreate} className="btn-primary">
           <Plus className="h-4 w-4" />
-          <span>Create Plan</span>
+          <span>{t("superAdmin.plans.createPlan")}</span>
         </button>
       </div>
 
@@ -177,14 +179,14 @@ export default function PlansPage() {
       {loading ? (
         <div className="card text-center py-10">
           <Loader2 className="h-6 w-6 mx-auto animate-spin text-indigo-500" />
-          <p className="mt-2 text-sm text-slate-500">Loading plans...</p>
+          <p className="mt-2 text-sm text-slate-500">{t("superAdmin.plans.loading")}</p>
         </div>
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {plans.length === 0 ? (
             <div className="col-span-full card text-center py-10">
               <FileText className="h-8 w-8 mx-auto text-slate-300 dark:text-slate-600" />
-              <p className="mt-2 text-sm text-slate-500">No plans yet. Create one to get started.</p>
+              <p className="mt-2 text-sm text-slate-500">{t("superAdmin.plans.noPlans")}</p>
             </div>
           ) : (
             plans.map((plan) => (
@@ -201,14 +203,14 @@ export default function PlansPage() {
                       {plan.description && (
                         <p className="text-xs text-slate-500 mt-0.5">{plan.description}</p>
                       )}
-                      <p className="text-xs text-slate-400 mt-0.5">slug: {plan.slug}</p>
+                      <p className="text-xs text-slate-400 mt-0.5">{t("superAdmin.plans.slug")}: {plan.slug}</p>
                     </div>
                     <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
                       plan.isActive
                         ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
                         : "bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-500"
                     }`}>
-                      {plan.isActive ? "Active" : "Inactive"}
+                      {plan.isActive ? t("superAdmin.plans.active") : t("superAdmin.plans.inactive")}
                     </span>
                   </div>
 
@@ -226,30 +228,30 @@ export default function PlansPage() {
                   <div className="space-y-2 mb-4">
                     <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
                       <UsersIcon className="h-3.5 w-3.5 text-indigo-500" />
-                      {plan.features.maxDoctors === -1 ? "Unlimited" : plan.features.maxDoctors} doctors
+                      {plan.features.maxDoctors === -1 ? t("superAdmin.plans.unlimited") : plan.features.maxDoctors} {t("superAdmin.plans.doctors")}
                     </div>
                     <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
                       <UserCheck className="h-3.5 w-3.5 text-indigo-500" />
-                      {plan.features.maxPatients === -1 ? "Unlimited" : plan.features.maxPatients} patients
+                      {plan.features.maxPatients === -1 ? t("superAdmin.plans.unlimited") : plan.features.maxPatients} {t("superAdmin.plans.patients")}
                     </div>
                     <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
                       <Calendar className="h-3.5 w-3.5 text-indigo-500" />
-                      {plan.features.maxAppointmentsPerMonth === -1 ? "Unlimited" : plan.features.maxAppointmentsPerMonth} appointments/mo
+                      {plan.features.maxAppointmentsPerMonth === -1 ? t("superAdmin.plans.unlimited") : plan.features.maxAppointmentsPerMonth} {t("superAdmin.plans.appointmentsPerMonth")}
                     </div>
                   </div>
 
                   {/* Feature flags */}
                   <div className="space-y-1.5 mb-4">
-                    <FeatureFlag enabled={plan.features.patientPortal} label="Patient Portal" icon={<Globe className="h-3.5 w-3.5" />} />
-                    <FeatureFlag enabled={plan.features.aiSummary} label="AI Summary" icon={<Sparkles className="h-3.5 w-3.5" />} />
-                    <FeatureFlag enabled={plan.features.customBranding} label="Custom Branding" icon={<Palette className="h-3.5 w-3.5" />} />
+                    <FeatureFlag enabled={plan.features.patientPortal} label={t("superAdmin.plans.patientPortal")} icon={<Globe className="h-3.5 w-3.5" />} />
+                    <FeatureFlag enabled={plan.features.aiSummary} label={t("superAdmin.plans.aiSummary")} icon={<Sparkles className="h-3.5 w-3.5" />} />
+                    <FeatureFlag enabled={plan.features.customBranding} label={t("superAdmin.plans.customBranding")} icon={<Palette className="h-3.5 w-3.5" />} />
                   </div>
                 </div>
 
                 <div className="flex items-center justify-end pt-3 border-t border-slate-100 dark:border-slate-800">
                   <button onClick={() => openEdit(plan)} className="btn-ghost">
                     <Pencil className="h-3.5 w-3.5" />
-                    <span>Edit</span>
+                    <span>{t("superAdmin.common.edit")}</span>
                   </button>
                 </div>
               </div>
@@ -264,51 +266,51 @@ export default function PlansPage() {
           <div className="card w-full max-w-lg max-h-[90vh] overflow-y-auto space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-                {editId ? "Edit Plan" : "New Plan"}
+                {editId ? t("superAdmin.plans.editPlan") : t("superAdmin.plans.newPlan")}
               </h2>
               <button onClick={() => setShowForm(false)} className="btn-ghost"><X className="h-4 w-4" /></button>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="col-span-2">
-                <label className="form-label">Plan Name *</label>
+                <label className="form-label">{t("superAdmin.plans.planName")} *</label>
                 <input className="input" placeholder="Professional" value={form.name} onChange={(e) => handleNameChange(e.target.value)} />
               </div>
               <div className="col-span-2">
-                <label className="form-label">Slug *</label>
+                <label className="form-label">{t("superAdmin.plans.slug")} *</label>
                 <input className="input" placeholder="professional" value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} />
               </div>
               <div className="col-span-2">
-                <label className="form-label">Description</label>
+                <label className="form-label">{t("superAdmin.plans.description")}</label>
                 <input className="input" placeholder="Best for mid-size clinics" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
               </div>
               <div>
-                <label className="form-label">Price ({form.currency})</label>
+                <label className="form-label">{t("superAdmin.plans.price")} ({form.currency})</label>
                 <input className="input" type="number" min="0" step="0.01" value={form.price} onChange={(e) => setForm({ ...form, price: parseFloat(e.target.value) || 0 })} />
               </div>
               <div>
-                <label className="form-label">Billing Interval</label>
+                <label className="form-label">{t("superAdmin.plans.billingInterval")}</label>
                 <select className="input" value={form.interval} onChange={(e) => setForm({ ...form, interval: e.target.value })}>
-                  <option value="MONTH">Monthly</option>
-                  <option value="YEAR">Yearly</option>
+                  <option value="MONTH">{t("superAdmin.plans.monthly")}</option>
+                  <option value="YEAR">{t("superAdmin.plans.yearly")}</option>
                 </select>
               </div>
             </div>
 
             {/* Feature limits */}
             <div>
-              <p className="form-label mb-2">Feature Limits</p>
+              <p className="form-label mb-2">{t("superAdmin.plans.featureLimits")}</p>
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="text-xs text-slate-500">Max Doctors</label>
+                  <label className="text-xs text-slate-500">{t("superAdmin.plans.maxDoctors")}</label>
                   <input className="input" type="number" value={form.features.maxDoctors} onChange={(e) => setForm({ ...form, features: { ...form.features, maxDoctors: parseInt(e.target.value) || 0 } })} />
                 </div>
                 <div>
-                  <label className="text-xs text-slate-500">Max Patients</label>
+                  <label className="text-xs text-slate-500">{t("superAdmin.plans.maxPatients")}</label>
                   <input className="input" type="number" value={form.features.maxPatients} onChange={(e) => setForm({ ...form, features: { ...form.features, maxPatients: parseInt(e.target.value) || 0 } })} />
                 </div>
                 <div>
-                  <label className="text-xs text-slate-500">Appts/Month</label>
+                  <label className="text-xs text-slate-500">{t("superAdmin.plans.apptsPerMonth")}</label>
                   <input className="input" type="number" value={form.features.maxAppointmentsPerMonth} onChange={(e) => setForm({ ...form, features: { ...form.features, maxAppointmentsPerMonth: parseInt(e.target.value) || 0 } })} />
                 </div>
               </div>
@@ -316,19 +318,19 @@ export default function PlansPage() {
 
             {/* Feature toggles */}
             <div>
-              <p className="form-label mb-2">Feature Flags</p>
+              <p className="form-label mb-2">{t("superAdmin.plans.featureFlags")}</p>
               <div className="space-y-2">
                 <label className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
                   <input type="checkbox" checked={form.features.patientPortal} onChange={(e) => setForm({ ...form, features: { ...form.features, patientPortal: e.target.checked } })} className="h-4 w-4 rounded border-slate-300" />
-                  Patient Portal
+                  {t("superAdmin.plans.patientPortal")}
                 </label>
                 <label className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
                   <input type="checkbox" checked={form.features.aiSummary} onChange={(e) => setForm({ ...form, features: { ...form.features, aiSummary: e.target.checked } })} className="h-4 w-4 rounded border-slate-300" />
-                  AI Summary
+                  {t("superAdmin.plans.aiSummary")}
                 </label>
                 <label className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
                   <input type="checkbox" checked={form.features.customBranding} onChange={(e) => setForm({ ...form, features: { ...form.features, customBranding: e.target.checked } })} className="h-4 w-4 rounded border-slate-300" />
-                  Custom Branding
+                  {t("superAdmin.plans.customBranding")}
                 </label>
               </div>
             </div>
@@ -336,22 +338,22 @@ export default function PlansPage() {
             {/* Sort & Active */}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="form-label">Sort Order</label>
+                <label className="form-label">{t("superAdmin.plans.sortOrder")}</label>
                 <input className="input" type="number" value={form.sortOrder} onChange={(e) => setForm({ ...form, sortOrder: parseInt(e.target.value) || 0 })} />
               </div>
               <div className="flex items-end pb-2">
                 <label className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
                   <input type="checkbox" checked={form.isActive} onChange={(e) => setForm({ ...form, isActive: e.target.checked })} className="h-4 w-4 rounded border-slate-300" />
-                  Active
+                  {t("superAdmin.plans.active")}
                 </label>
               </div>
             </div>
 
             <div className="flex justify-end gap-2 pt-2">
-              <button onClick={() => setShowForm(false)} className="btn-secondary">Cancel</button>
+              <button onClick={() => setShowForm(false)} className="btn-secondary">{t("superAdmin.common.cancel")}</button>
               <button onClick={handleSave} disabled={saving || !form.name || !form.slug} className="btn-primary">
                 <Save className="h-4 w-4" />
-                {saving ? "Saving..." : editId ? "Update Plan" : "Create Plan"}
+                {saving ? t("superAdmin.common.saving") : editId ? t("superAdmin.plans.editPlan") : t("superAdmin.plans.createPlan")}
               </button>
             </div>
           </div>

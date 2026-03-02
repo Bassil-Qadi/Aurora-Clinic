@@ -11,6 +11,7 @@ import {
   User,
   Clock,
 } from "lucide-react";
+import { useI18n } from "@/lib/i18n";
 
 interface AuditLog {
   _id: string;
@@ -39,6 +40,7 @@ const ACTION_COLORS: Record<string, string> = {
 };
 
 export default function AuditLogsPage() {
+  const { t } = useI18n();
   const [logs, setLogs] = useState<AuditLog[]>([]);
   const [pagination, setPagination] = useState<Pagination>({ page: 1, limit: 30, total: 0, totalPages: 0 });
   const [search, setSearch] = useState("");
@@ -70,18 +72,17 @@ export default function AuditLogsPage() {
     const now = new Date();
     const diffMs = now.getTime() - d.getTime();
     const diffMin = Math.floor(diffMs / 60000);
-    if (diffMin < 1) return "just now";
-    if (diffMin < 60) return `${diffMin}m ago`;
+    if (diffMin < 1) return t("superAdmin.auditLogs.justNow");
+    if (diffMin < 60) return t("superAdmin.auditLogs.minutesAgo", { count: String(diffMin) });
     const diffH = Math.floor(diffMin / 60);
-    if (diffH < 24) return `${diffH}h ago`;
+    if (diffH < 24) return t("superAdmin.auditLogs.hoursAgo", { count: String(diffH) });
     const diffD = Math.floor(diffH / 24);
-    if (diffD < 7) return `${diffD}d ago`;
+    if (diffD < 7) return t("superAdmin.auditLogs.daysAgo", { count: String(diffD) });
     return d.toLocaleDateString();
   };
 
   const formatDetails = (details?: Record<string, any>) => {
     if (!details) return null;
-    // Try to extract a readable summary from the details object
     if (typeof details === "string") return details;
     const entries = Object.entries(details);
     if (entries.length === 0) return null;
@@ -96,10 +97,10 @@ export default function AuditLogsPage() {
       <div>
         <h1 className="page-title">
           <ScrollText className="h-6 w-6 text-indigo-500" />
-          <span>Audit Logs</span>
+          <span>{t("superAdmin.auditLogs.title")}</span>
         </h1>
         <p className="page-subtitle mt-1">
-          System-wide activity log ({pagination.total} entries)
+          {t("superAdmin.auditLogs.subtitle", { count: String(pagination.total) })}
         </p>
       </div>
 
@@ -110,7 +111,7 @@ export default function AuditLogsPage() {
           value={entityFilter}
           onChange={(e) => setEntityFilter(e.target.value)}
         >
-          <option value="">All entities</option>
+          <option value="">{t("superAdmin.auditLogs.allEntities")}</option>
           <option value="Appointment">Appointment</option>
           <option value="Visit">Visit</option>
           <option value="Patient">Patient</option>
@@ -124,11 +125,11 @@ export default function AuditLogsPage() {
           value={actionFilter}
           onChange={(e) => setActionFilter(e.target.value)}
         >
-          <option value="">All actions</option>
-          <option value="CREATE">Create</option>
-          <option value="UPDATE">Update</option>
-          <option value="DELETE">Delete</option>
-          <option value="STATUS_CHANGE">Status Change</option>
+          <option value="">{t("superAdmin.auditLogs.allActions")}</option>
+          <option value="CREATE">{t("superAdmin.auditLogs.create")}</option>
+          <option value="UPDATE">{t("superAdmin.auditLogs.update")}</option>
+          <option value="DELETE">{t("superAdmin.auditLogs.delete")}</option>
+          <option value="STATUS_CHANGE">{t("superAdmin.auditLogs.statusChange")}</option>
         </select>
       </div>
 
@@ -136,12 +137,12 @@ export default function AuditLogsPage() {
       {loading ? (
         <div className="card text-center py-10">
           <Loader2 className="h-6 w-6 mx-auto animate-spin text-indigo-500" />
-          <p className="mt-2 text-sm text-slate-500">Loading audit logs...</p>
+          <p className="mt-2 text-sm text-slate-500">{t("superAdmin.auditLogs.loading")}</p>
         </div>
       ) : logs.length === 0 ? (
         <div className="card text-center py-10">
           <ScrollText className="h-8 w-8 mx-auto text-slate-300 dark:text-slate-600" />
-          <p className="mt-2 text-sm text-slate-500">No audit logs found.</p>
+          <p className="mt-2 text-sm text-slate-500">{t("superAdmin.auditLogs.noLogs")}</p>
         </div>
       ) : (
         <div className="space-y-2">
@@ -160,10 +161,10 @@ export default function AuditLogsPage() {
                   <p className="text-sm font-medium text-slate-900 dark:text-slate-100">
                     <span className="font-semibold capitalize">{log.entity}</span>
                     {log.entityId && (
-                      <span className="text-xs text-slate-400 ml-1">({log.entityId.slice(-8)})</span>
+                      <span className="text-xs text-slate-400 ms-1">({log.entityId.slice(-8)})</span>
                     )}
                     {log.details && (
-                      <span className="text-slate-600 dark:text-slate-400 text-xs ml-2">
+                      <span className="text-slate-600 dark:text-slate-400 text-xs ms-2">
                         {formatDetails(log.details)}
                       </span>
                     )}
@@ -188,7 +189,7 @@ export default function AuditLogsPage() {
                   </div>
                 </div>
               </div>
-              <div className="text-xs text-slate-400 shrink-0 sm:text-right">
+              <div className="text-xs text-slate-400 shrink-0 sm:text-end">
                 {new Date(log.timestamp).toLocaleString()}
               </div>
             </div>
@@ -198,7 +199,7 @@ export default function AuditLogsPage() {
           {pagination.totalPages > 1 && (
             <div className="flex items-center justify-between text-sm pt-4">
               <p className="text-slate-500">
-                Page {pagination.page} of {pagination.totalPages}
+                {t("superAdmin.auditLogs.page", { page: String(pagination.page), totalPages: String(pagination.totalPages) })}
               </p>
               <div className="flex gap-2">
                 <button

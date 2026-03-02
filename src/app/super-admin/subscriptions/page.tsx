@@ -14,6 +14,7 @@ import {
   X,
   RefreshCw,
 } from "lucide-react";
+import { useI18n } from "@/lib/i18n";
 
 interface Subscription {
   _id: string;
@@ -43,6 +44,7 @@ const STATUS_BADGE: Record<string, string> = {
 };
 
 export default function SubscriptionsPage() {
+  const { t } = useI18n();
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [pagination, setPagination] = useState<Pagination>({ page: 1, limit: 20, total: 0, totalPages: 0 });
   const [statusFilter, setStatusFilter] = useState("");
@@ -62,11 +64,11 @@ export default function SubscriptionsPage() {
       setSubscriptions(data.subscriptions || []);
       setPagination(data.pagination || { page: 1, limit: 20, total: 0, totalPages: 0 });
     } catch {
-      setMsg({ type: "error", text: "Failed to load subscriptions." });
+      setMsg({ type: "error", text: t("superAdmin.subscriptions.loadFailed") });
     } finally {
       setLoading(false);
     }
-  }, [statusFilter, search]);
+  }, [statusFilter, search, t]);
 
   useEffect(() => {
     fetchSubscriptions(1);
@@ -80,23 +82,18 @@ export default function SubscriptionsPage() {
         body: JSON.stringify({ status: newStatus }),
       });
       if (res.ok) {
-        setMsg({ type: "success", text: `Subscription status updated to "${newStatus}".` });
+        setMsg({ type: "success", text: t("superAdmin.subscriptions.statusUpdated", { status: newStatus }) });
         fetchSubscriptions(pagination.page);
       } else {
         const err = await res.json();
-        setMsg({ type: "error", text: err.error || "Failed to update." });
+        setMsg({ type: "error", text: err.error || t("superAdmin.subscriptions.updateFailed") });
       }
     } catch {
-      setMsg({ type: "error", text: "Failed to update subscription." });
+      setMsg({ type: "error", text: t("superAdmin.subscriptions.updateFailed") });
     }
   };
 
   const formatDate = (d: string) => d ? new Date(d).toLocaleDateString() : "—";
-
-  // Summary stats
-  const totalMRR = subscriptions
-    .filter((s) => s.status === "active" && s.planId)
-    .reduce((sum, s) => sum + (s.planId.price || 0), 0);
 
   return (
     <div className="space-y-6 p-4 md:p-8">
@@ -104,10 +101,10 @@ export default function SubscriptionsPage() {
         <div>
           <h1 className="page-title">
             <CreditCard className="h-6 w-6 text-indigo-500" />
-            <span>Subscriptions</span>
+            <span>{t("superAdmin.subscriptions.title")}</span>
           </h1>
           <p className="page-subtitle mt-1">
-            Manage all clinic subscriptions ({pagination.total})
+            {t("superAdmin.subscriptions.subtitle", { count: String(pagination.total) })}
           </p>
         </div>
       </div>
@@ -122,10 +119,10 @@ export default function SubscriptionsPage() {
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-3">
         <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+          <Search className="absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
           <input
-            className="input pl-10"
-            placeholder="Search by clinic name..."
+            className="input ps-10"
+            placeholder={t("superAdmin.subscriptions.searchPlaceholder")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -135,7 +132,7 @@ export default function SubscriptionsPage() {
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
         >
-          <option value="">All statuses</option>
+          <option value="">{t("superAdmin.subscriptions.allStatuses")}</option>
           <option value="active">Active</option>
           <option value="trialing">Trialing</option>
           <option value="past_due">Past Due</option>
@@ -149,7 +146,7 @@ export default function SubscriptionsPage() {
       {loading ? (
         <div className="card text-center py-10">
           <Loader2 className="h-6 w-6 mx-auto animate-spin text-indigo-500" />
-          <p className="mt-2 text-sm text-slate-500">Loading subscriptions...</p>
+          <p className="mt-2 text-sm text-slate-500">{t("superAdmin.subscriptions.loading")}</p>
         </div>
       ) : (
         <>
@@ -157,20 +154,20 @@ export default function SubscriptionsPage() {
             <table className="table">
               <thead>
                 <tr>
-                  <th>Clinic</th>
-                  <th>Plan</th>
-                  <th>Price</th>
-                  <th>Status</th>
-                  <th>Period</th>
-                  <th>Created</th>
-                  <th className="text-right">Actions</th>
+                  <th>{t("superAdmin.subscriptions.clinic")}</th>
+                  <th>{t("superAdmin.subscriptions.plan")}</th>
+                  <th>{t("superAdmin.subscriptions.price")}</th>
+                  <th>{t("superAdmin.subscriptions.status")}</th>
+                  <th>{t("superAdmin.subscriptions.period")}</th>
+                  <th>{t("superAdmin.subscriptions.created")}</th>
+                  <th className="text-end">{t("common.actions")}</th>
                 </tr>
               </thead>
               <tbody>
                 {subscriptions.length === 0 ? (
                   <tr>
                     <td colSpan={7} className="text-center py-8 text-slate-500">
-                      No subscriptions found.
+                      {t("superAdmin.subscriptions.noSubscriptions")}
                     </td>
                   </tr>
                 ) : (
@@ -186,7 +183,7 @@ export default function SubscriptionsPage() {
                             {sub.clinicId.name}
                           </Link>
                         ) : (
-                          <span className="text-slate-400">Unknown</span>
+                          <span className="text-slate-400">{t("superAdmin.common.unknown")}</span>
                         )}
                       </td>
                       <td className="font-medium text-slate-900 dark:text-slate-100">
@@ -196,7 +193,7 @@ export default function SubscriptionsPage() {
                         {sub.planId ? (
                           <span className="flex items-center gap-1 text-sm">
                             <DollarSign className="h-3 w-3 text-slate-400" />
-                            {sub.planId.price}/{sub.planId.interval === "YEAR" ? "yr" : "mo"}
+                            {sub.planId.price}/{sub.planId.interval === "YEAR" ? t("superAdmin.common.year") : t("superAdmin.common.month")}
                           </span>
                         ) : "—"}
                       </td>
@@ -225,28 +222,28 @@ export default function SubscriptionsPage() {
                             <button
                               onClick={() => updateStatus(sub._id, "active")}
                               className="btn-ghost text-emerald-600 dark:text-emerald-400"
-                              title="Activate"
+                              title={t("superAdmin.subscriptions.activate")}
                             >
                               <RefreshCw className="h-3.5 w-3.5" />
-                              <span className="text-xs">Activate</span>
+                              <span className="text-xs">{t("superAdmin.subscriptions.activate")}</span>
                             </button>
                           )}
                           {sub.status === "active" && (
                             <button
                               onClick={() => updateStatus(sub._id, "suspended")}
                               className="btn-ghost text-amber-600 dark:text-amber-400"
-                              title="Suspend"
+                              title={t("superAdmin.subscriptions.suspend")}
                             >
-                              <span className="text-xs">Suspend</span>
+                              <span className="text-xs">{t("superAdmin.subscriptions.suspend")}</span>
                             </button>
                           )}
                           {sub.status !== "cancelled" && (
                             <button
                               onClick={() => updateStatus(sub._id, "cancelled")}
                               className="btn-ghost text-rose-600 dark:text-rose-400"
-                              title="Cancel"
+                              title={t("superAdmin.subscriptions.cancelSub")}
                             >
-                              <span className="text-xs">Cancel</span>
+                              <span className="text-xs">{t("superAdmin.subscriptions.cancelSub")}</span>
                             </button>
                           )}
                         </div>
@@ -262,7 +259,7 @@ export default function SubscriptionsPage() {
           {pagination.totalPages > 1 && (
             <div className="flex items-center justify-between text-sm">
               <p className="text-slate-500">
-                Page {pagination.page} of {pagination.totalPages} ({pagination.total} subscriptions)
+                {t("superAdmin.subscriptions.page", { page: String(pagination.page), totalPages: String(pagination.totalPages), total: String(pagination.total) })}
               </p>
               <div className="flex gap-2">
                 <button
