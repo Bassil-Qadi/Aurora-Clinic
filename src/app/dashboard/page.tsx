@@ -18,6 +18,7 @@ import {
   CartesianGrid,
   ResponsiveContainer,
 } from "recharts";
+import { NotificationBell } from "@/components/NotificationBell";
 
 interface Stats {
   totalPatients: number;
@@ -128,7 +129,13 @@ export default function DashboardHome() {
             {t("dashboard.clinicOverviewSubtitle")}
           </p>
         </div>
+        <div className="flex items-center gap-2">
         <span className="pill">{t("dashboard.todaysLoad", { count: stats.todayAppointments })}</span>
+        {/* Top bar with notification bell – desktop only */}
+        <div className="hidden items-center justify-end lg:flex">
+          <NotificationBell />
+        </div>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
