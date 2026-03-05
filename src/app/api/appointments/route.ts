@@ -4,6 +4,7 @@ import Appointment from "@/models/Appointment";
 import { requireAuth } from "@/lib/apiAuth";
 import { createAppointmentSchema } from "@/lib/validations";
 import { checkAppointmentConflicts } from "@/lib/appointmentConflicts";
+import { createNotification, notifyClinicStaff } from "@/lib/notifications";
 
 export async function GET(req: Request) {
   const auth = await requireAuth();
@@ -113,6 +114,45 @@ export async function POST(req: Request) {
     status: validation.data.status || "scheduled",
     clinicId: user.clinicId,
   });
+
+  // ── Send notifications (fire & forget) ──
+  const populated = await appointment.populate("patient");
+  const patientName = populated.patient
+    ? `${(populated.patient as any).firstName} ${(populated.patient as any).lastName}`
+    : "A patient";
+  const dateStr = appointmentDate.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
+  // Notify the assigned doctor
+  if (doctorId && doctorId !== user.id) {
+    createNotification({
+      clinicId: user.clinicId,
+      recipientId: doctorId,
+      type: "appointment_created",
+      title: "New Appointment",
+      message: `${patientName} has a new appointment on ${dateStr}`,
+      link: "/appointments",
+      metadata: { appointmentId: String(appointment._id), patientName },
+    }).catch(() => {});
+  }
+
+  // Notify receptionists (they manage the queue)
+  notifyClinicStaff(
+    user.clinicId,
+    ["receptionist"],
+    {
+      type: "appointment_created",
+      title: "New Appointment",
+      message: `${patientName} has a new appointment on ${dateStr}`,
+      link: "/appointments",
+      metadata: { appointmentId: String(appointment._id), patientName },
+    },
+    user.id
+  ).catch(() => {});
 
   return NextResponse.json(appointment, { status: 201 });
 }

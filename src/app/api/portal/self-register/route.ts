@@ -5,6 +5,7 @@ import Clinic from "@/models/Clinic";
 import Patient from "@/models/Patient";
 import PatientAccount from "@/models/PatientAccount";
 import { patientSelfRegisterSchema } from "@/lib/validations";
+import { notifyClinicStaff } from "@/lib/notifications";
 
 // POST /api/portal/self-register — public endpoint
 // Creates a Patient record + PatientAccount in a single operation.
@@ -66,6 +67,20 @@ export async function POST(req: Request) {
     passwordHash,
     isActive: true,
   });
+
+  // ── Notify clinic staff about the new patient (fire & forget) ──
+  const patientName = `${firstName} ${lastName}`;
+  notifyClinicStaff(
+    clinicId,
+    ["admin", "receptionist"],
+    {
+      type: "patient_registered",
+      title: "New Patient Registered",
+      message: `${patientName} registered via the patient portal`,
+      link: `/dashboard/patients/${String(patient._id)}`,
+      metadata: { patientId: String(patient._id), patientName },
+    }
+  ).catch(() => {});
 
   return NextResponse.json(
     {

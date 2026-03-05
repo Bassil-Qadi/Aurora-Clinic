@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { LanguageToggle } from "@/components/LanguageToggle";
+import { NotificationBell } from "@/components/NotificationBell";
 import { Logo, LogoMark } from "@/components/Logo";
 import { useI18n } from "@/lib/i18n";
 type Props = {
@@ -221,7 +222,7 @@ export default function DashboardLayout({ children }: Props) {
             {clinicName ?? t("common.appName")}
           </span>
         </div>
-        <div className="w-10" /> {/* Spacer */}
+        <NotificationBell />
       </div>
 
       {/* Mobile overlay */}
@@ -243,6 +244,10 @@ export default function DashboardLayout({ children }: Props) {
 
       {/* Main content */}
       <main className="flex-1 overflow-auto lg:ms-6">
+        {/* Top bar with notification bell – desktop only */}
+        <div className="mb-4 hidden items-center justify-end lg:flex">
+          <NotificationBell />
+        </div>
         <div className="space-y-6 pb-10">{children}</div>
       </main>
     </div>

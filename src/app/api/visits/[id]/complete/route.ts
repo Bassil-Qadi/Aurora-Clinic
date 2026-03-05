@@ -8,6 +8,7 @@ import {
   normalizeAppointmentStatus,
 } from "@/lib/appointmentStatus";
 import { requireAuth } from "@/lib/apiAuth";
+import { notifyClinicStaff } from "@/lib/notifications";
 
 export async function PATCH(
   req: Request,
@@ -53,6 +54,30 @@ export async function PATCH(
       }
     }
   }
+
+  // ── Send notifications (fire & forget) ──
+  try {
+    const populatedVisit = await Visit.findById(visit._id)
+      .populate("patient")
+      .lean() as any;
+
+    const patientName = populatedVisit?.patient
+      ? `${populatedVisit.patient.firstName} ${populatedVisit.patient.lastName}`
+      : "A patient";
+
+    notifyClinicStaff(
+      user.clinicId,
+      ["admin", "receptionist"],
+      {
+        type: "visit_completed",
+        title: "Visit Completed",
+        message: `Visit for ${patientName} has been completed`,
+        link: `/visits/${String(visit._id)}`,
+        metadata: { visitId: String(visit._id), patientName },
+      },
+      user.id
+    ).catch(() => {});
+  } catch {}
 
   return NextResponse.json({
     success: true,

@@ -3,6 +3,7 @@ import { connectDB } from "@/lib/db";
 import Prescription from "@/models/Prescription";
 import { requireAuth } from "@/lib/apiAuth";
 import { createPrescriptionSchema } from "@/lib/validations";
+import { notifyClinicStaff } from "@/lib/notifications";
 
 export async function POST(req: Request) {
   const auth = await requireAuth(["doctor"]);
@@ -24,6 +25,28 @@ export async function POST(req: Request) {
     ...validation.data,
     clinicId: user.clinicId,
   });
+
+  // ── Notify admin/receptionists about the new prescription (fire & forget) ──
+  try {
+    const Patient = (await import("@/models/Patient")).default;
+    const patient = await Patient.findById(validation.data.patient).lean() as any;
+    const patientName = patient
+      ? `${patient.firstName} ${patient.lastName}`
+      : "A patient";
+
+    notifyClinicStaff(
+      user.clinicId,
+      ["admin", "receptionist"],
+      {
+        type: "prescription_created",
+        title: "New Prescription",
+        message: `A prescription was created for ${patientName}`,
+        link: `/visits`,
+        metadata: { prescriptionId: String(prescription._id), patientName },
+      },
+      user.id
+    ).catch(() => {});
+  } catch {}
 
   return NextResponse.json({ prescription });
 }
