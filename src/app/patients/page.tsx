@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Users, UserPlus, Search, Pencil, Trash2 } from "lucide-react";
+import { Users, UserPlus, Search, Pencil, Trash2, User, CalendarDays, Phone, Mail, MapPin, Save, ChevronDown } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { Breadcrumb } from "@/components/Breadcrumb";
 
@@ -111,60 +111,149 @@ export default function PatientsPage() {
 
       {/* Form */}
       <div className="card card-muted">
-        <h2 className="mb-4 text-sm font-semibold text-slate-900 dark:text-slate-100">
+        <h2 className="mb-5 text-sm font-semibold text-slate-900 dark:text-slate-100">
           {editingId ? t("patients.editPatient") : t("patients.addNewPatient")}
         </h2>
 
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="grid grid-cols-1 gap-4 md:grid-cols-2"
+          className="grid grid-cols-1 gap-5 md:grid-cols-2"
         >
-          <input
-            {...register("firstName")}
-            placeholder={t("patients.firstNamePlaceholder")}
-            className="input"
-          />
-          <input
-            {...register("lastName")}
-            placeholder={t("patients.lastNamePlaceholder")}
-            className="input"
-          />
-          <input type="date" {...register("dateOfBirth")} className="input" />
+          {/* First Name */}
+          <div className="space-y-1.5">
+            <label className="flex items-center gap-1.5 text-xs font-medium text-slate-600 dark:text-slate-400">
+              <User className="h-3.5 w-3.5 text-sky-500" />
+              {t("patients.firstName")} <span className="text-rose-400">*</span>
+            </label>
+            <input
+              {...register("firstName")}
+              placeholder={t("patients.firstNamePlaceholder")}
+              className={`input ${errors.firstName ? "!border-rose-400 !ring-rose-200 dark:!ring-rose-900" : ""}`}
+            />
+            {errors.firstName && (
+              <p className="text-xs text-rose-500 dark:text-rose-400">{errors.firstName.message}</p>
+            )}
+          </div>
 
-          <select {...register("gender")} className="input">
-            <option value="">{t("common.selectGender")}</option>
-            <option value="male">{t("common.male")}</option>
-            <option value="female">{t("common.female")}</option>
-          </select>
+          {/* Last Name */}
+          <div className="space-y-1.5">
+            <label className="flex items-center gap-1.5 text-xs font-medium text-slate-600 dark:text-slate-400">
+              <User className="h-3.5 w-3.5 text-sky-500" />
+              {t("patients.lastName")} <span className="text-rose-400">*</span>
+            </label>
+            <input
+              {...register("lastName")}
+              placeholder={t("patients.lastNamePlaceholder")}
+              className={`input ${errors.lastName ? "!border-rose-400 !ring-rose-200 dark:!ring-rose-900" : ""}`}
+            />
+            {errors.lastName && (
+              <p className="text-xs text-rose-500 dark:text-rose-400">{errors.lastName.message}</p>
+            )}
+          </div>
 
-          <input {...register("phone")} placeholder={t("patients.phonePlaceholder")} className="input" />
-          <input
-            {...register("email")}
-            placeholder={t("patients.emailPlaceholder")}
-            className="input"
-          />
-          <input
-            {...register("address")}
-            placeholder={t("patients.addressPlaceholder")}
-            className="input md:col-span-2"
-          />
+          {/* Date of Birth */}
+          <div className="space-y-1.5">
+            <label className="flex items-center gap-1.5 text-xs font-medium text-slate-600 dark:text-slate-400">
+              <CalendarDays className="h-3.5 w-3.5 text-sky-500" />
+              {t("patients.dateOfBirth")} <span className="text-rose-400">*</span>
+            </label>
+            <input
+              type="date"
+              {...register("dateOfBirth")}
+              className={`input ${errors.dateOfBirth ? "!border-rose-400 !ring-rose-200 dark:!ring-rose-900" : ""}`}
+            />
+            {errors.dateOfBirth && (
+              <p className="text-xs text-rose-500 dark:text-rose-400">{errors.dateOfBirth.message}</p>
+            )}
+          </div>
 
-         <div className="w-full flex justify-start mt-4">
-          <button
-            type="submit"
-            className="btn-primary justify-center"
-          >
-            {editingId ? t("patients.updatePatient") : t("patients.addPatient")}
-          </button>
-         </div>
+          {/* Gender */}
+          <div className="space-y-1.5">
+            <label className="flex items-center gap-1.5 text-xs font-medium text-slate-600 dark:text-slate-400">
+              <Users className="h-3.5 w-3.5 text-sky-500" />
+              {t("patients.gender")} <span className="text-rose-400">*</span>
+            </label>
+            <div className="relative">
+              <select
+                {...register("gender")}
+                className={`input appearance-none pe-9 ${errors.gender ? "!border-rose-400 !ring-rose-200 dark:!ring-rose-900" : ""}`}
+              >
+                <option value="">{t("common.selectGender")}</option>
+                <option value="male">{t("common.male")}</option>
+                <option value="female">{t("common.female")}</option>
+              </select>
+              <ChevronDown className="pointer-events-none absolute end-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            </div>
+            {errors.gender && (
+              <p className="text-xs text-rose-500 dark:text-rose-400">{errors.gender.message}</p>
+            )}
+          </div>
+
+          {/* Phone */}
+          <div className="space-y-1.5">
+            <label className="flex items-center gap-1.5 text-xs font-medium text-slate-600 dark:text-slate-400">
+              <Phone className="h-3.5 w-3.5 text-sky-500" />
+              {t("common.phone")} <span className="text-rose-400">*</span>
+            </label>
+            <input
+              {...register("phone")}
+              placeholder={t("patients.phonePlaceholder")}
+              className={`input ${errors.phone ? "!border-rose-400 !ring-rose-200 dark:!ring-rose-900" : ""}`}
+            />
+            {errors.phone && (
+              <p className="text-xs text-rose-500 dark:text-rose-400">{errors.phone.message}</p>
+            )}
+          </div>
+
+          {/* Email */}
+          <div className="space-y-1.5">
+            <label className="flex items-center gap-1.5 text-xs font-medium text-slate-600 dark:text-slate-400">
+              <Mail className="h-3.5 w-3.5 text-sky-500" />
+              {t("common.email")} <span className="text-slate-400">({t("common.optional")})</span>
+            </label>
+            <input
+              {...register("email")}
+              placeholder={t("patients.emailPlaceholder")}
+              className={`input ${errors.email ? "!border-rose-400 !ring-rose-200 dark:!ring-rose-900" : ""}`}
+            />
+            {errors.email && (
+              <p className="text-xs text-rose-500 dark:text-rose-400">{errors.email.message}</p>
+            )}
+          </div>
+
+          {/* Address */}
+          <div className="space-y-1.5 md:col-span-2">
+            <label className="flex items-center gap-1.5 text-xs font-medium text-slate-600 dark:text-slate-400">
+              <MapPin className="h-3.5 w-3.5 text-sky-500" />
+              {t("common.address")} <span className="text-slate-400">({t("common.optional")})</span>
+            </label>
+            <input
+              {...register("address")}
+              placeholder={t("patients.addressPlaceholder")}
+              className={`input ${errors.address ? "!border-rose-400 !ring-rose-200 dark:!ring-rose-900" : ""}`}
+            />
+          </div>
+
+          {/* Submit */}
+          <div className="md:col-span-2 flex items-center gap-3 pt-2">
+            <button
+              type="submit"
+              className="btn-primary justify-center gap-2"
+            >
+              <Save className="h-4 w-4" />
+              {editingId ? t("patients.updatePatient") : t("patients.addPatient")}
+            </button>
+            {editingId && (
+              <button
+                type="button"
+                onClick={() => { reset(); setEditingId(null); }}
+                className="btn-ghost"
+              >
+                {t("common.cancel")}
+              </button>
+            )}
+          </div>
         </form>
-
-        {/* Validation Errors */}
-        <div className="mt-2 text-xs text-rose-600 dark:text-rose-400">
-          {Object.values(errors).map((err, index) => (
-            <p key={index}>{err?.message}</p>
-          ))}
-        </div>
       </div>
 
       <div className="flex justify-between gap-4">

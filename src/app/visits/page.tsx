@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
-import { Clipboard, Pencil, Trash2, Eye, FileText, Search, Printer } from "lucide-react";
+import { Clipboard, Pencil, Trash2, Eye, FileText, Search, Printer, User, Stethoscope, ChevronDown, Save, CalendarDays, StickyNote, Pill } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -216,86 +216,152 @@ export default function VisitsPage() {
 
       {/* Form */}
       <div className="card card-muted">
+        <h2 className="mb-5 text-sm font-semibold text-slate-900 dark:text-slate-100">
+          {editingId ? t("common.update") : t("common.add")} {t("visits.title").toLowerCase()}
+        </h2>
+
         <form
           onSubmit={handleSubmit}
-          className="grid grid-cols-1 gap-4 md:grid-cols-2"
+          className="grid grid-cols-1 gap-5 md:grid-cols-2"
         >
-          <select
-            value={form.patient}
-            onChange={(e) =>
-              setForm({ ...form, patient: e.target.value })
-            }
-            className="input"
-            required
-          >
-            <option value="">{t("appointments.selectPatient")}</option>
-            {patients.map((p) => (
-              <option key={p._id} value={p._id}>
-                {p.firstName} {p.lastName}
-              </option>
-            ))}
-          </select>
+          {/* Patient */}
+          <div className="space-y-1.5">
+            <label className="flex items-center gap-1.5 text-xs font-medium text-slate-600 dark:text-slate-400">
+              <User className="h-3.5 w-3.5 text-sky-500" />
+              {t("common.patient")} <span className="text-rose-400">*</span>
+            </label>
+            <div className="relative">
+              <select
+                value={form.patient}
+                onChange={(e) =>
+                  setForm({ ...form, patient: e.target.value })
+                }
+                className="input appearance-none pe-9"
+                required
+              >
+                <option value="">{t("appointments.selectPatient")}</option>
+                {patients.map((p) => (
+                  <option key={p._id} value={p._id}>
+                    {p.firstName} {p.lastName}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="pointer-events-none absolute end-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            </div>
+          </div>
 
           {/* Show doctor dropdown only for admin users */}
           {session?.user?.role === "admin" && (
-            <select
-              value={form.doctor}
+            <div className="space-y-1.5">
+              <label className="flex items-center gap-1.5 text-xs font-medium text-slate-600 dark:text-slate-400">
+                <Stethoscope className="h-3.5 w-3.5 text-sky-500" />
+                {t("common.doctor")} <span className="text-rose-400">*</span>
+              </label>
+              <div className="relative">
+                <select
+                  value={form.doctor}
+                  onChange={(e) =>
+                    setForm({ ...form, doctor: e.target.value })
+                  }
+                  className="input appearance-none pe-9"
+                  required
+                >
+                  <option value="">{t("appointments.selectDoctor")}</option>
+                  {doctors.map((d) => (
+                    <option key={d._id} value={d._id}>
+                      {d.name}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="pointer-events-none absolute end-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              </div>
+            </div>
+          )}
+
+          {/* Diagnosis */}
+          <div className="space-y-1.5">
+            <label className="flex items-center gap-1.5 text-xs font-medium text-slate-600 dark:text-slate-400">
+              <Clipboard className="h-3.5 w-3.5 text-sky-500" />
+              {t("visits.diagnosis")} <span className="text-rose-400">*</span>
+            </label>
+            <input
+              placeholder={t("visits.diagnosis")}
+              value={form.diagnosis}
               onChange={(e) =>
-                setForm({ ...form, doctor: e.target.value })
+                setForm({ ...form, diagnosis: e.target.value })
               }
               className="input"
               required
-            >
-              <option value="">{t("appointments.selectDoctor")}</option>
-              {doctors.map((d) => (
-                <option key={d._id} value={d._id}>
-                  {d.name}
-                </option>
-              ))}
-            </select>
-          )}
+            />
+          </div>
 
-          <input
-            placeholder={t("visits.diagnosis")}
-            value={form.diagnosis}
-            onChange={(e) =>
-              setForm({ ...form, diagnosis: e.target.value })
-            }
-            className="input"
-            required
-          />
+          {/* Prescription */}
+          <div className="space-y-1.5">
+            <label className="flex items-center gap-1.5 text-xs font-medium text-slate-600 dark:text-slate-400">
+              <Pill className="h-3.5 w-3.5 text-sky-500" />
+              {t("visits.prescription")} <span className="text-slate-400">({t("common.optional")})</span>
+            </label>
+            <input
+              placeholder={t("visits.prescription")}
+              value={form.prescription}
+              onChange={(e) =>
+                setForm({ ...form, prescription: e.target.value })
+              }
+              className="input"
+            />
+          </div>
 
-          <input
-            placeholder={t("visits.prescription")}
-            value={form.prescription}
-            onChange={(e) =>
-              setForm({ ...form, prescription: e.target.value })
-            }
-            className="input"
-          />
+          {/* Clinical Notes */}
+          <div className="space-y-1.5 md:col-span-2">
+            <label className="flex items-center gap-1.5 text-xs font-medium text-slate-600 dark:text-slate-400">
+              <StickyNote className="h-3.5 w-3.5 text-sky-500" />
+              {t("visits.clinicalNotes")} <span className="text-slate-400">({t("common.optional")})</span>
+            </label>
+            <textarea
+              placeholder={t("visits.clinicalNotes")}
+              value={form.notes}
+              onChange={(e) =>
+                setForm({ ...form, notes: e.target.value })
+              }
+              className="input min-h-[80px] resize-y"
+              rows={3}
+            />
+          </div>
 
-          <textarea
-            placeholder={t("visits.clinicalNotes")}
-            value={form.notes}
-            onChange={(e) =>
-              setForm({ ...form, notes: e.target.value })
-            }
-            className="input md:col-span-2"
-          />
+          {/* Follow-up Date */}
+          <div className="space-y-1.5">
+            <label className="flex items-center gap-1.5 text-xs font-medium text-slate-600 dark:text-slate-400">
+              <CalendarDays className="h-3.5 w-3.5 text-sky-500" />
+              {t("visits.followUp")} <span className="text-slate-400">({t("common.optional")})</span>
+            </label>
+            <input
+              type="date"
+              value={form.followUpDate}
+              onChange={(e) =>
+                setForm({ ...form, followUpDate: e.target.value })
+              }
+              className="input md:max-w-xs"
+            />
+          </div>
 
-          <input
-            type="date"
-            value={form.followUpDate}
-            onChange={(e) =>
-              setForm({ ...form, followUpDate: e.target.value })
-            }
-            className="input md:max-w-xs"
-          />
-
-          <div className="md:col-span-2 mt-4">
-            <button className="btn-primary justify-center w-24">
+          {/* Submit */}
+          <div className="md:col-span-2 flex items-center gap-3 pt-2">
+            <button className="btn-primary justify-center gap-2">
+              <Save className="h-4 w-4" />
               {editingId ? t("common.update") : t("common.add")}
             </button>
+            {editingId && (
+              <button
+                type="button"
+                onClick={() => {
+                  setForm({ patient: "", doctor: "", diagnosis: "", prescription: "", notes: "", followUpDate: "" });
+                  setEditingId(null);
+                }}
+                className="btn-ghost"
+              >
+                {t("common.cancel")}
+              </button>
+            )}
           </div>
 
         </form>
