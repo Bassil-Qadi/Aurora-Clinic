@@ -33,7 +33,7 @@ export async function POST(req: Request) {
   await connectDB();
 
   const body = await req.json();
-  const { date, reason, doctor } = body;
+  const { date, reason, doctor, type } = body;
 
   if (!date) {
     return NextResponse.json(
@@ -86,6 +86,7 @@ export async function POST(req: Request) {
     date: appointmentDate,
     reason: reason || "",
     doctor: doctor || undefined,
+    type: type === "video" ? "video" : "in_person",
     status: "scheduled",
   });
 

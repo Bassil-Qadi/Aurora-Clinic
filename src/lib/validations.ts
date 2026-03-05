@@ -34,6 +34,7 @@ export const createAppointmentSchema = z.object({
     ])
     .optional(),
   doctor: z.string().optional(),
+  type: z.enum(["in_person", "video"]).optional(),
 });
 
 export const updateAppointmentSchema = z.object({
@@ -51,6 +52,7 @@ export const updateAppointmentSchema = z.object({
     ])
     .optional(),
   doctor: z.string().optional(),
+  type: z.enum(["in_person", "video"]).optional(),
 });
 
 // ─── Vital Signs ──────────────────────────────────────────

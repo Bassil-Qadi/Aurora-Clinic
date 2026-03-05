@@ -4,14 +4,18 @@ import {
   normalizeAppointmentStatus,
 } from "@/lib/appointmentStatus";
 
+export type AppointmentType = "in_person" | "video";
+
 export interface IAppointment extends Document {
   clinicId: mongoose.Types.ObjectId;
   patient: mongoose.Types.ObjectId;
   date: Date;
   reason: string;
   status: AppointmentStatus;
+  type: AppointmentType;
   doctor: mongoose.Types.ObjectId;
   visit: mongoose.Types.ObjectId;
+  videoRoomId?: string;
   createdAt: Date;
 }
 
@@ -27,7 +31,13 @@ const AppointmentSchema = new Schema<IAppointment>(
       ref: "Visit" },
     doctor: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     date: { type: Date, required: true },
+    type: {
+      type: String,
+      enum: ["in_person", "video"],
+      default: "in_person",
+    },
     reason: { type: String },
+    videoRoomId: { type: String },
     status: {
       type: String,
       enum: [

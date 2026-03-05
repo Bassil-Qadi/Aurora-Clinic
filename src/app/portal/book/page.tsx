@@ -10,6 +10,8 @@ import {
   CheckCircle2,
   ArrowLeft,
   AlertCircle,
+  Video,
+  MapPin,
 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 
@@ -21,6 +23,7 @@ export default function BookAppointmentPage() {
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const [reason, setReason] = useState("");
+  const [appointmentType, setAppointmentType] = useState("in_person");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
@@ -65,6 +68,7 @@ export default function BookAppointmentPage() {
           date: dateTime.toISOString(),
           reason,
           doctor: selectedDoctor || undefined,
+          type: appointmentType,
         }),
       });
 
@@ -109,6 +113,7 @@ export default function BookAppointmentPage() {
                 setDate("");
                 setTime("");
                 setReason("");
+                setAppointmentType("in_person");
                 setSelectedDoctor("");
               }}
               className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 px-5 py-2.5 text-sm font-semibold text-white shadow-md transition-all hover:shadow-lg"
@@ -164,6 +169,40 @@ export default function BookAppointmentPage() {
                 </option>
               ))}
             </select>
+          </div>
+
+          {/* Appointment Type */}
+          <div>
+            <label className="mb-1 flex items-center gap-2 text-xs font-medium text-slate-600 dark:text-slate-400">
+              <Video className="h-3 w-3 text-emerald-500" />
+              {t("telehealth.appointmentType")}
+            </label>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => setAppointmentType("in_person")}
+                className={`flex flex-1 items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-medium transition ring-1 ${
+                  appointmentType === "in_person"
+                    ? "bg-emerald-50 text-emerald-700 ring-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-400 dark:ring-emerald-800"
+                    : "bg-white text-slate-600 ring-slate-200 hover:bg-slate-50 dark:bg-slate-900 dark:text-slate-400 dark:ring-slate-700 dark:hover:bg-slate-800"
+                }`}
+              >
+                <MapPin className="h-4 w-4" />
+                {t("telehealth.inPerson")}
+              </button>
+              <button
+                type="button"
+                onClick={() => setAppointmentType("video")}
+                className={`flex flex-1 items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-medium transition ring-1 ${
+                  appointmentType === "video"
+                    ? "bg-violet-50 text-violet-700 ring-violet-200 dark:bg-violet-950/40 dark:text-violet-400 dark:ring-violet-800"
+                    : "bg-white text-slate-600 ring-slate-200 hover:bg-slate-50 dark:bg-slate-900 dark:text-slate-400 dark:ring-slate-700 dark:hover:bg-slate-800"
+                }`}
+              >
+                <Video className="h-4 w-4" />
+                {t("telehealth.video")}
+              </button>
+            </div>
           </div>
 
           {/* Date and Time */}

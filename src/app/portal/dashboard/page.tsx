@@ -10,6 +10,8 @@ import {
   FileText,
   CheckCircle2,
   AlertCircle,
+  Video,
+  MapPin,
 } from "lucide-react";
 import Link from "next/link";
 import { useI18n } from "@/lib/i18n";
@@ -176,13 +178,37 @@ export default function PortalDashboard() {
                           </p>
                         )}
                       </div>
-                      {isToday && (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400">
-                          <AlertCircle className="h-3 w-3" />
-                          {t("common.today")}
-                        </span>
-                      )}
+                      <div className="flex flex-col items-end gap-1.5">
+                        {isToday && (
+                          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400">
+                            <AlertCircle className="h-3 w-3" />
+                            {t("common.today")}
+                          </span>
+                        )}
+                        {appt.type === "video" ? (
+                          <span className="inline-flex items-center gap-1 rounded-full bg-violet-50 px-2.5 py-1 text-xs font-medium text-violet-700 dark:bg-violet-950/30 dark:text-violet-400">
+                            <Video className="h-3 w-3" />
+                            {t("telehealth.video")}
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600 dark:bg-slate-700 dark:text-slate-400">
+                            <MapPin className="h-3 w-3" />
+                            {t("telehealth.inPerson")}
+                          </span>
+                        )}
+                      </div>
                     </div>
+                    {appt.type === "video" && appt.videoRoomId && (
+                      <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-700">
+                        <Link
+                          href={`/portal/video/${appt.videoRoomId}`}
+                          className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-2 text-xs font-semibold text-white transition hover:bg-violet-700"
+                        >
+                          <Video className="h-3.5 w-3.5" />
+                          {t("telehealth.joinVideoCall")}
+                        </Link>
+                      </div>
+                    )}
                   </div>
                 );
               })}
@@ -256,6 +282,7 @@ export default function PortalDashboard() {
               <thead>
                 <tr>
                   <th>{t("common.date")}</th>
+                  <th>{t("telehealth.appointmentTypeLabel")}</th>
                   <th>{t("common.reason")}</th>
                   <th>{t("common.doctor")}</th>
                   <th>{t("common.status")}</th>
@@ -265,6 +292,17 @@ export default function PortalDashboard() {
                 {pastAppointments.slice(0, 10).map((appt) => (
                   <tr key={appt._id}>
                     <td>{new Date(appt.date).toLocaleDateString()}</td>
+                    <td>
+                      {appt.type === "video" ? (
+                        <span className="inline-flex items-center gap-1 text-xs text-violet-600 dark:text-violet-400">
+                          <Video className="h-3 w-3" /> {t("telehealth.video")}
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400">
+                          <MapPin className="h-3 w-3" /> {t("telehealth.inPerson")}
+                        </span>
+                      )}
+                    </td>
                     <td>{appt.reason || "—"}</td>
                     <td>{appt.doctor?.name ? `${t("common.dr")} ${appt.doctor.name}` : "—"}</td>
                     <td>

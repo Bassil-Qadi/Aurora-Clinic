@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { Calendar, Users, Search, Pencil, Trash2, Play, CheckCircle2, Clock3, XOctagon, EyeOff, User, Stethoscope, FileText, ChevronDown, Save } from "lucide-react";
+import { Calendar, Users, Search, Pencil, Trash2, Play, CheckCircle2, Clock3, XOctagon, EyeOff, User, Stethoscope, FileText, ChevronDown, Save, Video, MapPin } from "lucide-react";
 import { AppointmentStatus, normalizeAppointmentStatus } from "@/lib/appointmentStatus";
 import { AppointmentStatusBadge } from "@/components/AppointmentStatusBadge";
 import { useToast } from "@/hooks/use-toast";
@@ -28,6 +28,8 @@ interface Appointment {
   date: string;
   reason: string;
   status: string;
+  type?: string;
+  videoRoomId?: string;
 }
 
 export default function AppointmentsPage() {
@@ -52,6 +54,7 @@ export default function AppointmentsPage() {
     reason: "",
     status: "scheduled",
     doctor: "",
+    type: "in_person",
   });
 
   useEffect(() => {
@@ -98,6 +101,7 @@ export default function AppointmentsPage() {
         date: form.date,
         reason: form.reason,
         status: form.status,
+        type: form.type,
       };
       if (userRole !== "doctor" && form.doctor) {
         payload.doctor = form.doctor;
@@ -136,6 +140,7 @@ export default function AppointmentsPage() {
         reason: "",
         status: "scheduled",
         doctor: "",
+        type: "in_person",
       });
 
       setEditingId(null);
@@ -170,6 +175,7 @@ export default function AppointmentsPage() {
       reason: appointment.reason,
       status: appointment.status,
       doctor: appointment.doctor?._id || "",
+      type: appointment.type || "in_person",
     });
   };
 
@@ -234,6 +240,29 @@ export default function AppointmentsPage() {
     } catch (error: any) {
       toast({
         title: t("appointments.cannotStartVisit"),
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsUpdatingId(null);
+    }
+  };
+
+  const startVideoCall = async (appointmentId: string) => {
+    try {
+      setIsUpdatingId(appointmentId);
+      const res = await fetch("/api/video-rooms", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ appointmentId }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to create video room");
+      const roomId = data.room?._id || data.room?.id;
+      router.push(`/video/${roomId}`);
+    } catch (error: any) {
+      toast({
+        title: t("telehealth.error"),
         description: error.message,
         variant: "destructive",
       });
@@ -366,6 +395,40 @@ export default function AppointmentsPage() {
             />
           </div>
 
+          {/* Appointment Type */}
+          <div className="space-y-1.5">
+            <label className="flex items-center gap-1.5 text-xs font-medium text-slate-600 dark:text-slate-400">
+              <Video className="h-3.5 w-3.5 text-sky-500" />
+              {t("telehealth.appointmentTypeLabel")}
+            </label>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setForm({ ...form, type: "in_person" })}
+                className={`flex flex-1 items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-xs font-medium transition ring-1 ${
+                  form.type === "in_person"
+                    ? "bg-sky-50 text-sky-700 ring-sky-200 dark:bg-sky-950/50 dark:text-sky-400 dark:ring-sky-800"
+                    : "bg-white text-slate-600 ring-slate-200 hover:bg-slate-50 dark:bg-slate-900 dark:text-slate-400 dark:ring-slate-700 dark:hover:bg-slate-800"
+                }`}
+              >
+                <MapPin className="h-3.5 w-3.5" />
+                {t("telehealth.inPerson")}
+              </button>
+              <button
+                type="button"
+                onClick={() => setForm({ ...form, type: "video" })}
+                className={`flex flex-1 items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-xs font-medium transition ring-1 ${
+                  form.type === "video"
+                    ? "bg-violet-50 text-violet-700 ring-violet-200 dark:bg-violet-950/50 dark:text-violet-400 dark:ring-violet-800"
+                    : "bg-white text-slate-600 ring-slate-200 hover:bg-slate-50 dark:bg-slate-900 dark:text-slate-400 dark:ring-slate-700 dark:hover:bg-slate-800"
+                }`}
+              >
+                <Video className="h-3.5 w-3.5" />
+                {t("telehealth.video")}
+              </button>
+            </div>
+          </div>
+
           {/* Status */}
           <div className="space-y-1.5">
             <label className="flex items-center gap-1.5 text-xs font-medium text-slate-600 dark:text-slate-400">
@@ -398,7 +461,7 @@ export default function AppointmentsPage() {
               <button
                 type="button"
                 onClick={() => {
-                  setForm({ patient: "", date: "", reason: "", status: "scheduled", doctor: "" });
+                  setForm({ patient: "", date: "", reason: "", status: "scheduled", doctor: "", type: "in_person" });
                   setEditingId(null);
                 }}
                 className="btn-ghost"
@@ -435,6 +498,7 @@ export default function AppointmentsPage() {
               <th>{t("common.patient")}</th>
               <th>{t("common.doctor")}</th>
               <th>{t("common.date")}</th>
+              <th>{t("telehealth.appointmentTypeLabel")}</th>
               <th>{t("common.reason")}</th>
               <th>{t("common.status")}</th>
               <th className="text-right">{t("common.actions")}</th>
@@ -450,6 +514,19 @@ export default function AppointmentsPage() {
                   {a.doctor?.name ? `${t("common.dr")} ${a.doctor.name}` : <span className="text-slate-400 italic">{t("common.unassigned")}</span>}
                 </td>
                 <td>{new Date(a.date).toLocaleString()}</td>
+                <td>
+                  {a.type === "video" ? (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-violet-50 px-2 py-0.5 text-xs font-medium text-violet-700 dark:bg-violet-950/40 dark:text-violet-400">
+                      <Video className="h-3 w-3" />
+                      {t("telehealth.video")}
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-400">
+                      <MapPin className="h-3 w-3" />
+                      {t("telehealth.inPerson")}
+                    </span>
+                  )}
+                </td>
                 <td>{a.reason}</td>
                 <td>
                   <AppointmentStatusBadge status={a.status} />
@@ -469,6 +546,17 @@ export default function AppointmentsPage() {
                     <Trash2 className="h-3.5 w-3.5" />
                     <span>{t("common.delete")}</span>
                   </button>
+                  {/* Video Call button for video appointments */}
+                  {a.type === "video" && getNormalizedStatus(a) !== "completed" && getNormalizedStatus(a) !== "cancelled" && getNormalizedStatus(a) !== "no_show" && (
+                    <button
+                      onClick={() => startVideoCall(a._id)}
+                      disabled={isUpdatingId === a._id}
+                      className="inline-flex items-center gap-1.5 rounded-full bg-violet-50 px-3 py-1.5 text-xs font-medium text-violet-700 ring-1 ring-violet-200 transition hover:bg-violet-100 dark:bg-violet-950/40 dark:text-violet-400 dark:ring-violet-800 dark:hover:bg-violet-950/60"
+                    >
+                      <Video className="h-3.5 w-3.5" />
+                      <span>{t("telehealth.startVideoCall")}</span>
+                    </button>
+                  )}
                   {/* Reception: Check-in / Cancel / No-show */}
                   {(() => {
                     const status = getNormalizedStatus(a);
