@@ -21,7 +21,9 @@ const ICE_SERVERS: RTCConfiguration = {
   iceServers: [
     { urls: "stun:stun.l.google.com:19302" },
     { urls: "stun:stun1.l.google.com:19302" },
+    { urls: "stun:stun2.l.google.com:19302" },
   ],
+  iceCandidatePoolSize: 10,
 };
 
 const POLL_INTERVAL = 1500;
@@ -128,8 +130,18 @@ export default function VideoCallPage() {
       };
 
       pc.onconnectionstatechange = () => {
-        if (pc.connectionState === "disconnected" || pc.connectionState === "failed") {
+        console.log("🔗 Connection state:", pc.connectionState);
+        if (pc.connectionState === "connected") {
+          setConnected(true);
+        } else if (pc.connectionState === "disconnected" || pc.connectionState === "failed") {
           setConnected(false);
+        }
+      };
+
+      pc.oniceconnectionstatechange = () => {
+        console.log("🧊 ICE connection state:", pc.iceConnectionState);
+        if (pc.iceConnectionState === "connected" || pc.iceConnectionState === "completed") {
+          setConnected(true);
         }
       };
 
@@ -137,6 +149,7 @@ export default function VideoCallPage() {
       if (iCallerRef.current) {
         const offer = await pc.createOffer();
         await pc.setLocalDescription(offer);
+        console.log("📤 Sending offer:", offer.type);
         await sendSignal("caller", "offer", offer);
       }
 
@@ -169,7 +182,8 @@ export default function VideoCallPage() {
 
   const startPolling = () => {
     if (pollTimerRef.current) return;
-    lastSignalTimeRef.current = Date.now();
+    // Look back 30 seconds to catch any signals sent before polling started
+    lastSignalTimeRef.current = Date.now() - 30000;
 
     pollTimerRef.current = setInterval(async () => {
       try {
@@ -186,7 +200,9 @@ export default function VideoCallPage() {
         }
 
         if (data.signals && data.signals.length > 0) {
+          console.log(`📨 Received ${data.signals.length} signal(s) from callee`);
           for (const signal of data.signals) {
+            console.log(`  - ${signal.type} from ${signal.from} at ${signal.createdAt}`);
             await handleRemoteSignal(signal);
             lastSignalTimeRef.current = Math.max(
               lastSignalTimeRef.current,
@@ -205,11 +221,27 @@ export default function VideoCallPage() {
     if (!pc) return;
 
     try {
-      if (signal.type === "answer" && pc.signalingState === "have-local-offer") {
-        await pc.setRemoteDescription(new RTCSessionDescription(signal.data));
+      if (signal.type === "answer") {
+        if (pc.signalingState === "have-local-offer") {
+          await pc.setRemoteDescription(new RTCSessionDescription(signal.data));
+          console.log("✅ Set remote description (answer)");
+        }
       } else if (signal.type === "ice-candidate") {
-        if (pc.remoteDescription) {
-          await pc.addIceCandidate(new RTCIceCandidate(signal.data));
+        try {
+          if (pc.remoteDescription) {
+            await pc.addIceCandidate(new RTCIceCandidate(signal.data));
+            console.log("✅ Added ICE candidate");
+          } else {
+            // Queue ICE candidates if remote description not set yet
+            console.log("⏳ Queueing ICE candidate (waiting for remote description)");
+          }
+        } catch (err: any) {
+          // Ignore duplicate ICE candidate errors
+          if (err.message?.includes("duplicate")) {
+            console.log("⚠️ Duplicate ICE candidate (ignored)");
+          } else {
+            console.error("Error adding ICE candidate:", err);
+          }
         }
       }
     } catch (err) {

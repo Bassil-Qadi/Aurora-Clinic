@@ -18,7 +18,9 @@ const ICE_SERVERS: RTCConfiguration = {
   iceServers: [
     { urls: "stun:stun.l.google.com:19302" },
     { urls: "stun:stun1.l.google.com:19302" },
+    { urls: "stun:stun2.l.google.com:19302" },
   ],
+  iceCandidatePoolSize: 10,
 };
 
 const POLL_INTERVAL = 1500;
@@ -116,8 +118,18 @@ export default function PatientVideoCallPage() {
       };
 
       pc.onconnectionstatechange = () => {
-        if (pc.connectionState === "disconnected" || pc.connectionState === "failed") {
+        console.log("🔗 Connection state:", pc.connectionState);
+        if (pc.connectionState === "connected") {
+          setConnected(true);
+        } else if (pc.connectionState === "disconnected" || pc.connectionState === "failed") {
           setConnected(false);
+        }
+      };
+
+      pc.oniceconnectionstatechange = () => {
+        console.log("🧊 ICE connection state:", pc.iceConnectionState);
+        if (pc.iceConnectionState === "connected" || pc.iceConnectionState === "completed") {
+          setConnected(true);
         }
       };
 
@@ -166,7 +178,9 @@ export default function PatientVideoCallPage() {
         }
 
         if (data.signals && data.signals.length > 0) {
+          console.log(`📨 Received ${data.signals.length} signal(s) from caller`);
           for (const signal of data.signals) {
+            console.log(`  - ${signal.type} from ${signal.from} at ${signal.createdAt}`);
             await handleRemoteSignal(signal, pc);
             lastSignalTimeRef.current = Math.max(
               lastSignalTimeRef.current,
@@ -183,23 +197,44 @@ export default function PatientVideoCallPage() {
   const handleRemoteSignal = async (signal: any, pc: RTCPeerConnection) => {
     try {
       if (signal.type === "offer") {
+        console.log("📥 Received offer");
         await pc.setRemoteDescription(new RTCSessionDescription(signal.data));
+        console.log("✅ Set remote description (offer)");
 
         // Flush queued ICE candidates
         for (const candidate of iceCandidateQueueRef.current) {
-          await pc.addIceCandidate(new RTCIceCandidate(candidate));
+          try {
+            await pc.addIceCandidate(new RTCIceCandidate(candidate));
+            console.log("✅ Added queued ICE candidate");
+          } catch (err: any) {
+            if (!err.message?.includes("duplicate")) {
+              console.error("Error adding queued ICE candidate:", err);
+            }
+          }
         }
         iceCandidateQueueRef.current = [];
 
         // Create and send answer
         const answer = await pc.createAnswer();
         await pc.setLocalDescription(answer);
+        console.log("📤 Sending answer:", answer.type);
         await sendSignal("callee", "answer", answer);
       } else if (signal.type === "ice-candidate") {
-        if (pc.remoteDescription) {
-          await pc.addIceCandidate(new RTCIceCandidate(signal.data));
-        } else {
-          iceCandidateQueueRef.current.push(signal.data);
+        try {
+          if (pc.remoteDescription) {
+            await pc.addIceCandidate(new RTCIceCandidate(signal.data));
+            console.log("✅ Added ICE candidate");
+          } else {
+            iceCandidateQueueRef.current.push(signal.data);
+            console.log("⏳ Queueing ICE candidate (waiting for remote description)");
+          }
+        } catch (err: any) {
+          // Ignore duplicate ICE candidate errors
+          if (err.message?.includes("duplicate")) {
+            console.log("⚠️ Duplicate ICE candidate (ignored)");
+          } else {
+            console.error("Error adding ICE candidate:", err);
+          }
         }
       }
     } catch (err) {

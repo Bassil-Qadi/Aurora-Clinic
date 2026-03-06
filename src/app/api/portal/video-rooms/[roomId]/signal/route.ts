@@ -97,13 +97,21 @@ export async function GET(
 
   // Return signals from the other party
   const otherParty = role === "caller" ? "callee" : "caller";
-  let signals = room.signals.filter((s: any) => s.from === otherParty);
+  let signals = room.signals
+    .filter((s: any) => s.from === otherParty)
+    .map((s: any) => ({
+      from: s.from,
+      type: s.type,
+      data: s.data,
+      createdAt: s.createdAt instanceof Date ? s.createdAt.toISOString() : s.createdAt,
+    }));
 
   if (after) {
-    const afterDate = new Date(Number(after));
-    signals = signals.filter(
-      (s: any) => new Date(s.createdAt) > afterDate
-    );
+    const afterTimestamp = Number(after);
+    signals = signals.filter((s: any) => {
+      const signalTime = new Date(s.createdAt).getTime();
+      return signalTime > afterTimestamp;
+    });
   }
 
   return NextResponse.json({
