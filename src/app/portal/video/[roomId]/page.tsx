@@ -47,6 +47,7 @@ export default function PatientVideoCallPage() {
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
   const pcRef = useRef<RTCPeerConnection | null>(null);
   const localStreamRef = useRef<MediaStream | null>(null);
+  const remoteStreamRef = useRef<MediaStream | null>(null);
   const pollTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const lastSignalTimeRef = useRef<number>(0);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -105,36 +106,48 @@ export default function PatientVideoCallPage() {
 
       stream.getTracks().forEach((track) => pc.addTrack(track, stream));
 
+      // Handle remote stream - accumulate tracks into a single stream
       pc.ontrack = (event) => {
         console.log("🎥 Received remote track:", event.track.kind, event.streams.length);
-        let remoteStream: MediaStream | null = null;
         
-        if (event.streams && event.streams.length > 0) {
-          remoteStream = event.streams[0];
-          console.log("📹 Setting remote stream with", remoteStream.getTracks().length, "tracks");
-        } else if (event.track) {
-          // Fallback: create a stream from the track
-          console.log("📹 Creating stream from track");
-          remoteStream = new MediaStream([event.track]);
+        // Get or create the remote stream
+        if (!remoteStreamRef.current) {
+          remoteStreamRef.current = new MediaStream();
+          if (remoteVideoRef.current) {
+            remoteVideoRef.current.srcObject = remoteStreamRef.current;
+            setHasRemoteStream(true);
+            console.log("📹 Created new remote stream");
+          }
         }
 
-        if (remoteStream && remoteVideoRef.current) {
-          remoteVideoRef.current.srcObject = remoteStream;
-          setHasRemoteStream(true);
-          setConnected(true);
+        // Add the track to the existing stream
+        if (event.track && remoteStreamRef.current) {
+          // Check if track already exists to avoid duplicates
+          const existingTrack = remoteStreamRef.current.getTracks().find(
+            (t) => t.id === event.track.id
+          );
           
-          // Ensure video plays
-          remoteVideoRef.current.play().catch((err) => {
-            console.error("Error playing remote video:", err);
-          });
-
-          // Log track info
-          remoteStream.getTracks().forEach((track) => {
-            console.log(`  Track: ${track.kind}, enabled: ${track.enabled}, readyState: ${track.readyState}`);
-            track.onended = () => {
-              console.log(`  Track ended: ${track.kind}`);
+          if (!existingTrack) {
+            remoteStreamRef.current.addTrack(event.track);
+            console.log(`✅ Added ${event.track.kind} track to remote stream. Total tracks: ${remoteStreamRef.current.getTracks().length}`);
+            
+            // Ensure video plays when we have tracks
+            if (remoteVideoRef.current) {
+              remoteVideoRef.current.play().catch((err) => {
+                console.error("Error playing remote video:", err);
+              });
+            }
+            
+            setConnected(true);
+            
+            // Log track info
+            console.log(`  Track: ${event.track.kind}, enabled: ${event.track.enabled}, readyState: ${event.track.readyState}`);
+            event.track.onended = () => {
+              console.log(`  Track ended: ${event.track.kind}`);
             };
-          });
+          } else {
+            console.log(`⚠️ Track ${event.track.kind} already exists, skipping`);
+          }
         }
       };
 
@@ -169,15 +182,24 @@ export default function PatientVideoCallPage() {
           console.log("🔍 Found existing receivers, checking for streams...");
           const receivers = pc.getReceivers();
           const tracks = receivers.map((r) => r.track).filter((t) => t !== null) as MediaStreamTrack[];
-          if (tracks.length > 0 && remoteVideoRef.current) {
-            const remoteStream = new MediaStream(tracks);
-            remoteVideoRef.current.srcObject = remoteStream;
-            setHasRemoteStream(true);
-            setConnected(true);
-            remoteVideoRef.current.play().catch((err) => {
-              console.error("Error playing remote video:", err);
+          if (tracks.length > 0) {
+            if (!remoteStreamRef.current) {
+              remoteStreamRef.current = new MediaStream();
+            }
+            tracks.forEach((track) => {
+              if (!remoteStreamRef.current!.getTracks().find((t) => t.id === track.id)) {
+                remoteStreamRef.current!.addTrack(track);
+              }
             });
-            console.log("✅ Set remote stream from existing receivers");
+            if (remoteVideoRef.current && remoteStreamRef.current.getTracks().length > 0) {
+              remoteVideoRef.current.srcObject = remoteStreamRef.current;
+              setHasRemoteStream(true);
+              setConnected(true);
+              remoteVideoRef.current.play().catch((err) => {
+                console.error("Error playing remote video:", err);
+              });
+              console.log(`✅ Set remote stream from existing receivers with ${remoteStreamRef.current.getTracks().length} tracks`);
+            }
           }
         }
       }, 1000);
@@ -342,12 +364,45 @@ export default function PatientVideoCallPage() {
   // Ensure remote video plays when stream is set
   // ──────────────────────────────────────────────
   useEffect(() => {
-    if (hasRemoteStream && remoteVideoRef.current && remoteVideoRef.current.srcObject) {
+    if (hasRemoteStream && remoteVideoRef.current && remoteStreamRef.current) {
+      // Ensure the video element is connected to the stream
+      if (remoteVideoRef.current.srcObject !== remoteStreamRef.current) {
+        remoteVideoRef.current.srcObject = remoteStreamRef.current;
+      }
       remoteVideoRef.current.play().catch((err) => {
         console.error("Error playing remote video in effect:", err);
       });
     }
   }, [hasRemoteStream]);
+
+  // ──────────────────────────────────────────────
+  // Periodic check to ensure remote stream stays connected
+  // ──────────────────────────────────────────────
+  useEffect(() => {
+    if (!connected || !remoteStreamRef.current) return;
+
+    const checkInterval = setInterval(() => {
+      if (remoteVideoRef.current && remoteStreamRef.current) {
+        // Ensure video element is still connected to stream
+        if (remoteVideoRef.current.srcObject !== remoteStreamRef.current) {
+          console.log("⚠️ Video element disconnected from stream, reconnecting...");
+          remoteVideoRef.current.srcObject = remoteStreamRef.current;
+          remoteVideoRef.current.play().catch((err) => {
+            console.error("Error playing remote video after reconnect:", err);
+          });
+        }
+        
+        // Check if tracks are still active
+        const tracks = remoteStreamRef.current.getTracks();
+        const activeTracks = tracks.filter((t) => t.readyState === "live");
+        if (tracks.length > 0 && activeTracks.length === 0) {
+          console.warn("⚠️ All remote tracks are inactive");
+        }
+      }
+    }, 2000);
+
+    return () => clearInterval(checkInterval);
+  }, [connected]);
 
   // ──────────────────────────────────────────────
   // Cleanup on unmount
