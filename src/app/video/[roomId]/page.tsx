@@ -38,6 +38,7 @@ export default function VideoCallPage() {
   const [error, setError] = useState("");
   const [connected, setConnected] = useState(false);
   const [callEnded, setCallEnded] = useState(false);
+  const [hasRemoteStream, setHasRemoteStream] = useState(false);
 
   // Media controls
   const [isMuted, setIsMuted] = useState(false);
@@ -116,9 +117,35 @@ export default function VideoCallPage() {
 
       // Handle remote stream
       pc.ontrack = (event) => {
-        if (remoteVideoRef.current && event.streams[0]) {
-          remoteVideoRef.current.srcObject = event.streams[0];
+        console.log("🎥 Received remote track:", event.track.kind, event.streams.length);
+        let remoteStream: MediaStream | null = null;
+        
+        if (event.streams && event.streams.length > 0) {
+          remoteStream = event.streams[0];
+          console.log("📹 Setting remote stream with", remoteStream.getTracks().length, "tracks");
+        } else if (event.track) {
+          // Fallback: create a stream from the track
+          console.log("📹 Creating stream from track");
+          remoteStream = new MediaStream([event.track]);
+        }
+
+        if (remoteStream && remoteVideoRef.current) {
+          remoteVideoRef.current.srcObject = remoteStream;
+          setHasRemoteStream(true);
           setConnected(true);
+          
+          // Ensure video plays
+          remoteVideoRef.current.play().catch((err) => {
+            console.error("Error playing remote video:", err);
+          });
+
+          // Log track info
+          remoteStream.getTracks().forEach((track) => {
+            console.log(`  Track: ${track.kind}, enabled: ${track.enabled}, readyState: ${track.readyState}`);
+            track.onended = () => {
+              console.log(`  Track ended: ${track.kind}`);
+            };
+          });
         }
       };
 
@@ -155,6 +182,25 @@ export default function VideoCallPage() {
 
       // Start polling for signals from the other party
       startPolling();
+
+      // Check for existing remote streams (in case ontrack fired before handler was set)
+      setTimeout(() => {
+        if (pc.getReceivers().length > 0) {
+          console.log("🔍 Found existing receivers, checking for streams...");
+          const receivers = pc.getReceivers();
+          const tracks = receivers.map((r) => r.track).filter((t) => t !== null) as MediaStreamTrack[];
+          if (tracks.length > 0 && remoteVideoRef.current) {
+            const remoteStream = new MediaStream(tracks);
+            remoteVideoRef.current.srcObject = remoteStream;
+            setHasRemoteStream(true);
+            setConnected(true);
+            remoteVideoRef.current.play().catch((err) => {
+              console.error("Error playing remote video:", err);
+            });
+            console.log("✅ Set remote stream from existing receivers");
+          }
+        }
+      }, 1000);
     } catch (err: any) {
       setError(
         err.name === "NotAllowedError"
@@ -344,6 +390,17 @@ export default function VideoCallPage() {
   };
 
   // ──────────────────────────────────────────────
+  // Ensure remote video plays when stream is set
+  // ──────────────────────────────────────────────
+  useEffect(() => {
+    if (hasRemoteStream && remoteVideoRef.current && remoteVideoRef.current.srcObject) {
+      remoteVideoRef.current.play().catch((err) => {
+        console.error("Error playing remote video in effect:", err);
+      });
+    }
+  }, [hasRemoteStream]);
+
+  // ──────────────────────────────────────────────
   // Cleanup on unmount
   // ──────────────────────────────────────────────
   useEffect(() => {
@@ -444,7 +501,22 @@ export default function VideoCallPage() {
                 ref={remoteVideoRef}
                 autoPlay
                 playsInline
+                muted={false}
                 className="h-full w-full object-cover"
+                onLoadedMetadata={() => {
+                  console.log("✅ Remote video metadata loaded");
+                  if (remoteVideoRef.current) {
+                    remoteVideoRef.current.play().catch((err) => {
+                      console.error("Error playing after metadata load:", err);
+                    });
+                  }
+                }}
+                onPlay={() => {
+                  console.log("▶️ Remote video started playing");
+                }}
+                onError={(e) => {
+                  console.error("❌ Remote video error:", e);
+                }}
               />
               <div className="absolute bottom-3 left-3 rounded-full bg-slate-950/70 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm">
                 {room?.calleeName || t("telehealth.patient")}
