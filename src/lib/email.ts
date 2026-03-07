@@ -311,3 +311,78 @@ export async function sendWelcomeEmail(data: WelcomeEmailData) {
     text: `Hi ${data.recipientName},\n\nYour account has been created. Log in here: ${data.loginUrl}\n\nIf you didn't create this account, contact the clinic.`,
   });
 }
+
+// ---------------------------------------------------------------------------
+// Template: Appointment Reminder (24 hours)
+// ---------------------------------------------------------------------------
+export interface AppointmentReminderEmailData {
+  recipientName: string;
+  recipientEmail: string;
+  appointmentDate: Date;
+  appointmentTime: string;
+  appointmentType: "in_person" | "video";
+  doctorName?: string;
+  clinicName?: string;
+  clinicPhone?: string;
+  clinicAddress?: string;
+  reason?: string;
+  portalUrl?: string;
+}
+
+export async function sendAppointmentReminderEmail(data: AppointmentReminderEmailData) {
+  const dateStr = data.appointmentDate.toLocaleDateString("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+
+  const appointmentTypeLabel = data.appointmentType === "video" ? "Video Consultation" : "In-Person Appointment";
+  const locationInfo = data.appointmentType === "video" 
+    ? `<p style="margin:0 0 16px;font-size:15px;color:#334155;"><strong>Type:</strong> Video Consultation</p>
+       <p style="margin:0 0 16px;font-size:15px;color:#334155;">You'll receive a link to join the video call before your appointment.</p>`
+    : `<p style="margin:0 0 16px;font-size:15px;color:#334155;"><strong>Location:</strong> ${data.clinicAddress || "Clinic"}</p>`;
+
+  const body = `
+    <h2 style="margin:0 0 16px;font-size:22px;color:#0f172a;">Appointment Reminder</h2>
+    <p style="margin:0 0 8px;font-size:15px;color:#334155;">Hi ${data.recipientName},</p>
+    <p style="margin:0 0 24px;font-size:15px;color:#334155;">
+      This is a friendly reminder that you have an appointment scheduled for tomorrow.
+    </p>
+    
+    <div style="background:#f8fafc;border-left:4px solid #0ea5e9;padding:20px;margin:0 0 24px;border-radius:8px;">
+      <p style="margin:0 0 12px;font-size:16px;font-weight:600;color:#0f172a;">Appointment Details</p>
+      <p style="margin:0 0 8px;font-size:15px;color:#334155;"><strong>Date:</strong> ${dateStr}</p>
+      <p style="margin:0 0 8px;font-size:15px;color:#334155;"><strong>Time:</strong> ${data.appointmentTime}</p>
+      ${data.doctorName ? `<p style="margin:0 0 8px;font-size:15px;color:#334155;"><strong>Doctor:</strong> ${data.doctorName}</p>` : ""}
+      ${data.reason ? `<p style="margin:0 0 8px;font-size:15px;color:#334155;"><strong>Reason:</strong> ${data.reason}</p>` : ""}
+      ${locationInfo}
+    </div>
+
+    ${data.clinicPhone ? `<p style="margin:0 0 16px;font-size:15px;color:#334155;">If you need to reschedule or have any questions, please contact us at <strong>${data.clinicPhone}</strong>.</p>` : ""}
+    
+    ${data.portalUrl ? `
+    <table cellpadding="0" cellspacing="0" style="margin:0 0 24px;">
+      <tr>
+        <td style="background:#0ea5e9;border-radius:8px;">
+          <a href="${data.portalUrl}" style="display:inline-block;padding:12px 28px;color:#ffffff;text-decoration:none;font-size:15px;font-weight:600;">
+            View Appointment
+          </a>
+        </td>
+      </tr>
+    </table>
+    ` : ""}
+    
+    <p style="margin:0;font-size:13px;color:#64748b;">
+      We look forward to seeing you!
+    </p>`;
+
+  const textBody = `Hi ${data.recipientName},\n\nThis is a reminder that you have an appointment scheduled for tomorrow.\n\nAppointment Details:\nDate: ${dateStr}\nTime: ${data.appointmentTime}\n${data.doctorName ? `Doctor: ${data.doctorName}\n` : ""}${data.reason ? `Reason: ${data.reason}\n` : ""}Type: ${appointmentTypeLabel}\n${data.appointmentType === "in_person" && data.clinicAddress ? `Location: ${data.clinicAddress}\n` : ""}\n${data.clinicPhone ? `If you need to reschedule, please contact us at ${data.clinicPhone}.\n\n` : ""}We look forward to seeing you!`;
+
+  return sendMail({
+    to: data.recipientEmail,
+    subject: `Appointment Reminder — ${dateStr} at ${data.appointmentTime}`,
+    html: wrapHtml("Appointment Reminder", body, data.clinicName),
+    text: textBody,
+  });
+}

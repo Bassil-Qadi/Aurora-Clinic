@@ -16,6 +16,8 @@ export interface IAppointment extends Document {
   doctor: mongoose.Types.ObjectId;
   visit: mongoose.Types.ObjectId;
   videoRoomId?: string;
+  reminderSent24h?: boolean;
+  reminderSentAt24h?: Date;
   createdAt: Date;
 }
 
@@ -52,6 +54,8 @@ const AppointmentSchema = new Schema<IAppointment>(
       set: (value: string) =>
         normalizeAppointmentStatus(value) ?? "scheduled",
     },
+    reminderSent24h: { type: Boolean, default: false, index: true },
+    reminderSentAt24h: { type: Date },
   },
   { timestamps: true }
 );
