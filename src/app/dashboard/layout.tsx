@@ -95,7 +95,7 @@ export default function DashboardLayout({ children }: Props) {
         <Logo className="h-10 w-10 shrink-0" />
         <div className="min-w-0 flex-1">
           <h2 className="truncate text-sm font-semibold tracking-tight text-slate-900 dark:text-slate-100">
-            {clinicName ?? t("common.appName")}
+            {clinicName ?? 'Loading Clinic Name...'}
           </h2>
           <p className="text-xs text-slate-500 dark:text-slate-400">
             {t("common.medicalDashboard")}
@@ -219,7 +219,7 @@ export default function DashboardLayout({ children }: Props) {
         <div className="flex items-center gap-2">
           <LogoMark className="h-8 w-8 shrink-0" />
           <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-            {clinicName ?? t("common.appName")}
+            {clinicName ?? 'Loading Clinic Name...'}
           </span>
         </div>
         <NotificationBell />

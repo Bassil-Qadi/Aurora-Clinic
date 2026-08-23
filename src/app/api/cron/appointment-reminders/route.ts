@@ -3,7 +3,7 @@ import { connectDB } from "@/lib/db";
 import Appointment from "@/models/Appointment";
 import Patient from "@/models/Patient";
 import Clinic from "@/models/Clinic";
-import User from "@/models/User";
+import { User } from "@/models/User";
 import { sendAppointmentReminderEmail } from "@/lib/email";
 import { sendWhatsApp } from "@/lib/whatsapp";
 
