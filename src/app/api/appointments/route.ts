@@ -1,7 +1,12 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import Appointment from "@/models/Appointment";
-import { requireAuth } from "@/lib/apiAuth";
+import {
+  requireAuth,
+  assertBelongsToClinic,
+  assertDoctorInClinic,
+} from "@/lib/apiAuth";
+import Patient from "@/models/Patient";
 import { createAppointmentSchema } from "@/lib/validations";
 import { checkAppointmentConflicts } from "@/lib/appointmentConflicts";
 import { createNotification, notifyClinicStaff } from "@/lib/notifications";
@@ -30,7 +35,6 @@ export async function GET(req: Request) {
 
   // If search is provided, match on reason/status and patient fields
   if (search) {
-    const Patient = (await import("@/models/Patient")).default;
     const matchingPatients = await Patient.find({
       clinicId: user.clinicId,
       $or: [
@@ -84,12 +88,28 @@ export async function POST(req: Request) {
     );
   }
 
+  // The patient id arrives in the request body and is spread into create()
+  // below — verify it belongs to this clinic before it is stored.
+  const patientCheck = await assertBelongsToClinic(
+    Patient,
+    validation.data.patient,
+    user.clinicId,
+    "Patient"
+  );
+  if (!patientCheck.ok) return patientCheck.response;
+
   // If the logged-in user is a doctor, auto-assign them as the doctor
   // If admin/receptionist, use the doctor field from the request body
   const doctorId =
     user.role === "doctor"
       ? user.id
       : validation.data.doctor || undefined;
+
+  // A body-supplied doctor must be an active doctor in this same clinic.
+  if (user.role !== "doctor") {
+    const doctorCheck = await assertDoctorInClinic(doctorId, user.clinicId);
+    if (!doctorCheck.ok) return doctorCheck.response;
+  }
 
   // Parse appointment date
   const appointmentDate = new Date(validation.data.date);

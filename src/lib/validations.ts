@@ -277,3 +277,16 @@ export const updateClinicSchema = z.object({
     })
     .optional(),
 });
+
+// ─── Demo requests (public landing page) ──────────────────
+
+export const demoRequestSchema = z.object({
+  name: z.string().min(2, "Name is required").max(120),
+  clinicName: z.string().min(2, "Clinic name is required").max(160),
+  email: z.string().email("A valid email is required").max(200),
+  phone: z.string().min(6, "A valid phone number is required").max(40),
+  country: z.string().max(80).optional(),
+  doctorCount: z.enum(["1", "2-5", "6-15", "16+"]).optional(),
+  message: z.string().max(2000).optional(),
+  locale: z.enum(["en", "ar"]).optional(),
+});

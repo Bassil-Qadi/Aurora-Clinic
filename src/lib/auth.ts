@@ -3,7 +3,6 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { connectDB } from "./db";
 import { User } from "../models/User";
-import Clinic from "../models/Clinic";
 
 export const authOptions: NextAuthOptions = {
   session: {
@@ -50,15 +49,16 @@ export const authOptions: NextAuthOptions = {
           };
         }
 
-        // Auto-assign a clinic if old account doesn't have one
-        let clinicId = user.clinicId?.toString() || "";
+        // A non-super-admin account with no clinic is a broken account, not a
+        // login to be repaired on the fly. Falling back to "the first active
+        // clinic" would drop this user into an arbitrary tenant's data, so
+        // refuse the sign-in and let an administrator fix the record.
+        const clinicId = user.clinicId?.toString() || "";
         if (!clinicId) {
-          const defaultClinic = await Clinic.findOne({ isActive: true });
-          if (defaultClinic) {
-            user.clinicId = defaultClinic._id;
-            await user.save();
-            clinicId = defaultClinic._id.toString();
-          }
+          console.error(
+            `Refusing login for ${user.email}: account has no clinicId assigned.`
+          );
+          return null;
         }
 
         return {
@@ -80,25 +80,16 @@ export const authOptions: NextAuthOptions = {
         token.clinicId = user.clinicId;
       }
 
-      // If clinicId is missing from an existing session token,
-      // do a one-time DB lookup to recover it (fixes old sessions).
-      // Super admins don't need a clinicId — skip the recovery for them.
+      // If clinicId is missing from an existing session token, recover it from
+      // the user's own record. If the record has no clinic either, the token
+      // stays without one and requireAuth() will reject the request — we never
+      // substitute a different clinic to paper over the gap.
       if (token.id && !token.clinicId && token.role !== "super_admin") {
         try {
           await connectDB();
           const dbUser = await User.findById(token.id).select("clinicId").lean();
           if (dbUser && (dbUser as any).clinicId) {
             token.clinicId = (dbUser as any).clinicId.toString();
-          } else {
-            // Last resort: assign the default clinic
-            const defaultClinic = await Clinic.findOne({ isActive: true }).lean();
-            if (defaultClinic) {
-              token.clinicId = (defaultClinic as any)._id.toString();
-              await User.updateOne(
-                { _id: token.id },
-                { $set: { clinicId: (defaultClinic as any)._id } }
-              );
-            }
           }
         } catch {
           // Silently fail — next request will retry

@@ -1,86 +1,325 @@
 "use client";
 
 import Link from "next/link";
-import { LogIn, Users, Calendar, Clipboard, Building2 } from "lucide-react";
+import {
+  CalendarDays,
+  Users,
+  FileText,
+  Smartphone,
+  MessageCircle,
+  Video,
+  BarChart3,
+  ShieldCheck,
+  Languages,
+  MonitorSmartphone,
+  Check,
+  LogIn,
+} from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { Logo } from "@/components/Logo";
+import { LandingNav } from "@/components/landing/LandingNav";
+import { PricingSection } from "@/components/landing/PricingSection";
+import { DemoForm } from "@/components/landing/DemoForm";
+import { FaqSection } from "@/components/landing/FaqSection";
+
+const TRUST = [
+  { icon: Languages, title: "bilingualTitle", body: "bilingualBody" },
+  { icon: MessageCircle, title: "remindersTitle", body: "remindersBody" },
+  { icon: MonitorSmartphone, title: "anywhereTitle", body: "anywhereBody" },
+];
+
+const FEATURES = [
+  { icon: CalendarDays, key: "scheduling" },
+  { icon: Users, key: "records" },
+  { icon: FileText, key: "prescriptions" },
+  { icon: Smartphone, key: "portal" },
+  { icon: MessageCircle, key: "reminders" },
+  { icon: Video, key: "telehealth" },
+  { icon: BarChart3, key: "analytics" },
+  { icon: ShieldCheck, key: "roles" },
+];
+
+function Spotlight({
+  badge,
+  title,
+  body,
+  points,
+  reverse,
+}: {
+  badge: string;
+  title: string;
+  body: string;
+  points: string[];
+  reverse?: boolean;
+}) {
+  return (
+    <div className="grid items-center gap-10 md:grid-cols-2">
+      <div className={reverse ? "md:order-2" : undefined}>
+        <span className="pill">{badge}</span>
+        <h3 className="mt-4 text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl dark:text-slate-100">
+          {title}
+        </h3>
+        <p className="mt-3 text-base leading-relaxed text-slate-600 dark:text-slate-400">
+          {body}
+        </p>
+        <ul className="mt-6 space-y-3">
+          {points.map((p) => (
+            <li key={p} className="flex items-start gap-3">
+              <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-950">
+                <Check className="h-3 w-3 text-emerald-600 dark:text-emerald-400" />
+              </span>
+              <span className="text-sm text-slate-700 dark:text-slate-300">
+                {p}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {/* Decorative panel — a calm stand-in for a product screenshot. */}
+      <div
+        className={`card card-muted aspect-[4/3] ${
+          reverse ? "md:order-1" : ""
+        }`}
+        aria-hidden="true"
+      >
+        <div className="flex h-full flex-col gap-3">
+          <div className="h-3 w-24 rounded-full bg-sky-200/70 dark:bg-sky-800/70" />
+          <div className="h-3 w-40 rounded-full bg-slate-200/80 dark:bg-slate-700/80" />
+          <div className="mt-2 grid flex-1 grid-cols-3 gap-3">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div
+                key={i}
+                className="rounded-xl bg-white/70 shadow-sm dark:bg-slate-800/70"
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function HomePage() {
   const { t } = useI18n();
+
   return (
-    <div className="flex min-h-screen items-center justify-center px-4 py-10">
-      <div className="max-w-4xl grid items-center gap-10 md:grid-cols-[1.1fr,0.9fr]">
-        <div className="space-y-4">
-          <span className="pill">{t("common.appName")}</span>
-          <h1 className="page-title">
-            <Logo className="h-7 w-7" />
-            <span>{t("home.heroTitle")} {t("home.heroTitleHighlight")} {t("home.heroTitleEnd")}</span>
+    <div className="min-h-screen">
+      <LandingNav />
+
+      {/* ── Hero ─────────────────────────────────────────── */}
+      <section className="mx-auto max-w-6xl px-4 pb-16 pt-16 sm:px-6 sm:pt-24">
+        <div className="mx-auto max-w-3xl text-center">
+          <span className="pill">{t("landing.hero.badge")}</span>
+
+          <h1 className="mt-6 text-4xl font-semibold leading-tight tracking-tight text-slate-900 sm:text-5xl md:text-6xl dark:text-slate-100">
+            {t("landing.hero.title")}{" "}
+            <span className="bg-gradient-to-r from-sky-500 to-cyan-500 bg-clip-text text-transparent dark:from-sky-400 dark:to-cyan-400">
+              {t("landing.hero.titleHighlight")}
+            </span>
           </h1>
-          <p className="page-subtitle max-w-xl">
-            {t("home.heroSubtitle")}
+
+          <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-slate-600 dark:text-slate-400">
+            {t("landing.hero.subtitle")}
           </p>
 
-          <div className="flex flex-wrap gap-3 pt-3">
-            <Link href="/login" className="btn-primary">
+          <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
+            <a href="#demo" className="btn-primary">
+              {t("landing.hero.ctaPrimary")}
+            </a>
+            <Link href="/login" className="btn-secondary">
               <LogIn className="h-4 w-4" />
-              <span>{t("home.getStarted")}</span>
-            </Link>
-            <Link
-              href="/register"
-              className="inline-flex items-center gap-2 rounded-full border border-sky-200 bg-sky-50 px-4 py-2 text-sm font-medium text-sky-700 transition-colors hover:bg-sky-100 dark:border-sky-700 dark:bg-sky-950/30 dark:text-sky-400 dark:hover:bg-sky-900/50"
-            >
-              <Building2 className="h-4 w-4" />
-              <span>{t("register.title")}</span>
+              <span>{t("landing.hero.ctaSecondary")}</span>
             </Link>
           </div>
-          <p className="text-xs text-slate-400 dark:text-slate-500 flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full bg-emerald-500" />
-            {t("common.systemOnline")}
+
+          <p className="mt-5 text-sm text-slate-500 dark:text-slate-400">
+            {t("landing.hero.note")}
           </p>
         </div>
 
-        <div className="card card-muted">
-          <div className="mb-4 flex items-center justify-between">
+        {/* Trust strip */}
+        <div className="mt-16 grid gap-5 sm:grid-cols-3">
+          {TRUST.map(({ icon: Icon, title, body }) => (
+            <div key={title} className="card">
+              <Icon className="h-6 w-6 text-sky-500 dark:text-sky-400" />
+              <h3 className="mt-3 font-semibold text-slate-900 dark:text-slate-100">
+                {t(`landing.trust.${title}`)}
+              </h3>
+              <p className="mt-1.5 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
+                {t(`landing.trust.${body}`)}
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── Features ─────────────────────────────────────── */}
+      <section
+        id="features"
+        className="mx-auto max-w-6xl px-4 py-20 sm:px-6"
+      >
+        <div className="mx-auto max-w-2xl text-center">
+          <span className="pill">{t("landing.nav.features")}</span>
+          <h2 className="mt-4 text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl dark:text-slate-100">
+            {t("landing.features.title")}
+          </h2>
+          <p className="mt-3 text-base text-slate-500 dark:text-slate-400">
+            {t("landing.features.subtitle")}
+          </p>
+        </div>
+
+        <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {FEATURES.map(({ icon: Icon, key }) => (
+            <div key={key} className="card">
+              <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-sky-50 dark:bg-sky-950/50">
+                <Icon className="h-5 w-5 text-sky-600 dark:text-sky-400" />
+              </span>
+              <h3 className="mt-4 font-semibold text-slate-900 dark:text-slate-100">
+                {t(`landing.features.${key}Title`)}
+              </h3>
+              <p className="mt-1.5 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
+                {t(`landing.features.${key}Body`)}
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── Spotlights ───────────────────────────────────── */}
+      <section className="mx-auto max-w-6xl space-y-20 px-4 py-10 sm:px-6">
+        <Spotlight
+          badge={t("landing.spotlight.portalBadge")}
+          title={t("landing.spotlight.portalTitle")}
+          body={t("landing.spotlight.portalBody")}
+          points={[
+            t("landing.spotlight.portalPoint1"),
+            t("landing.spotlight.portalPoint2"),
+            t("landing.spotlight.portalPoint3"),
+          ]}
+        />
+        <Spotlight
+          reverse
+          badge={t("landing.spotlight.clinicBadge")}
+          title={t("landing.spotlight.clinicTitle")}
+          body={t("landing.spotlight.clinicBody")}
+          points={[
+            t("landing.spotlight.clinicPoint1"),
+            t("landing.spotlight.clinicPoint2"),
+            t("landing.spotlight.clinicPoint3"),
+          ]}
+        />
+      </section>
+
+      {/* ── Pricing ──────────────────────────────────────── */}
+      <PricingSection />
+
+      {/* ── Demo request ─────────────────────────────────── */}
+      <section id="demo" className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
+        <div className="grid items-start gap-10 md:grid-cols-2">
+          <div>
+            <span className="pill">{t("landing.nav.bookDemo")}</span>
+            <h2 className="mt-4 text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl dark:text-slate-100">
+              {t("landing.demo.title")}
+            </h2>
+            <p className="mt-3 text-base leading-relaxed text-slate-600 dark:text-slate-400">
+              {t("landing.demo.subtitle")}
+            </p>
+            <p className="mt-6 text-sm text-slate-500 dark:text-slate-400">
+              {t("landing.hero.note")}
+            </p>
+          </div>
+
+          <DemoForm />
+        </div>
+      </section>
+
+      {/* ── FAQ ──────────────────────────────────────────── */}
+      <FaqSection />
+
+      {/* ── Footer ───────────────────────────────────────── */}
+      <footer className="border-t border-slate-200/60 dark:border-slate-800/60">
+        <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
+          <div className="grid gap-8 sm:grid-cols-2 md:grid-cols-4">
+            <div className="md:col-span-2">
+              <div className="flex items-center gap-2.5">
+                <Logo className="h-8 w-8" />
+                <span className="font-semibold text-slate-900 dark:text-slate-100">
+                  {t("common.appName")}
+                </span>
+              </div>
+              <p className="mt-3 max-w-xs text-sm text-slate-500 dark:text-slate-400">
+                {t("landing.footer.tagline")}
+              </p>
+            </div>
+
             <div>
-              <p className="text-xs font-medium uppercase tracking-wide text-sky-700 dark:text-sky-400">
-                {t("dashboard.todayAtAGlance")}
-              </p>
-              <p className="text-sm text-slate-500 dark:text-slate-400">
-                {t("dashboard.patientsAppointmentsVisits")}
-              </p>
+              <h4 className="card-title">{t("landing.footer.product")}</h4>
+              <ul className="mt-3 space-y-2 text-sm">
+                <li>
+                  <a
+                    href="#features"
+                    className="text-slate-500 transition-colors hover:text-sky-600 dark:text-slate-400 dark:hover:text-sky-400"
+                  >
+                    {t("landing.nav.features")}
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#pricing"
+                    className="text-slate-500 transition-colors hover:text-sky-600 dark:text-slate-400 dark:hover:text-sky-400"
+                  >
+                    {t("landing.nav.pricing")}
+                  </a>
+                </li>
+                <li>
+                  <Link
+                    href="/login"
+                    className="text-slate-500 transition-colors hover:text-sky-600 dark:text-slate-400 dark:hover:text-sky-400"
+                  >
+                    {t("landing.nav.staffLogin")}
+                  </Link>
+                </li>
+              </ul>
             </div>
-            <Logo className="h-10 w-10" />
+
+            <div>
+              <h4 className="card-title">{t("landing.footer.forPatients")}</h4>
+              <ul className="mt-3 space-y-2 text-sm">
+                <li>
+                  <Link
+                    href="/portal"
+                    className="text-slate-500 transition-colors hover:text-sky-600 dark:text-slate-400 dark:hover:text-sky-400"
+                  >
+                    {t("landing.nav.portal")}
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/portal/register"
+                    className="text-slate-500 transition-colors hover:text-sky-600 dark:text-slate-400 dark:hover:text-sky-400"
+                  >
+                    {t("landing.footer.patientRegister")}
+                  </Link>
+                </li>
+                <li>
+                  <a
+                    href="#demo"
+                    className="text-slate-500 transition-colors hover:text-sky-600 dark:text-slate-400 dark:hover:text-sky-400"
+                  >
+                    {t("landing.footer.company")}
+                  </a>
+                </li>
+              </ul>
+            </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-3 text-xs">
-            <div className="rounded-xl bg-white/70 p-3 dark:bg-slate-800/70">
-              <p className="flex items-center gap-1.5 text-[11px] text-slate-500 dark:text-slate-400">
-                <Users className="h-3.5 w-3.5 text-sky-500" />
-                <span>{t("nav.patients")}</span>
-              </p>
-              <p className="mt-1 text-lg font-semibold text-slate-900 dark:text-slate-100">—</p>
-            </div>
-            <div className="rounded-xl bg-white/70 p-3 dark:bg-slate-800/70">
-              <p className="flex items-center gap-1.5 text-[11px] text-slate-500 dark:text-slate-400">
-                <Calendar className="h-3.5 w-3.5 text-sky-500" />
-                <span>{t("nav.appointments")}</span>
-              </p>
-              <p className="mt-1 text-lg font-semibold text-slate-900 dark:text-slate-100">—</p>
-            </div>
-            <div className="rounded-xl bg-white/70 p-3 dark:bg-slate-800/70">
-              <p className="flex items-center gap-1.5 text-[11px] text-slate-500 dark:text-slate-400">
-                <Clipboard className="h-3.5 w-3.5 text-sky-500" />
-                <span>{t("nav.visits")}</span>
-              </p>
-              <p className="mt-1 text-lg font-semibold text-slate-900 dark:text-slate-100">—</p>
-            </div>
-          </div>
-
-          <p className="mt-5 text-[11px] text-slate-500">
-            {t("dashboard.loginToStart")}
+          <p className="mt-10 border-t border-slate-200/60 pt-6 text-center text-xs text-slate-400 dark:border-slate-800/60 dark:text-slate-500">
+            © {new Date().getFullYear()} {t("common.appName")} —{" "}
+            {t("landing.footer.rights")}
           </p>
         </div>
-      </div>
+      </footer>
     </div>
   );
 }

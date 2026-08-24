@@ -19,11 +19,21 @@ import { sendWhatsApp } from "@/lib/whatsapp";
  * Example: Check for Authorization header with a secret token
  */
 export async function GET(req: Request) {
-  // Optional: Add authentication check
+  // Fail closed. This endpoint reads appointments across every clinic and
+  // triggers real email/WhatsApp sends, so a missing CRON_SECRET must block
+  // the request rather than skip the check.
   const authHeader = req.headers.get("authorization");
   const cronSecret = process.env.CRON_SECRET;
-  
-  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+
+  if (!cronSecret) {
+    console.error("CRON_SECRET is not configured — refusing to run reminders.");
+    return NextResponse.json(
+      { error: "Reminder job is not configured." },
+      { status: 503 }
+    );
+  }
+
+  if (authHeader !== `Bearer ${cronSecret}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -66,7 +76,7 @@ export async function GET(req: Request) {
       skipped: 0,
       details: [] as Array<{
         appointmentId: string;
-        patientName: string;
+        clinicId: string;
         status: "success" | "failed" | "skipped";
         reason?: string;
       }>,
@@ -83,7 +93,7 @@ export async function GET(req: Request) {
         results.skipped++;
         results.details.push({
           appointmentId: appointment._id.toString(),
-          patientName: patient ? `${patient.firstName} ${patient.lastName}` : "Unknown",
+          clinicId: String(clinic?._id ?? ""),
           status: "skipped",
           reason: "No email or phone number",
         });
@@ -156,7 +166,7 @@ export async function GET(req: Request) {
         results.success++;
         results.details.push({
           appointmentId: appointment._id.toString(),
-          patientName,
+          clinicId: String(clinic?._id ?? ""),
           status: "success",
           reason: `Email: ${emailSent ? "sent" : "skipped"}, WhatsApp: ${whatsappSent ? "sent" : "skipped"}`,
         });
@@ -164,7 +174,7 @@ export async function GET(req: Request) {
         results.failed++;
         results.details.push({
           appointmentId: appointment._id.toString(),
-          patientName,
+          clinicId: String(clinic?._id ?? ""),
           status: "failed",
           reason: "Both email and WhatsApp failed or unavailable",
         });

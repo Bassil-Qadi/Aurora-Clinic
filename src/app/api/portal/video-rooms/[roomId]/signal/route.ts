@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
-import VideoRoom from "@/models/VideoRoom";
 import Patient from "@/models/Patient";
 import { requirePortalAuth } from "@/lib/portalAuth";
+import { findPortalRoom } from "@/lib/portalVideoRoom";
 
 /**
  * POST /api/portal/video-rooms/[roomId]/signal
@@ -28,10 +28,7 @@ export async function POST(
     );
   }
 
-  const room = await VideoRoom.findOne({
-    _id: roomId,
-    clinicId: auth.patient!.clinicId,
-  });
+  const room = await findPortalRoom(roomId, auth.patient!);
 
   if (!room) {
     return NextResponse.json({ error: "Room not found." }, { status: 404 });
@@ -86,10 +83,7 @@ export async function GET(
   const after = searchParams.get("after");
   const role = searchParams.get("role");
 
-  const room = await VideoRoom.findOne({
-    _id: roomId,
-    clinicId: auth.patient!.clinicId,
-  });
+  const room = await findPortalRoom(roomId, auth.patient!);
 
   if (!room) {
     return NextResponse.json({ error: "Room not found." }, { status: 404 });

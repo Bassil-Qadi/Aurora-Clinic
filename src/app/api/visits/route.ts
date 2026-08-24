@@ -1,7 +1,13 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import Visit from "@/models/Visit";
-import { requireAuth } from "@/lib/apiAuth";
+import {
+  requireAuth,
+  assertBelongsToClinic,
+  assertDoctorInClinic,
+} from "@/lib/apiAuth";
+import Patient from "@/models/Patient";
+import Appointment from "@/models/Appointment";
 import { createVisitSchema } from "@/lib/validations";
 
 export async function GET(req: Request) {
@@ -19,7 +25,6 @@ export async function GET(req: Request) {
   const query: Record<string, any> = { clinicId: user.clinicId };
 
   if (search) {
-    const Patient = (await import("@/models/Patient")).default;
     const matchingPatients = await Patient.find({
       clinicId: user.clinicId,
       $or: [
@@ -84,51 +89,50 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
+    // Both references come straight from the request body — neither may point
+    // outside the caller's clinic.
+    const patientCheck = await assertBelongsToClinic(
+      Patient,
+      data.patient,
+      user.clinicId,
+      "Patient"
+    );
+    if (!patientCheck.ok) return patientCheck.response;
+
+    const appointmentCheck = await assertBelongsToClinic(
+      Appointment,
+      data.appointment,
+      user.clinicId,
+      "Appointment"
+    );
+    if (!appointmentCheck.ok) return appointmentCheck.response;
+
     let doctorId: string;
 
     if (currentUser.role === "doctor") {
+      // Doctors default to themselves; an explicit override still has to be a
+      // doctor in this clinic.
       doctorId = currentUser._id.toString();
       if (data.doctor && data.doctor !== doctorId) {
-        const assignedDoctor = await User.findById(data.doctor);
-        if (assignedDoctor && assignedDoctor.role === "doctor") {
-          doctorId = data.doctor;
-        }
+        const doctorCheck = await assertDoctorInClinic(
+          data.doctor,
+          user.clinicId
+        );
+        if (!doctorCheck.ok) return doctorCheck.response;
+        doctorId = data.doctor;
       }
-    } else if (currentUser.role === "admin") {
+    } else {
       if (!data.doctor) {
         return NextResponse.json(
           { error: "Doctor ID is required. Please select a doctor." },
           { status: 400 }
         );
       }
-      const assignedDoctor = await User.findById(data.doctor);
-      if (!assignedDoctor) {
-        return NextResponse.json(
-          { error: "Doctor not found" },
-          { status: 404 }
-        );
-      }
-      if (assignedDoctor.role !== "doctor") {
-        return NextResponse.json(
-          { error: "The selected user is not a doctor" },
-          { status: 400 }
-        );
-      }
-      doctorId = data.doctor;
-    } else {
-      if (!data.doctor) {
-        return NextResponse.json(
-          { error: "Doctor ID is required" },
-          { status: 400 }
-        );
-      }
-      const assignedDoctor = await User.findById(data.doctor);
-      if (!assignedDoctor || assignedDoctor.role !== "doctor") {
-        return NextResponse.json(
-          { error: "Invalid doctor ID" },
-          { status: 400 }
-        );
-      }
+      const doctorCheck = await assertDoctorInClinic(
+        data.doctor,
+        user.clinicId
+      );
+      if (!doctorCheck.ok) return doctorCheck.response;
       doctorId = data.doctor;
     }
 

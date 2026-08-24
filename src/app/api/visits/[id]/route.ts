@@ -1,7 +1,12 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import Visit from "@/models/Visit";
-import { requireAuth } from "@/lib/apiAuth";
+import {
+  requireAuth,
+  assertBelongsToClinic,
+  assertDoctorInClinic,
+} from "@/lib/apiAuth";
+import Patient from "@/models/Patient";
 import { updateVisitSchema, patchVisitSchema } from "@/lib/validations";
 
 export async function GET(
@@ -73,6 +78,18 @@ export async function PUT(
 
     const updateData: any = { ...validation.data };
 
+    // updateVisitSchema accepts `patient`, so an update could otherwise
+    // re-point an existing visit at another clinic's patient.
+    if (updateData.patient !== undefined) {
+      const patientCheck = await assertBelongsToClinic(
+        Patient,
+        updateData.patient,
+        user.clinicId,
+        "Patient"
+      );
+      if (!patientCheck.ok) return patientCheck.response;
+    }
+
     // Handle doctor field based on role
     if (updateData.doctor !== undefined) {
       if (currentUser.role === "doctor") {
@@ -80,46 +97,26 @@ export async function PUT(
           updateData.doctor &&
           updateData.doctor !== currentUser._id.toString()
         ) {
-          const assignedDoctor = await User.findById(updateData.doctor);
-          if (assignedDoctor && assignedDoctor.role === "doctor") {
-            // keep the provided doctor
-          } else {
-            updateData.doctor = currentUser._id.toString();
-          }
+          const doctorCheck = await assertDoctorInClinic(
+            updateData.doctor,
+            user.clinicId
+          );
+          if (!doctorCheck.ok) return doctorCheck.response;
         } else {
           updateData.doctor = currentUser._id.toString();
         }
-      } else if (currentUser.role === "admin") {
-        if (updateData.doctor) {
-          const assignedDoctor = await User.findById(updateData.doctor);
-          if (!assignedDoctor) {
-            return NextResponse.json(
-              { error: "Doctor not found" },
-              { status: 404 }
-            );
-          }
-          if (assignedDoctor.role !== "doctor") {
-            return NextResponse.json(
-              { error: "The selected user is not a doctor" },
-              { status: 400 }
-            );
-          }
-        } else {
+      } else {
+        if (!updateData.doctor) {
           return NextResponse.json(
-            { error: "Doctor ID is required for admin users" },
+            { error: "Doctor ID is required." },
             { status: 400 }
           );
         }
-      } else {
-        if (updateData.doctor) {
-          const assignedDoctor = await User.findById(updateData.doctor);
-          if (!assignedDoctor || assignedDoctor.role !== "doctor") {
-            return NextResponse.json(
-              { error: "Invalid doctor ID" },
-              { status: 400 }
-            );
-          }
-        }
+        const doctorCheck = await assertDoctorInClinic(
+          updateData.doctor,
+          user.clinicId
+        );
+        if (!doctorCheck.ok) return doctorCheck.response;
       }
     }
 

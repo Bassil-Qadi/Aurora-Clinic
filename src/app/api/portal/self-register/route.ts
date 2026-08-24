@@ -6,6 +6,7 @@ import Patient from "@/models/Patient";
 import PatientAccount from "@/models/PatientAccount";
 import { patientSelfRegisterSchema } from "@/lib/validations";
 import { notifyClinicStaff } from "@/lib/notifications";
+import { checkFeatureLimit } from "@/lib/subscription";
 
 // POST /api/portal/self-register — public endpoint
 // Creates a Patient record + PatientAccount in a single operation.
@@ -31,6 +32,24 @@ export async function POST(req: Request) {
     return NextResponse.json(
       { error: "Selected clinic not found." },
       { status: 404 }
+    );
+  }
+
+  // This endpoint is public, so it bypassed plan gating entirely — anyone could
+  // create Patient records past the clinic's subscribed limit.
+  const portalCheck = await checkFeatureLimit(clinicId, "patientPortal");
+  if (!portalCheck.allowed) {
+    return NextResponse.json(
+      { error: "This clinic is not accepting online registrations." },
+      { status: 403 }
+    );
+  }
+
+  const patientLimit = await checkFeatureLimit(clinicId, "patients");
+  if (!patientLimit.allowed) {
+    return NextResponse.json(
+      { error: "This clinic cannot accept new registrations at the moment." },
+      { status: 403 }
     );
   }
 

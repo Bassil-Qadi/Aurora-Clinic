@@ -5,10 +5,35 @@ import { I18nProvider } from "../lib/i18n";
 import { Toaster } from "../components/ui/toaster";
 import "../styles/globals.css";
 
+const SITE_DESCRIPTION =
+  "Clinic management for bilingual practices — appointments, patient records, " +
+  "prescriptions, WhatsApp reminders and video consultations, in Arabic and English.";
+
 export const metadata: Metadata = {
-  title: "CarePilot — Clinic Management System",
-  description:
-    "Modern clinic management system with appointments, patient portal, visits, and analytics.",
+  title: {
+    default: "Aurora Clinic — Clinic Management System",
+    template: "%s · Aurora Clinic",
+  },
+  description: SITE_DESCRIPTION,
+  keywords: [
+    "clinic management",
+    "clinic software",
+    "patient portal",
+    "appointment scheduling",
+    "نظام إدارة العيادات",
+    "برنامج عيادات",
+  ],
+  openGraph: {
+    type: "website",
+    title: "Aurora Clinic — Clinic Management System",
+    description: SITE_DESCRIPTION,
+    siteName: "Aurora Clinic",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Aurora Clinic — Clinic Management System",
+    description: SITE_DESCRIPTION,
+  },
   icons: {
     icon: "/logo.svg",
     apple: "/logo.svg",
@@ -21,7 +46,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" dir="ltr" suppressHydrationWarning>
+    <html lang="ar" dir="rtl" suppressHydrationWarning>
       <body className="app-shell">
         <ThemeProvider
           attribute="class"

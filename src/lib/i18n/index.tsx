@@ -19,6 +19,12 @@ const translations: Record<Locale, Translations> = { en, ar };
 
 export const RTL_LOCALES: Locale[] = ["ar"];
 
+/**
+ * Locale shown to a first-time visitor. The product leads with Arabic for the
+ * MENA market; a stored preference always wins over this.
+ */
+export const DEFAULT_LOCALE: Locale = "ar";
+
 // ─── Helpers ────────────────────────────────────────────────
 /**
  * Resolve a dot-separated key like "nav.dashboard" from the translation tree.
@@ -36,15 +42,15 @@ interface I18nContextValue {
 }
 
 const I18nContext = createContext<I18nContextValue>({
-  locale: "en",
+  locale: DEFAULT_LOCALE,
   setLocale: () => {},
   t: (k) => k,
-  dir: "ltr",
+  dir: "rtl",
 });
 
 // ─── Provider ───────────────────────────────────────────────
 export function I18nProvider({ children }: { children: React.ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>("en");
+  const [locale, setLocaleState] = useState<Locale>(DEFAULT_LOCALE);
 
   // Persist preference
   useEffect(() => {

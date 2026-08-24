@@ -1,7 +1,12 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import Appointment from "@/models/Appointment";
-import { requireAuth } from "@/lib/apiAuth";
+import {
+  requireAuth,
+  assertBelongsToClinic,
+  assertDoctorInClinic,
+} from "@/lib/apiAuth";
+import Patient from "@/models/Patient";
 import { updateAppointmentSchema } from "@/lib/validations";
 import { checkAppointmentConflicts } from "@/lib/appointmentConflicts";
 
@@ -37,6 +42,27 @@ export async function PUT(
       { error: "Appointment not found" },
       { status: 404 }
     );
+  }
+
+  // updateAppointmentSchema accepts both `patient` and `doctor`, and the
+  // validated body is written straight through below — verify any reference
+  // being introduced belongs to this clinic.
+  if (validation.data.patient !== undefined) {
+    const patientCheck = await assertBelongsToClinic(
+      Patient,
+      validation.data.patient,
+      user.clinicId,
+      "Patient"
+    );
+    if (!patientCheck.ok) return patientCheck.response;
+  }
+
+  if (validation.data.doctor !== undefined) {
+    const doctorCheck = await assertDoctorInClinic(
+      validation.data.doctor,
+      user.clinicId
+    );
+    if (!doctorCheck.ok) return doctorCheck.response;
   }
 
   // If date or doctor is being updated, check for conflicts
