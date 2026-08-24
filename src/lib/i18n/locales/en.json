@@ -843,7 +843,12 @@
       "planCreated": "Plan created.",
       "planUpdated": "Plan updated.",
       "saveFailed": "Failed to save plan.",
-      "loadFailed": "Failed to load plans."
+      "loadFailed": "Failed to load plans.",
+      "syncPaypal": "Sync to PayPal",
+      "paypalConnected": "PayPal billing connected",
+      "paypalNotSynced": "Not connected to PayPal — clinic admins see this plan as “Coming Soon” and cannot subscribe.",
+      "paypalSynced": "Plan synced to PayPal successfully.",
+      "paypalSyncFailed": "PayPal sync failed. Check your PayPal credentials and try again."
     },
     "auditLogs": {
       "title": "Audit Logs",

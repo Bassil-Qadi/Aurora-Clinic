@@ -93,20 +93,65 @@ function SubscriptionPageContent() {
 
   const isAdmin = session?.user?.role === "admin";
 
-  // Check URL params for post-checkout status
+  // Check URL params for post-checkout status.
+  // Returning from PayPal proves nothing on its own, so confirm the real
+  // status with PayPal before telling the user they're subscribed.
   useEffect(() => {
     const status = searchParams.get("status");
-    if (status === "success") {
-      setMessage({
-        type: "success",
-        text: "Payment successful! Your subscription is being activated. It may take a moment.",
-      });
-    } else if (status === "cancelled") {
+
+    if (status === "cancelled") {
       setMessage({
         type: "error",
         text: "Checkout was cancelled. You can try again anytime.",
       });
+      return;
     }
+
+    if (status !== "success") return;
+
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const res = await fetch("/api/subscriptions/verify", {
+          method: "POST",
+        });
+        const data = await res.json();
+        if (cancelled) return;
+
+        if (res.ok && data.status === "active") {
+          setMessage({
+            type: "success",
+            text: "Payment confirmed. Your subscription is now active.",
+          });
+          fetchData();
+        } else if (res.ok && data.status === "pending") {
+          setMessage({
+            type: "error",
+            text: "We haven't received approval from PayPal yet. If you completed payment, this can take a moment — refresh shortly.",
+          });
+        } else if (res.ok && data.status === "none") {
+          // Already activated by the webhook.
+          fetchData();
+        } else {
+          setMessage({
+            type: "error",
+            text: data.error || "Could not confirm your payment with PayPal.",
+          });
+        }
+      } catch {
+        if (!cancelled) {
+          setMessage({
+            type: "error",
+            text: "Could not confirm your payment with PayPal.",
+          });
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
   }, [searchParams]);
 
   const fetchData = async () => {
@@ -227,6 +272,11 @@ function SubscriptionPageContent() {
 
   const currentPlan = current?.plan;
   const usage = current?.usage;
+
+  // During a trial the clinic is *assigned* the Basic plan for its limits,
+  // but hasn't bought anything — so no plan counts as "current" for
+  // purchasing purposes, otherwise Basic would be permanently unbuyable.
+  const hasPaidPlan = clinicStatus === "active" || clinicStatus === "past_due";
 
   return (
     <div className="space-y-8 p-8">
@@ -416,7 +466,7 @@ function SubscriptionPageContent() {
         ) : (
           <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
             {plans.map((plan) => {
-              const isCurrent = currentPlan?._id === plan._id;
+              const isCurrent = hasPaidPlan && currentPlan?._id === plan._id;
               const isPopular = plan.slug === "pro";
 
               return (

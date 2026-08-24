@@ -27,6 +27,11 @@ export async function requireActiveSubscription(clinicId: string) {
 
   // Active or trialing — all good
   if (ACTIVE_STATUSES.includes(status)) {
+    // A trial with no end date is corrupt state, not an unlimited trial.
+    // Deny rather than granting indefinite free access.
+    if (status === "trialing" && !clinic.trialEndsAt) {
+      return { allowed: false, reason: "subscription_inactive" as const };
+    }
     // If trialing, check if trial has expired
     if (status === "trialing" && clinic.trialEndsAt) {
       const trialEnd = new Date(clinic.trialEndsAt);
@@ -192,10 +197,29 @@ export async function checkFeatureLimit(
 
 // ─── Trial helper ──────────────────────────────────────────────
 
-const TRIAL_DAYS = 14;
+const TRIAL_DAYS = 7;
+
+/**
+ * Resolve the plan a trialing clinic gets. New clinics trial the *top*
+ * plan so they can evaluate every feature before deciding to pay.
+ *
+ * "Top" is the highest-priced active plan rather than a fixed slug, so
+ * adding a new premium tier automatically becomes the trial plan.
+ */
+async function resolveTrialPlanId(): Promise<string | null> {
+  const top = (await SubscriptionPlan.findOne({ isActive: true })
+    .sort({ price: -1 })
+    .select("_id")
+    .lean()) as any;
+  return top ? top._id.toString() : null;
+}
 
 /**
  * Start a free trial for a newly registered clinic.
+ *
+ * The trial is scoped to the top plan's feature limits. Without a
+ * subscriptionPlanId, getClinicFeatureLimits() returns null and every
+ * limit check short-circuits to allowed — i.e. an unbounded trial.
  */
 export async function startFreeTrial(clinicId: string) {
   await connectDB();
@@ -203,15 +227,15 @@ export async function startFreeTrial(clinicId: string) {
   const trialEnd = new Date();
   trialEnd.setDate(trialEnd.getDate() + TRIAL_DAYS);
 
-  await Clinic.updateOne(
-    { _id: clinicId },
-    {
-      $set: {
-        subscriptionStatus: "trialing",
-        trialEndsAt: trialEnd,
-      },
-    }
-  );
+  const trialPlanId = await resolveTrialPlanId();
 
-  return { trialEndsAt: trialEnd, trialDays: TRIAL_DAYS };
+  const update: Record<string, any> = {
+    subscriptionStatus: "trialing",
+    trialEndsAt: trialEnd,
+  };
+  if (trialPlanId) update.subscriptionPlanId = trialPlanId;
+
+  await Clinic.updateOne({ _id: clinicId }, { $set: update });
+
+  return { trialEndsAt: trialEnd, trialDays: TRIAL_DAYS, trialPlanId };
 }

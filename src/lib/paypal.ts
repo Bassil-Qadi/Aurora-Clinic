@@ -8,7 +8,16 @@
  *   PAYPAL_WEBHOOK_ID      – The webhook ID from PayPal dashboard (for verification)
  */
 
-const PAYPAL_MODE = process.env.PAYPAL_MODE || "sandbox";
+/**
+ * Read an env var with surrounding whitespace stripped. Trailing spaces in
+ * a .env file are invisible but would otherwise break both the mode
+ * comparison below and HTTP Basic auth against PayPal.
+ */
+function env(name: string): string {
+  return (process.env[name] || "").trim();
+}
+
+const PAYPAL_MODE = env("PAYPAL_MODE") || "sandbox";
 
 const BASE_URL =
   PAYPAL_MODE === "live"
@@ -25,8 +34,8 @@ export async function getPayPalAccessToken(): Promise<string> {
     return cachedToken.token;
   }
 
-  const clientId = process.env.PAYPAL_CLIENT_ID!;
-  const clientSecret = process.env.PAYPAL_CLIENT_SECRET!;
+  const clientId = env("PAYPAL_CLIENT_ID");
+  const clientSecret = env("PAYPAL_CLIENT_SECRET");
 
   const res = await fetch(`${BASE_URL}/v1/oauth2/token`, {
     method: "POST",
@@ -39,7 +48,12 @@ export async function getPayPalAccessToken(): Promise<string> {
 
   if (!res.ok) {
     const err = await res.text();
-    throw new Error(`PayPal auth failed: ${err}`);
+    // invalid_client almost always means the key pair belongs to the other
+    // environment, so name the endpoint being used to make that obvious.
+    throw new Error(
+      `PayPal auth failed against the ${PAYPAL_MODE} endpoint (${BASE_URL}). ` +
+        `Check that PAYPAL_CLIENT_ID/SECRET are ${PAYPAL_MODE} credentials. ${err}`
+    );
   }
 
   const data = await res.json();
@@ -159,6 +173,87 @@ export async function createPayPalPlan(params: CreatePlanParams) {
   });
 }
 
+// ─── Plan sync helper ───────────────────────────────────────────
+
+/** True when PayPal API credentials are present in the environment. */
+export function isPayPalConfigured(): boolean {
+  return Boolean(
+    env("PAYPAL_CLIENT_ID") && env("PAYPAL_CLIENT_SECRET")
+  );
+}
+
+interface SyncPlanParams {
+  name: string;
+  description?: string;
+  price: number;
+  currency?: string;
+  interval?: "MONTH" | "YEAR";
+  trialDays?: number;
+  /** Reuse an existing PayPal product instead of creating a new one. */
+  existingProductId?: string;
+}
+
+export interface PlanSyncResult {
+  paypalProductId: string;
+  paypalPlanId: string;
+}
+
+/**
+ * Create the PayPal product + billing plan backing a SubscriptionPlan.
+ *
+ * A PayPal billing plan is immutable once created, so this is only ever
+ * called for plans that don't have a paypalPlanId yet. Throws on failure —
+ * callers decide whether to surface or swallow the error.
+ */
+export async function syncPlanToPayPal(
+  params: SyncPlanParams
+): Promise<PlanSyncResult> {
+  if (!isPayPalConfigured()) {
+    throw new Error(
+      "PayPal is not configured. Set PAYPAL_CLIENT_ID and PAYPAL_CLIENT_SECRET."
+    );
+  }
+
+  const description =
+    params.description || `${params.name} subscription plan`;
+
+  const productId =
+    params.existingProductId ||
+    (await createPayPalProduct(`CarePilot ${params.name}`, description)).id;
+
+  const plan = await createPayPalPlan({
+    productId,
+    name: params.name,
+    description,
+    price: params.price,
+    currency: params.currency || "USD",
+    interval: params.interval || "MONTH",
+    // No PayPal-side trial: the free trial is granted by the app before
+    // checkout (see startFreeTrial). A trial cycle here would stack on top
+    // of it and delay the first charge twice over.
+    trialDays: params.trialDays ?? 0,
+  });
+
+  return { paypalProductId: productId, paypalPlanId: plan.id };
+}
+
+/** Fetch a billing plan, including its billing cycles. */
+export async function getPayPalPlan(planId: string) {
+  return paypalRequest(`/v1/billing/plans/${planId}`);
+}
+
+/**
+ * Deactivate a PayPal billing plan. Billing plans are immutable, so
+ * changing pricing or billing cycles means creating a replacement and
+ * retiring the old one. Existing subscribers on a deactivated plan keep
+ * billing normally; it only stops new subscriptions.
+ */
+export async function deactivatePayPalPlan(planId: string) {
+  return paypalRequest(`/v1/billing/plans/${planId}/deactivate`, {
+    method: "POST",
+  });
+}
+
 // ─── Subscriptions ──────────────────────────────────────────────
 
 interface CreateSubscriptionParams {
@@ -231,7 +326,7 @@ export async function verifyPayPalWebhook(
   headers: Record<string, string>,
   body: string
 ): Promise<boolean> {
-  const webhookId = process.env.PAYPAL_WEBHOOK_ID;
+  const webhookId = env("PAYPAL_WEBHOOK_ID");
   if (!webhookId) {
     console.warn("PAYPAL_WEBHOOK_ID not set — skipping verification");
     return true; // In development, allow unverified

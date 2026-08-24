@@ -24,6 +24,9 @@ const SubscriptionSchema = new Schema(
     status: {
       type: String,
       enum: [
+        // Checkout started but the payer has not approved at PayPal yet.
+        // Grants no access — see requireActiveSubscription().
+        "pending",
         "trialing",
         "active",
         "past_due",

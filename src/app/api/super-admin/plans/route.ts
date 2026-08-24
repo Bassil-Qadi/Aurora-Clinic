@@ -3,6 +3,7 @@ import { connectDB } from "@/lib/db";
 import { requireSuperAdmin } from "@/lib/apiAuth";
 import SubscriptionPlan from "@/models/SubscriptionPlan";
 import { createSubscriptionPlanSchema } from "@/lib/validations";
+import { isPayPalConfigured, syncPlanToPayPal } from "@/lib/paypal";
 
 // ─── GET /api/super-admin/plans ─────────────────────────────
 // List ALL plans (including inactive ones — unlike the public endpoint)
@@ -56,7 +57,40 @@ export async function POST(req: Request) {
     );
   }
 
-  const plan = await SubscriptionPlan.create(data);
+  // Create the backing PayPal product + billing plan. Without a
+  // paypalPlanId the plan renders as "Coming Soon" and clinic admins
+  // cannot check out, so the plan is unusable until this succeeds.
+  let paypalProductId = "";
+  let paypalPlanId = "";
+  let paypalSyncError: string | null = null;
 
-  return NextResponse.json(plan, { status: 201 });
+  if (isPayPalConfigured()) {
+    try {
+      ({ paypalProductId, paypalPlanId } = await syncPlanToPayPal({
+        name: data.name,
+        description: data.description,
+        price: data.price,
+        currency: data.currency,
+        interval: data.interval,
+      }));
+    } catch (err: any) {
+      // Save the plan anyway — it can be synced later from the plans page.
+      console.error("PayPal sync failed:", err?.message);
+      paypalSyncError = err?.message || "PayPal sync failed.";
+    }
+  } else {
+    paypalSyncError =
+      "PayPal is not configured, so this plan cannot accept subscriptions yet.";
+  }
+
+  const plan = await SubscriptionPlan.create({
+    ...data,
+    paypalProductId,
+    paypalPlanId,
+  });
+
+  return NextResponse.json(
+    { ...plan.toObject(), paypalSyncError },
+    { status: 201 }
+  );
 }

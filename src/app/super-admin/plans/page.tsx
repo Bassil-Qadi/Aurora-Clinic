@@ -15,6 +15,9 @@ import {
   Palette,
   Sparkles,
   Globe,
+  CreditCard,
+  AlertTriangle,
+  RefreshCw,
 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 
@@ -39,6 +42,8 @@ interface Plan {
   sortOrder: number;
   isActive: boolean;
   createdAt: string;
+  paypalProductId?: string;
+  paypalPlanId?: string;
 }
 
 const DEFAULT_FEATURES: PlanFeatures = {
@@ -71,6 +76,7 @@ export default function PlansPage() {
   const [form, setForm] = useState(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [syncingId, setSyncingId] = useState<string | null>(null);
 
   const fetchPlans = async () => {
     setLoading(true);
@@ -135,7 +141,17 @@ export default function PlansPage() {
       });
 
       if (res.ok) {
-        setMsg({ type: "success", text: editId ? t("superAdmin.plans.planUpdated") : t("superAdmin.plans.planCreated") });
+        const saved = await res.json().catch(() => null);
+        setMsg(
+          saved?.paypalSyncError
+            ? { type: "error", text: saved.paypalSyncError }
+            : {
+                type: "success",
+                text: editId
+                  ? t("superAdmin.plans.planUpdated")
+                  : t("superAdmin.plans.planCreated"),
+              }
+        );
         setShowForm(false);
         fetchPlans();
       } else {
@@ -146,6 +162,31 @@ export default function PlansPage() {
       setMsg({ type: "error", text: t("superAdmin.plans.saveFailed") });
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleSyncPayPal = async (planId: string) => {
+    setSyncingId(planId);
+    try {
+      const res = await fetch(
+        `/api/super-admin/plans/${planId}/sync-paypal`,
+        { method: "POST" }
+      );
+      const data = await res.json();
+
+      if (res.ok) {
+        setMsg({ type: "success", text: t("superAdmin.plans.paypalSynced") });
+        fetchPlans();
+      } else {
+        setMsg({
+          type: "error",
+          text: data.error || t("superAdmin.plans.paypalSyncFailed"),
+        });
+      }
+    } catch {
+      setMsg({ type: "error", text: t("superAdmin.plans.paypalSyncFailed") });
+    } finally {
+      setSyncingId(null);
     }
   };
 
@@ -248,7 +289,40 @@ export default function PlansPage() {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-end pt-3 border-t border-slate-100 dark:border-slate-800">
+                {/* PayPal billing status — a plan without a paypalPlanId
+                    shows as "Coming Soon" to clinic admins and cannot be
+                    subscribed to. */}
+                {plan.paypalPlanId ? (
+                  <div className="mb-3 flex items-center gap-2 text-xs text-emerald-600 dark:text-emerald-400">
+                    <CreditCard className="h-3.5 w-3.5 shrink-0" />
+                    <span>{t("superAdmin.plans.paypalConnected")}</span>
+                  </div>
+                ) : (
+                  <div className="mb-3 rounded-lg border border-amber-200 bg-amber-50 p-2.5 dark:border-amber-900/50 dark:bg-amber-900/20">
+                    <div className="flex items-start gap-2">
+                      <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-600 dark:text-amber-400" />
+                      <p className="text-xs text-amber-800 dark:text-amber-300">
+                        {t("superAdmin.plans.paypalNotSynced")}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex items-center justify-end gap-1 pt-3 border-t border-slate-100 dark:border-slate-800">
+                  {!plan.paypalPlanId && (
+                    <button
+                      onClick={() => handleSyncPayPal(plan._id)}
+                      disabled={syncingId === plan._id}
+                      className="btn-ghost disabled:opacity-50"
+                    >
+                      {syncingId === plan._id ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <RefreshCw className="h-3.5 w-3.5" />
+                      )}
+                      <span>{t("superAdmin.plans.syncPaypal")}</span>
+                    </button>
+                  )}
                   <button onClick={() => openEdit(plan)} className="btn-ghost">
                     <Pencil className="h-3.5 w-3.5" />
                     <span>{t("superAdmin.common.edit")}</span>

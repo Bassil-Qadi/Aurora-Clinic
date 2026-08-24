@@ -3,7 +3,6 @@ import { connectDB } from "@/lib/db";
 import { requireAuth } from "@/lib/apiAuth";
 import SubscriptionPlan from "@/models/SubscriptionPlan";
 import Subscription from "@/models/Subscription";
-import Clinic from "@/models/Clinic";
 import { checkoutSubscriptionSchema } from "@/lib/validations";
 import { createPayPalSubscription } from "@/lib/paypal";
 
@@ -47,10 +46,12 @@ export async function POST(req: Request) {
     );
   }
 
-  // Check if clinic already has an active subscription
+  // Check if clinic already has a *paid* subscription. "pending" is
+  // deliberately excluded — an abandoned checkout must never block the
+  // clinic from subscribing later.
   const existingSub = await Subscription.findOne({
     clinicId: auth.user.clinicId,
-    status: { $in: ["active", "trialing"] },
+    status: { $in: ["active", "trialing", "past_due"] },
   });
 
   if (existingSub) {
@@ -87,25 +88,23 @@ export async function POST(req: Request) {
     );
   }
 
-  // Save a pending subscription record
+  // Discard any earlier abandoned checkouts for this clinic so pending
+  // records don't pile up each time Subscribe is clicked.
+  await Subscription.deleteMany({
+    clinicId: auth.user.clinicId,
+    status: "pending",
+  });
+
+  // Record the attempt as PENDING only. The payer has not approved at
+  // PayPal yet, so nothing is granted here — the clinic record is left
+  // untouched. Activation happens in the BILLING.SUBSCRIPTION.ACTIVATED
+  // webhook, or via /api/subscriptions/verify on return from PayPal.
   await Subscription.create({
     clinicId: auth.user.clinicId,
     planId: plan._id,
     paypalSubscriptionId: paypalSub.id,
-    status: "trialing", // will be activated via webhook
-    currentPeriodStart: new Date(),
+    status: "pending",
   });
-
-  // Update clinic status so the UI reflects the trialing state immediately
-  await Clinic.updateOne(
-    { _id: auth.user.clinicId },
-    {
-      $set: {
-        subscriptionStatus: "trialing",
-        subscriptionPlanId: plan._id,
-      },
-    }
-  );
 
   return NextResponse.json({
     subscriptionId: paypalSub.id,

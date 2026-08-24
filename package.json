@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "eslint",
     "seed": "tsx src/lib/seedAdmin.ts",
-    "seed:superadmin": "tsx src/lib/seedSuperAdmin.ts"
+    "seed:superadmin": "tsx src/lib/seedSuperAdmin.ts",
+    "audit:subscriptions": "tsx src/lib/auditPhantomSubscriptions.ts",
+    "paypal:resync-plans": "tsx src/lib/resyncPayPalPlans.ts"
   },
   "dependencies": {
     "@fullcalendar/daygrid": "^6.1.20",

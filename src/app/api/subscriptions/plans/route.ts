@@ -3,10 +3,7 @@ import { connectDB } from "@/lib/db";
 import { requireAuth } from "@/lib/apiAuth";
 import SubscriptionPlan from "@/models/SubscriptionPlan";
 import { createSubscriptionPlanSchema } from "@/lib/validations";
-import {
-  createPayPalProduct,
-  createPayPalPlan,
-} from "@/lib/paypal";
+import { isPayPalConfigured, syncPlanToPayPal } from "@/lib/paypal";
 
 // ─── GET /api/subscriptions/plans ─────────────────────────
 // Public: list all active plans (for pricing page)
@@ -53,28 +50,17 @@ export async function POST(req: Request) {
   let paypalProductId = "";
   let paypalPlanId = "";
 
-  if (process.env.PAYPAL_CLIENT_ID && process.env.PAYPAL_CLIENT_SECRET) {
+  if (isPayPalConfigured()) {
     try {
-      // 1. Create PayPal Product
-      const product = await createPayPalProduct(
-        `CarePilot ${data.name}`,
-        data.description || `${data.name} subscription plan`
-      );
-      paypalProductId = product.id;
-
-      // 2. Create PayPal Billing Plan
-      const plan = await createPayPalPlan({
-        productId: product.id,
+      ({ paypalProductId, paypalPlanId } = await syncPlanToPayPal({
         name: data.name,
-        description: data.description || `${data.name} subscription plan`,
+        description: data.description,
         price: data.price,
-        currency: data.currency || "USD",
-        interval: data.interval || "MONTH",
-        trialDays: 14,
-      });
-      paypalPlanId = plan.id;
+        currency: data.currency,
+        interval: data.interval,
+      }));
     } catch (err: any) {
-      console.error("PayPal sync failed:", err.message);
+      console.error("PayPal sync failed:", err?.message);
       // Continue saving locally — PayPal can be synced later
     }
   }
