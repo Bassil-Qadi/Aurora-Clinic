@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image, { type StaticImageData } from "next/image";
 import {
   CalendarDays,
   Users,
@@ -17,6 +18,10 @@ import {
 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { Logo } from "@/components/Logo";
+import calendarAr from "@/assets/shot-calendar-ar.webp";
+import calendarEn from "@/assets/shot-calendar-en.webp";
+import analyticsAr from "@/assets/shot-analytics-ar.webp";
+import analyticsEn from "@/assets/shot-analytics-en.webp";
 import { LandingNav } from "@/components/landing/LandingNav";
 import { PricingSection } from "@/components/landing/PricingSection";
 import { DemoForm } from "@/components/landing/DemoForm";
@@ -44,12 +49,16 @@ function Spotlight({
   title,
   body,
   points,
+  image,
+  imageAlt,
   reverse,
 }: {
   badge: string;
   title: string;
   body: string;
   points: string[];
+  image: StaticImageData;
+  imageAlt: string;
   reverse?: boolean;
 }) {
   return (
@@ -76,32 +85,33 @@ function Spotlight({
         </ul>
       </div>
 
-      {/* Decorative panel — a calm stand-in for a product screenshot. */}
+      {/* Product screenshot. Images are pre-sized to 1400px and served as-is —
+          next.config sets images.unoptimized for the Netlify deploy. */}
       <div
-        className={`card card-muted aspect-[4/3] ${
+        className={`overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-lg dark:border-slate-800 dark:bg-slate-900 dark:shadow-slate-950/40 ${
           reverse ? "md:order-1" : ""
         }`}
-        aria-hidden="true"
       >
-        <div className="flex h-full flex-col gap-3">
-          <div className="h-3 w-24 rounded-full bg-sky-200/70 dark:bg-sky-800/70" />
-          <div className="h-3 w-40 rounded-full bg-slate-200/80 dark:bg-slate-700/80" />
-          <div className="mt-2 grid flex-1 grid-cols-3 gap-3">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div
-                key={i}
-                className="rounded-xl bg-white/70 shadow-sm dark:bg-slate-800/70"
-              />
-            ))}
-          </div>
-        </div>
+        <Image
+          src={image}
+          alt={imageAlt}
+          sizes="(min-width: 768px) 50vw, 100vw"
+          className="h-auto w-full"
+        />
       </div>
     </div>
   );
 }
 
 export default function HomePage() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
+
+  // The screenshots show the real UI, so they have to follow the reader's
+  // language — an Arabic dashboard beside English copy reads as a mock-up.
+  const shots =
+    locale === "ar"
+      ? { calendar: calendarAr, analytics: analyticsAr }
+      : { calendar: calendarEn, analytics: analyticsEn };
 
   return (
     <div className="min-h-screen">
@@ -197,6 +207,8 @@ export default function HomePage() {
             t("landing.spotlight.portalPoint2"),
             t("landing.spotlight.portalPoint3"),
           ]}
+          image={shots.calendar}
+          imageAlt={t("landing.spotlight.portalAlt")}
         />
         <Spotlight
           reverse
@@ -208,6 +220,8 @@ export default function HomePage() {
             t("landing.spotlight.clinicPoint2"),
             t("landing.spotlight.clinicPoint3"),
           ]}
+          image={shots.analytics}
+          imageAlt={t("landing.spotlight.clinicAlt")}
         />
       </section>
 

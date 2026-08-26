@@ -939,7 +939,9 @@
       "clinicBody": "Reception checks a patient in, the doctor sees them appear in the queue, and the visit record is ready before they sit down.",
       "clinicPoint1": "A live waiting queue shared across the clinic",
       "clinicPoint2": "Visit notes, vitals and prescriptions in one screen",
-      "clinicPoint3": "Notifications when something needs attention"
+      "clinicPoint3": "Notifications when something needs attention",
+      "portalAlt": "The clinic's weekly appointment calendar, showing booked slots per doctor",
+      "clinicAlt": "The clinic analytics dashboard, showing appointments, visits and patient demographics"
     },
     "pricing": {
       "title": "Straightforward pricing",

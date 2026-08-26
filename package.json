@@ -10,7 +10,9 @@
     "seed": "tsx src/lib/seedAdmin.ts",
     "seed:superadmin": "tsx src/lib/seedSuperAdmin.ts",
     "audit:subscriptions": "tsx src/lib/auditPhantomSubscriptions.ts",
-    "paypal:resync-plans": "tsx src/lib/resyncPayPalPlans.ts"
+    "paypal:resync-plans": "tsx src/lib/resyncPayPalPlans.ts",
+    "demo:seed": "tsx src/lib/seedDemoClinic.ts",
+    "demo:clear": "tsx src/lib/seedDemoClinic.ts clear"
   },
   "dependencies": {
     "@fullcalendar/daygrid": "^6.1.20",

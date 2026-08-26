@@ -122,18 +122,20 @@ export default function AppointmentCalendar() {
 
 
   const fetchAppointments = async () => {
-    let url = "/api/appointments";
+    // /api/appointments paginates with a default of 5 — without an explicit
+    // limit the calendar silently renders only the first five appointments.
+    const params = new URLSearchParams({ limit: "1000" });
 
     if (filterDoctor !== "all") {
-      url += `?doctor=${filterDoctor}`;
+      params.set("doctor", filterDoctor);
     }
 
-    const res = await fetch(url);
+    const res = await fetch(`/api/appointments?${params.toString()}`);
     const data = await res.json();
 
     const formatted = data.appointments.map((appt: any) => ({
       id: appt._id,
-      title: `${appt.patient?.name || `${appt.patient?.firstName ?? ""} ${appt.patient?.lastName ?? ""}`.trim()}${appt.doctor ? ` - Dr. ${appt.doctor?.name}` : ""}`,
+      title: `${appt.patient?.name || `${appt.patient?.firstName ?? ""} ${appt.patient?.lastName ?? ""}`.trim()}${appt.doctor ? ` — ${t("common.dr")} ${appt.doctor?.name}` : ""}`,
       start: appt.date,
       backgroundColor: getStatusColor(appt.status),
     }));
@@ -171,6 +173,15 @@ export default function AppointmentCalendar() {
         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
         initialView="timeGridWeek"
         events={events}
+        // Open on the working day rather than midnight-to-midnight, so the
+        // week lands on rows that actually hold appointments.
+        slotMinTime="08:00:00"
+        slotMaxTime="18:00:00"
+        scrollTime="08:30:00"
+        allDaySlot={false}
+        expandRows={true}
+        height="auto"
+        nowIndicator={true}
         selectable={true}
         editable={true}
         select={(info) => {
