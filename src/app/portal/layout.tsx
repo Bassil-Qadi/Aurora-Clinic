@@ -48,6 +48,10 @@ export default function PortalLayout({ children }: { children: ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const isPublicPage =
+    // "/portal" itself only redirects to the login page. Without it here the
+    // layout fires an authenticated fetch that 401s and calls router.replace,
+    // racing that redirect and breaking hook order on first paint.
+    pathname === "/portal" ||
     pathname === "/portal/login" ||
     pathname === "/portal/register" ||
     pathname === "/portal/forgot-password" ||

@@ -25,12 +25,16 @@ interface Patient extends PatientFormData {
   _id: string;
 }
 
+// Rows per page in the patient list.
+const PAGE_SIZE = 10;
+
 export default function PatientsPage() {
   const { t } = useI18n();
   const [patients, setPatients] = useState<Patient[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [total, setTotal] = useState(0);
   const [search, setSearch] = useState("");
 
 
@@ -49,12 +53,14 @@ export default function PatientsPage() {
 
   const fetchPatients = async () => {
     const res = await fetch(
-      `/api/patients?page=${page}&limit=5&search=${search}`
+      `/api/patients?page=${page}&limit=${PAGE_SIZE}&search=${search}`
     );
     const data = await res.json();
 
     setPatients(data.patients);
     setTotalPages(data.pages);
+    // data.total is the clinic-wide count; patients.length is only this page.
+    setTotal(data.total ?? data.patients?.length ?? 0);
   };
 
   const onSubmit = async (data: PatientFormData) => {
@@ -105,7 +111,7 @@ export default function PatientsPage() {
         </div>
         <span className="pill">
           <UserPlus className="mr-1 h-3.5 w-3.5" />
-          {t("common.total")}: {patients.length}
+          {t("common.total")}: {total}
         </span>
       </div>
 

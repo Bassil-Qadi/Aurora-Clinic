@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import Visit from "@/models/Visit";
 import Prescription from "@/models/Prescription";
-import { openaiClient } from "@/lib/openai";
+import { getOpenAIClient, isOpenAIConfigured } from "@/lib/openai";
 import { requireAuth } from "@/lib/apiAuth";
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -204,7 +204,7 @@ ${visit.followUpDate ? `Follow-up scheduled for: ${visit.followUpDate.toISOStrin
       };
 
       // Check if API key is configured
-      if (!process.env.OPENAI_API_KEY) {
+      if (!isOpenAIConfigured()) {
         // Generate fallback summary if no API key
         const summary = generateFallbackSummary();
         await updateSummary(summary);
@@ -215,7 +215,7 @@ ${visit.followUpDate ? `Follow-up scheduled for: ${visit.followUpDate.toISOStrin
       }
 
       try {
-        const completion = await openaiClient.chat.completions.create({
+        const completion = await getOpenAIClient().chat.completions.create({
           model: "gpt-3.5-turbo",
           messages: [{ role: "user", content: prompt }],
           temperature: 0.2,
