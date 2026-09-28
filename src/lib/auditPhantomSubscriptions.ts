@@ -1,4 +1,4 @@
-import "dotenv/config";
+import "./loadEnv";
 import { connectDB } from "./db";
 import Subscription from "../models/Subscription";
 import Clinic from "../models/Clinic";
