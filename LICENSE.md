@@ -2,7 +2,7 @@
 
 **Product:** Clinic SaaS Starter (the "Software")
 **Licensor:** Bassil Alqadi ("Licensor", "we", "us")
-**Version:** 1.0 — effective [DATE]
+**Version:** 1.0 — effective 2026
 
 This Agreement is a legal contract between you (the "Licensee") and the
 Licensor. By downloading, installing, copying, or otherwise using the
@@ -236,7 +236,7 @@ survive termination.
 - **Assignment.** You may not assign this Agreement without the Licensor's
   prior written consent.
 - **Governing law.** This Agreement is governed by the laws of
-  [YOUR JURISDICTION], without regard to conflict-of-law principles.
+  SW Publication Laws, without regard to conflict-of-law principles.
 
 ---
 
